@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codex CLI Windows 安裝與疑難排解技術文章</title>
+  <meta name="description" content="Microsoft Store 安裝失敗、PowerShell 執行原則、npm/codex 指令排除完整筆記。" />
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --paper: #ffffff;
+      --ink: #142033;
+      --muted: #607089;
+      --line: #dfe7f3;
+      --brand: #2457d6;
+      --brand-2: #18a999;
+      --brand-3: #7c3aed;
+      --danger: #b42318;
+      --warning-bg: #fff7ed;
+      --code-bg: #101828;
+      --code-ink: #e6edf7;
+      --shadow: 0 18px 50px rgba(20,32,51,.10);
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif; color: var(--ink); background: radial-gradient(circle at top left, #e8f0ff 0, transparent 34rem), linear-gradient(180deg, #f6f8ff 0%, var(--bg) 45%, #eef4f8 100%); line-height: 1.75; }
+    a { color: inherit; }
+    .hero { position: relative; overflow: hidden; padding: 56px 24px 36px; background: linear-gradient(135deg, #102a68 0%, #214cc5 48%, #0f9b8e 100%); color: white; }
+    .hero::after { content: ""; position: absolute; inset: auto -14rem -16rem auto; width: 34rem; height: 34rem; border-radius: 999px; background: rgba(255,255,255,.14); }
+    .hero-inner { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1.25fr .75fr; gap: 30px; align-items: center; position: relative; z-index: 1; }
+    .badge { display: inline-flex; gap: 8px; align-items: center; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.14); padding: 6px 12px; border-radius: 999px; font-size: .92rem; backdrop-filter: blur(8px); }
+    h1 { font-size: clamp(2rem, 5vw, 4rem); line-height: 1.08; margin: 18px 0 12px; letter-spacing: -.04em; }
+    .subtitle { font-size: clamp(1.05rem, 2vw, 1.35rem); color: rgba(255,255,255,.86); margin: 0; max-width: 760px; }
+    .hero-panel { background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.28); border-radius: var(--radius); padding: 22px; backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,.18); }
+    .hero-panel h2 { margin: 0 0 14px; font-size: 1.2rem; }
+    .mini-flow { display: grid; gap: 12px; }
+    .flow-step { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.14); }
+    .flow-step span:first-child { font-size: 1.45rem; }
+    .layout { max-width: 1160px; margin: -22px auto 56px; padding: 0 24px; display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; align-items: start; }
+    .toc { position: sticky; top: 16px; z-index: 2; background: rgba(255,255,255,.88); backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); }
+    .toc strong { display: block; margin-bottom: 10px; color: var(--brand); }
+    .toc a { text-decoration: none; display: flex; gap: 8px; align-items: center; padding: 9px 10px; border-radius: 14px; color: #24344d; font-size: .94rem; }
+    .toc a:hover { background: #edf3ff; }
+    main { min-width: 0; }
+    .overview { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); margin-bottom: 22px; }
+    .info-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .info-card { display: flex; gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(180deg, #fff, #f8fbff); }
+    .info-icon, .section-icon { width: 42px; height: 42px; border-radius: 16px; display: grid; place-items: center; background: #eaf2ff; flex: 0 0 auto; font-size: 1.25rem; }
+    .info-card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .info-card p { margin: 0; color: var(--muted); font-size: .96rem; }
+    .doc-section { background: rgba(255,255,255,.94); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(20px, 4vw, 34px); box-shadow: var(--shadow); margin-bottom: 22px; scroll-margin-top: 24px; }
+    .section-title { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+    .section-title h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); line-height: 1.28; }
+    .subhead { font-size: 1.12rem; margin: 24px 0 8px; padding-left: 12px; border-left: 5px solid var(--brand-2); }
+    p { margin: 12px 0; }
+    .cue { color: var(--brand); font-weight: 700; margin: 18px 0 8px; }
+    .code-card { margin: 10px 0 16px; border-radius: 18px; overflow: hidden; background: var(--code-bg); box-shadow: 0 16px 30px rgba(16,24,40,.18); border: 1px solid rgba(255,255,255,.08); }
+    .code-top { display: flex; align-items: center; gap: 8px; padding: 10px 14px; color: #aab6c8; font-size: .82rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: #ff6b6b; }
+    .dot:nth-child(2) { background: #ffd166; }
+    .dot:nth-child(3) { background: #06d6a0; }
+    pre { margin: 0; padding: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    code { color: var(--code-ink); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: .94rem; white-space: pre; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 20px; background: white; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { text-align: left; vertical-align: top; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+    th { background: #eef5ff; color: #1d3f91; font-size: .95rem; }
+    tbody tr:nth-child(even) { background: #fbfdff; }
+    .warn-item { display: flex; gap: 12px; align-items: flex-start; margin: 10px 0; padding: 14px; border-radius: 16px; border: 1px solid #fed7aa; background: var(--warning-bg); }
+    .warn-item p { margin: 0; }
+    .quick-diagram { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
+    .diagram-card { text-align: center; padding: 18px 12px; border-radius: 18px; background: #f1f7ff; border: 1px solid var(--line); }
+    .diagram-card b { display: block; margin-top: 8px; }
+    .references { background: #101828; color: #d9e3f3; }
+    .references .section-title h2 { color: white; }
+    .references li { margin: 8px 0; word-break: break-word; }
+    footer { text-align: center; color: var(--muted); padding: 30px 16px 48px; }
+    @media (max-width: 920px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; margin-top: 20px; }
+      .toc { position: relative; top: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+      .toc strong { grid-column: 1 / -1; }
+      .info-grid { grid-template-columns: 1fr; }
+      .quick-diagram { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .hero { padding: 38px 16px 28px; }
+      .layout { padding: 0 14px; }
+      .toc { display: flex; overflow-x: auto; gap: 8px; padding: 12px; border-radius: 18px; }
+      .toc strong { display: none; }
+      .toc a { white-space: nowrap; flex: 0 0 auto; background: #f5f8ff; }
+      .doc-section, .overview { border-radius: 18px; }
+      .section-title { align-items: flex-start; }
+      table, thead, tbody, th, td, tr { display: block; min-width: 0; width: 100%; }
+      thead { display: none; }
+      .table-wrap { overflow: visible; border: 0; background: transparent; }
+      tr { margin: 0 0 14px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 8px 18px rgba(20,32,51,.06); }
+      td { border-bottom: 1px solid var(--line); padding: 12px 14px; }
+      td:last-child { border-bottom: 0; }
+      td::before { content: attr(data-label); display: block; color: var(--brand); font-weight: 800; font-size: .82rem; margin-bottom: 4px; }
+      .quick-diagram { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; } .hero, .toc { display: none; } .layout { display: block; max-width: none; margin: 0; padding: 0; } .doc-section, .overview { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; } a { text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <span class="badge">🧑‍💻 Windows × Codex CLI 技術文件</span>
+        <h1>Codex CLI Windows 安裝與疑難排解技術文章</h1>
+        <p class="subtitle">Microsoft Store 安裝失敗、PowerShell 執行原則、npm / codex 指令排除完整筆記</p>
+      </div>
+      <aside class="hero-panel" aria-label="安裝流程摘要">
+        <h2>流程總覽</h2>
+        <div class="mini-flow">
+          <div class="flow-step"><span>1️⃣</span><span>確認 Windows / Store 錯誤碼</span></div>
+          <div class="flow-step"><span>2️⃣</span><span>安裝 Node.js 並檢查 npm</span></div>
+          <div class="flow-step"><span>3️⃣</span><span>用 npm.cmd 或 RemoteSigned 解決阻擋</span></div>
+          <div class="flow-step"><span>4️⃣</span><span>啟動 Codex CLI 並進行測試專案</span></div>
+        </div>
+      </aside>
+    </div>
+  </header>
+  <div class="layout">
+    <nav class="toc" aria-label="文件目錄"><strong>文件目錄</strong><a href="#why"><span>🧭</span>為什麼改裝 Codex CLI？</a><a href="#windows"><span>🪟</span>安裝前檢查 Windows 版本</a><a href="#node"><span>🟢</span>安裝 Node.js 與 npm</a><a href="#cmd"><span>🛠️</span>解法一：用 npm.cmd 避開 PowerShell 的 ps1 限制</a><a href="#policy"><span>🔐</span>解法二：將 PowerShell 執行原則改成 RemoteSigned</a><a href="#login"><span>🚀</span>啟動 Codex CLI 並登入</a><a href="#test"><span>🧪</span>第一次測試 Codex CLI</a><a href="#trouble"><span>🧯</span>常見問題與解法總表</a><a href="#quick"><span>⚡</span>建議安裝流程懶人包</a><a href="#security"><span>🛡️</span>安全提醒</a><a href="#conclusion"><span>✅</span>結論</a></nav>
+    <main>
+      <section class="overview">
+        <div class="section-title"><span class="section-icon">📘</span><h2>文件摘要</h2></div>
+        <div class="info-grid"><article class="info-card"><div class="info-icon">🎯</div><div><h3>適用對象</h3><p>想在 Windows 電腦上使用 OpenAI Codex CLI，但 Microsoft Store 版 Codex App 無法安裝、或 PowerShell 執行 npm / codex 時被擋住的使用者。</p></div></article><article class="info-card"><div class="info-icon">💻</div><div><h3>範例環境</h3><p>Windows 11 專業版 21H2、Node.js v24.15.0、PowerShell、cmd.exe。</p></div></article><article class="info-card"><div class="info-icon">📝</div><div><h3>撰寫重點</h3><p>整理一次實際安裝 Codex CLI 的流程，並把錯誤碼、原因與解法整理成可重複操作的技術筆記。</p></div></article></div>
+        <div class="quick-diagram" aria-label="視覺化安裝流程">
+          <div class="diagram-card">🪟<b>Windows Update</b><small>Store 依賴服務</small></div>
+          <div class="diagram-card">🟢<b>Node.js / npm</b><small>CLI 安裝基礎</small></div>
+          <div class="diagram-card">🔐<b>Execution Policy</b><small>PowerShell 安全限制</small></div>
+          <div class="diagram-card">🚀<b>Codex CLI</b><small>終端機 coding agent</small></div>
+        </div>
+      </section>
+      <section id="why" class="doc-section">
+      <div class="section-title"><span class="section-icon">🧭</span><h2>一、為什麼改裝 Codex CLI？</h2></div>
+      <p>一開始使用者嘗試從 Microsoft Store 安裝 Codex 桌面版，但畫面出現「發生錯誤」。點選「查看詳細資料」後，出現：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>開啟 Windows Update
+Windows Update 已停用。您可以在「設定」中執行「Windows Update 疑難排解工具」來修復 Windows Update。
+代碼：0x80070422</code></pre></div><p>這個錯誤通常代表 Windows Update 相關服務被停用或沒有正常啟動。Microsoft Store 安裝 App 時需要依賴 Windows Update、BITS、Delivery Optimization 等背景服務，因此當 Windows Update 被停用時，Store 版 Codex 就可能無法下載或安裝。</p><p>因此，短期可行方案是：先安裝 Codex CLI 終端機版本。Codex CLI 是 OpenAI 的命令列 coding agent，可在本機終端機中讀取、修改與執行指定資料夾中的程式碼。OpenAI 官方文件說明，ChatGPT Plus、Pro、Business、Edu、Enterprise 方案包含 Codex 使用權；也可選擇使用 API key 依用量計費。[1]</p>
+    </section><section id="windows" class="doc-section">
+      <div class="section-title"><span class="section-icon">🪟</span><h2>二、安裝前檢查 Windows 版本</h2></div>
+      <h3 class="subhead">1. 使用 winver 查看版本</h3><p class="cue">按下：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Win + R</code></pre></div><p class="cue">輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>winver</code></pre></div><p class="cue">範例查詢結果：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Windows 11 專業版
+版本：21H2
+OS 組建：22000.318</code></pre></div><p>這代表電腦是 Windows 11，但版本偏早。若 Microsoft Store 安裝 App 出問題，仍建議後續修復 Windows Update，將系統更新到較新的版本。不過在本次情境中，Codex CLI 的安裝主要卡在 PowerShell 執行原則，而不是 Windows 版本本身。</p>
+    </section><section id="node" class="doc-section">
+      <div class="section-title"><span class="section-icon">🟢</span><h2>三、安裝 Node.js 與 npm</h2></div>
+      <p>Codex CLI 可透過 npm 安裝。npm 會跟著 Node.js 一起安裝。</p><h3 class="subhead">1. 安裝 Node.js</h3><p>到 Node.js 官方網站下載 LTS 或目前穩定版本，安裝時保留預設選項即可。</p><h3 class="subhead">2. 檢查 Node.js</h3><p class="cue">在 PowerShell 輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>node -v</code></pre></div><p class="cue">本次範例顯示：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>v24.15.0</code></pre></div><p>代表 Node.js 已安裝成功。</p><h3 class="subhead">3. 檢查 npm 時遇到錯誤</h3><p class="cue">接著輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>npm -v</code></pre></div><p class="cue">畫面出現：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>npm : 因為這個系統上已停用指令碼執行，所以無法載入 C:\Program Files\nodejs\npm.ps1 檔案。
+CategoryInfo          : SecurityError
+FullyQualifiedErrorId : UnauthorizedAccess</code></pre></div><p>這不是 npm 沒有安裝，而是 PowerShell 的 Execution Policy（執行原則）阻擋 .ps1 指令碼執行。Microsoft 文件說明，PowerShell 執行原則是一種安全功能，用來控制 PowerShell 載入設定檔與執行指令碼的條件，可降低惡意指令碼執行的風險。[2]</p>
+    </section><section id="cmd" class="doc-section">
+      <div class="section-title"><span class="section-icon">🛠️</span><h2>四、解法一：用 npm.cmd 避開 PowerShell 的 ps1 限制</h2></div>
+      <p>在 Windows 中，npm 通常同時有 .ps1 與 .cmd 版本。PowerShell 預設可能優先呼叫 npm.ps1，因此被執行原則擋住。可以改用：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>npm.cmd -v</code></pre></div><p class="cue">如果能看到 npm 版本號，就可以直接安裝 Codex CLI：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>npm.cmd install -g @openai/codex</code></pre></div><p class="cue">官方 GitHub README 也列出全域安裝指令：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>npm i -g @openai/codex</code></pre></div><p class="cue">安裝完成後，在 PowerShell 中若直接輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>codex --version</code></pre></div><p class="cue">仍可能出現：</p><p>codex : 因為這個系統上已停用指令碼執行，所以無法載入 C:\Users\user\AppData\Roaming\npm\codex.ps1 檔案。</p><p class="cue">這時可改用：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>codex.cmd --version</code></pre></div><p class="cue">或直接在 cmd.exe 中執行：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>codex</code></pre></div><p>本次實際安裝流程中，切換到 cmd.exe 後成功進入 Codex CLI 登入畫面。</p>
+    </section><section id="policy" class="doc-section">
+      <div class="section-title"><span class="section-icon">🔐</span><h2>五、解法二：將 PowerShell 執行原則改成 RemoteSigned</h2></div>
+      <p>若希望之後可以直接在 PowerShell 輸入 npm、npx、codex，而不用每次加 .cmd，可將目前使用者的 PowerShell 執行原則改成 RemoteSigned。</p><h3 class="subhead">1. 設定指令</h3><p class="cue">開啟 PowerShell，輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre></div><p class="cue">若出現確認訊息：</p><p>Do you want to change the execution policy?
+[Y] Yes  [A] Yes to All  [N] No ...</p><p class="cue">請輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Y</code></pre></div><p>然後按 Enter。</p><h3 class="subhead">2. 查詢設定是否成功</h3><p class="cue">輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Get-ExecutionPolicy -List</code></pre></div><p class="cue">若看到：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Scope           ExecutionPolicy
+-----           ---------------
+CurrentUser     RemoteSigned</code></pre></div><p>代表目前使用者範圍已設定完成。Microsoft 官方 Set-ExecutionPolicy 文件說明，此 Cmdlet 可變更 Windows 電腦上的 PowerShell 執行原則；-Scope CurrentUser 表示只針對目前使用者生效。[3]</p><h3 class="subhead">3. 重新開啟 PowerShell 後測試</h3><p class="cue">關閉 PowerShell，再重新開啟，輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>npm -v
+codex --version</code></pre></div><p class="cue">如果兩者都能正常顯示版本資訊，代表問題已解除。之後即可直接輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>codex</code></pre></div>
+    </section><section id="login" class="doc-section">
+      <div class="section-title"><span class="section-icon">🚀</span><h2>六、啟動 Codex CLI 並登入</h2></div>
+      <p class="cue">安裝成功後，在終端機輸入：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>codex</code></pre></div><p class="cue">會看到類似畫面：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Welcome to Codex, OpenAI&#x27;s command-line coding agent
+
+Sign in with ChatGPT to use Codex as part of your paid plan
+or connect an API key for usage-based billing
+
+1. Sign in with ChatGPT
+2. Sign in with Device Code
+3. Provide your own API key
+
+Press enter to continue</code></pre></div><h3 class="subhead">建議選項</h3><p class="cue">一般使用者建議選：</p><h3 class="subhead">1. Sign in with ChatGPT</h3><p class="cue">如果終端機無法自動開啟瀏覽器，或想用另一台裝置登入，可選：</p><h3 class="subhead">2. Sign in with Device Code</h3><p class="cue">若使用 OpenAI API Key 並接受依用量計費，則選：</p><h3 class="subhead">3. Provide your own API key</h3>
+    </section><section id="test" class="doc-section">
+      <div class="section-title"><span class="section-icon">🧪</span><h2>七、第一次測試 Codex CLI</h2></div>
+      <p>建議先建立測試資料夾，不要一開始就在重要專案中操作。</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>mkdir C:\codex-test
+cd C:\codex-test
+codex</code></pre></div><p class="cue">進入 Codex 後可輸入：</p><p>請幫我建立一個簡單的 HTML 網頁，主題是「月相變化教學」，包含標題、四個月相卡片與簡單說明。</p><p>這樣可以確認 Codex 是否能在目前資料夾中建立或修改檔案。</p>
+    </section><section id="trouble" class="doc-section">
+      <div class="section-title"><span class="section-icon">🧯</span><h2>八、常見問題與解法總表</h2></div>
+      <p>以下將常見錯誤依「問題畫面／可能原因／解法」整理，方便快速定位問題。</p><div class="table-wrap"><table class="responsive-table"><thead><tr><th>問題畫面 / 錯誤訊息</th><th>可能原因</th><th>解法</th></tr></thead><tbody><tr><td data-label="問題畫面 / 錯誤訊息">Microsoft Store 安裝 Codex 顯示「發生錯誤」</td><td data-label="可能原因">Store 安裝流程失敗</td><td data-label="解法">點「查看詳細資料」確認錯誤碼</td></tr><tr><td data-label="問題畫面 / 錯誤訊息">代碼：0x80070422</td><td data-label="可能原因">Windows Update 服務被停用或未啟動</td><td data-label="解法">開啟 services.msc，啟動 Windows Update；或執行 Windows Update 疑難排解</td></tr><tr><td data-label="問題畫面 / 錯誤訊息">npm.ps1 cannot be loaded because running scripts is disabled</td><td data-label="可能原因">PowerShell 執行原則阻擋 .ps1</td><td data-label="解法">改用 npm.cmd，或將 CurrentUser 改成 RemoteSigned</td></tr><tr><td data-label="問題畫面 / 錯誤訊息">codex.ps1 cannot be loaded because running scripts is disabled</td><td data-label="可能原因">Codex 已安裝，但 PowerShell 擋住 codex.ps1</td><td data-label="解法">改用 codex.cmd、改用 cmd.exe、或設定 RemoteSigned</td></tr><tr><td data-label="問題畫面 / 錯誤訊息">codex 找不到指令</td><td data-label="可能原因">npm 全域安裝路徑尚未載入或 PATH 未更新</td><td data-label="解法">關閉並重開終端機；確認 AppData\Roaming\npm 是否在 PATH</td></tr><tr><td data-label="問題畫面 / 錯誤訊息">登入畫面要求 ChatGPT / Device Code / API Key</td><td data-label="可能原因">正常現象</td><td data-label="解法">Plus / Pro 等方案可選 ChatGPT 登入；開發者可使用 API Key</td></tr></tbody></table></div>
+    </section><section id="quick" class="doc-section">
+      <div class="section-title"><span class="section-icon">⚡</span><h2>九、建議安裝流程懶人包</h2></div>
+      <h3 class="subhead">A. 最穩定流程：先用 cmd.exe</h3><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>node -v
+npm.cmd -v
+npm.cmd install -g @openai/codex
+codex</code></pre></div><h3 class="subhead">B. PowerShell 可長期使用流程</h3><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+npm -v
+npm install -g @openai/codex
+codex --version
+codex</code></pre></div><h3 class="subhead">C. 已安裝但 PowerShell 被擋時</h3><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>codex.cmd --version
+codex.cmd</code></pre></div>
+    </section><section id="security" class="doc-section">
+      <div class="section-title"><span class="section-icon">🛡️</span><h2>十、安全提醒</h2></div>
+      <div class="warn-item"><span>⚠️</span><p>RemoteSigned 建議設定在 CurrentUser 範圍，不要一開始就改整台電腦的 LocalMachine。</p></div><div class="warn-item"><span>⚠️</span><p>不要執行來源不明的 .ps1 腳本。</p></div><div class="warn-item"><span>⚠️</span><p>Codex CLI 可以讀取、修改與執行目前專案資料夾中的程式碼，因此第一次使用建議從測試資料夾開始。</p></div><div class="warn-item"><span>⚠️</span><p>在正式專案中使用前，建議先建立版本控制，例如 Git repository，方便還原修改。</p></div><div class="warn-item"><span>⚠️</span><p>不要把 API Key、密碼、學校系統帳密直接貼進 Codex 對話或專案檔案中。</p></div>
+    </section><section id="conclusion" class="doc-section">
+      <div class="section-title"><span class="section-icon">✅</span><h2>十一、結論</h2></div>
+      <p>本次安裝過程中，真正遇到的問題有兩層：</p><p>第一層是 Microsoft Store 版 Codex App 因 0x80070422 無法安裝，原因可能與 Windows Update 服務被停用有關。第二層是 Codex CLI 安裝後，在 PowerShell 中執行 npm、npx、codex 時被 .ps1 執行原則擋住。</p><p class="cue">最簡單的解法是：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>npm.cmd install -g @openai/codex
+codex</code></pre></div><p class="cue">若要讓 PowerShell 長期順利使用，則建議設定：</p><div class="code-card"><div class="code-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Terminal</span></div><pre><code>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned</code></pre></div><p>設定完成後，Codex CLI 就可以成為 Windows 上進行 AI 程式開發、教材互動網頁設計、App 原型製作與 GitHub 部署前測試的重要工具。</p>
+    </section>
+      <section class="doc-section references" id="refs">
+        <div class="section-title"><span class="section-icon">🔗</span><h2>參考資料</h2></div>
+        <ol><li>[1] OpenAI Developers：Codex CLI。https://developers.openai.com/codex/cli</li><li>[2] Microsoft Learn：about_Execution_Policies。https://learn.microsoft.com/zh-tw/powershell/module/microsoft.powershell.core/about/about_execution_policies</li><li>[3] Microsoft Learn：Set-ExecutionPolicy。https://learn.microsoft.com/zh-tw/powershell/module/microsoft.powershell.security/set-executionpolicy</li><li>[4] OpenAI GitHub：openai/codex。https://github.com/openai/codex</li></ol>
+      </section>
+    </main>
+  </div>
+  <footer>本網頁由原始 Word 技術文章轉換與版面強化，支援電腦、平板、手機與列印閱讀。</footer>
+</body>
+</html>
