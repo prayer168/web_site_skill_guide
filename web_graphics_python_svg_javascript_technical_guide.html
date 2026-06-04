@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>網頁繪圖技術選型指南：Python、SVG、JavaScript 的角色與使用時機</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ef;
+      --brand: #2563eb;
+      --brand-soft: #eaf1ff;
+      --green: #0f766e;
+      --green-soft: #e6fffb;
+      --purple: #7c3aed;
+      --purple-soft: #f3e8ff;
+      --orange: #c2410c;
+      --orange-soft: #fff7ed;
+      --code-bg: #111827;
+      --code-ink: #f9fafb;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.75;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, .14), transparent 36rem),
+        radial-gradient(circle at top right, rgba(124, 58, 237, .12), transparent 28rem),
+        var(--bg);
+    }
+
+    a {
+      color: var(--brand);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 80px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(37, 99, 235, .98), rgba(15, 118, 110, .95));
+      color: #fff;
+      border-radius: 28px;
+      padding: clamp(28px, 5vw, 58px);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.16);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.18;
+      margin: 0 0 18px;
+      letter-spacing: .02em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      max-width: 820px;
+      margin: 0;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      opacity: .95;
+      position: relative;
+      z-index: 1;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.28);
+      font-size: .95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin: 22px 0;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 1.35rem;
+    }
+
+    .section {
+      margin-top: 28px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: clamp(20px, 4vw, 34px);
+      box-shadow: var(--shadow);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      border-left: 8px solid var(--brand);
+      padding-left: 14px;
+    }
+
+    .section h3 {
+      margin-top: 32px;
+      font-size: 1.35rem;
+    }
+
+    .lead {
+      color: #374151;
+      font-size: 1.08rem;
+    }
+
+    .note {
+      border-radius: 16px;
+      padding: 16px 18px;
+      background: var(--brand-soft);
+      border: 1px solid #bfdbfe;
+      margin: 18px 0;
+    }
+
+    .note.green {
+      background: var(--green-soft);
+      border-color: #99f6e4;
+    }
+
+    .note.purple {
+      background: var(--purple-soft);
+      border-color: #ddd6fe;
+    }
+
+    .note.orange {
+      background: var(--orange-soft);
+      border-color: #fed7aa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: #fff;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+
+    th, td {
+      padding: 13px 14px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: .86rem;
+      font-weight: 700;
+      background: #eef2ff;
+      color: #3730a3;
+      margin-right: 4px;
+    }
+
+    pre {
+      overflow-x: auto;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      padding: 18px;
+      border-radius: 16px;
+      font-size: .93rem;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    .demo-wrap {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .demo-panel {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, .24);
+    }
+
+    button:hover {
+      filter: brightness(.95);
+    }
+
+    .outline {
+      background: #fff;
+      color: var(--brand);
+      border: 1px solid #bfdbfe;
+      box-shadow: none;
+    }
+
+    .beaker-label {
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .flow-item {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .flow-item strong {
+      display: block;
+      color: var(--brand);
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0 0;
+    }
+
+    .toc a {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #334155;
+    }
+
+    .source-list li {
+      margin-bottom: 8px;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 34px;
+      font-size: .95rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: .94rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .demo-wrap,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      th {
+        white-space: normal;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero, .section, .card {
+        box-shadow: none;
+      }
+
+      button, .toc {
+        display: none;
+      }
+
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>網頁繪圖技術選型指南：Python、SVG、JavaScript 的角色與使用時機</h1>
+      <p>
+        本文件整理網頁製作中常見的靜態繪圖、互動動畫、資料視覺化與教材開發情境，
+        說明 Python、SVG、JavaScript 各自扮演的角色，並提供適合國小自然互動教材與 GitHub Pages 部署的實務建議。
+      </p>
+      <div class="meta">
+        <span class="pill">適用：HTML / RWD / GitHub Pages</span>
+        <span class="pill">主題：靜態繪圖、動態繪圖、互動教材</span>
+        <span class="pill">更新：2026-06-04</span>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="目錄">
+      <a href="#summary">一頁看懂</a>
+      <a href="#roles">三者角色</a>
+      <a href="#timing">使用時機</a>
+      <a href="#canvas">Canvas 補充</a>
+      <a href="#workflow">教材流程</a>
+      <a href="#demo">互動範例</a>
+      <a href="#decision">選型決策表</a>
+      <a href="#sources">參考資料</a>
+    </nav>
+
+    <section id="summary" class="section">
+      <h2>一頁看懂：三者不是互相取代，而是分工合作</h2>
+      <p class="lead">
+        在網頁繪圖中，最容易混淆的是「誰負責畫圖？」、「誰負責互動？」、「誰負責資料處理？」。
+        實務上可以先記住這句話：
+      </p>
+
+      <div class="grid">
+        <article class="card">
+          <h3>SVG：負責畫出可縮放圖形</h3>
+          <p>適合圖示、流程圖、科學示意圖、電路圖、燒杯、試管、箭頭、標籤等。它是向量圖形，放大後不容易模糊。</p>
+        </article>
+        <article class="card">
+          <h3>JavaScript：負責讓圖形動起來</h3>
+          <p>適合點擊、拖曳、滑桿、即時變色、動畫、模擬、小遊戲、互動測驗。它控制網頁上的 HTML、SVG 或 Canvas。</p>
+        </article>
+        <article class="card">
+          <h3>Python：負責資料與後端</h3>
+          <p>適合分析實驗數據、批次產生 HTML/SVG、製作圖表、建立 API、連接資料庫、接 AI 模型。通常不直接取代瀏覽器端互動。</p>
+        </article>
+      </div>
+
+      <div class="note">
+        <strong>給教材製作者的快速結論：</strong>
+        若要部署在 GitHub Pages，最穩定的組合是
+        <strong>HTML + CSS + JavaScript + SVG</strong>。
+        Python 則建議放在「製作前處理」或「後端服務」階段使用。
+      </div>
+    </section>
+
+    <section id="roles" class="section">
+      <h2>三種工具在網頁中的主要角色</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>工具</th>
+            <th>核心角色</th>
+            <th>最適合的任務</th>
+            <th>在網頁中的位置</th>
+            <th>常見搭配</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>SVG</strong></td>
+            <td>向量圖形描述語言</td>
+            <td>圖示、示意圖、流程圖、教材插圖、可縮放圖形</td>
+            <td>可直接寫在 HTML 裡，也可獨立成 .svg 檔</td>
+            <td>HTML、CSS、JavaScript、D3.js</td>
+          </tr>
+          <tr>
+            <td><strong>JavaScript</strong></td>
+            <td>瀏覽器端互動控制語言</td>
+            <td>點擊、拖曳、動畫、模擬、互動圖表、遊戲</td>
+            <td>瀏覽器端執行</td>
+            <td>SVG、Canvas、CSS、Chart.js、D3.js</td>
+          </tr>
+          <tr>
+            <td><strong>Python</strong></td>
+            <td>資料處理、後端、自動化與科學運算</td>
+            <td>資料分析、圖表產生、後端 API、AI、批次產生教材</td>
+            <td>通常在伺服器端或製作階段；也可透過 Pyodide 在瀏覽器執行</td>
+            <td>Flask、FastAPI、Pandas、Matplotlib、Plotly、Pyodide</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>SVG 的專業定位</h3>
+      <p>
+        SVG 是 Scalable Vector Graphics，屬於網頁原生支援的向量圖形技術。
+        它可以用 <code>&lt;circle&gt;</code>、<code>&lt;rect&gt;</code>、<code>&lt;path&gt;</code> 等元素描述圖形，
+        也可以被 CSS 與 JavaScript 操作。MDN 文件明確指出 SVG 可用 JavaScript 建立與操作，適合處理互動與嵌入式 SVG 內容。
+      </p>
+
+      <pre><code>&lt;svg viewBox="0 0 300 160" role="img" aria-label="燒杯示意圖"&gt;
+  &lt;rect x="90" y="40" width="120" height="90" rx="10" fill="none" stroke="#333" /&gt;
+  &lt;rect x="100" y="82" width="100" height="42" fill="#8b5cf6" opacity="0.75" /&gt;
+  &lt;text x="150" y="150" text-anchor="middle"&gt;紫色高麗菜汁&lt;/text&gt;
+&lt;/svg&gt;</code></pre>
+
+      <h3>JavaScript 的專業定位</h3>
+      <p>
+        JavaScript 是瀏覽器端互動的核心。它可以操作 DOM，也可以控制 SVG 或 Canvas。
+        當學生按下按鈕、拖曳物件、調整滑桿、即時改變液體顏色時，背後通常就是 JavaScript。
+      </p>
+
+      <pre><code>function changeLiquid(color, label) {
+  document.querySelector("#liquid").setAttribute("fill", color);
+  document.querySelector("#result").textContent = label;
+}</code></pre>
+
+      <h3>Python 的專業定位</h3>
+      <p>
+        Python 在網頁教材中通常不是拿來直接畫前端互動，而是處理資料、產生內容或提供後端服務。
+        Flask 官方文件將 Flask 定位為輕量級 WSGI 網頁應用框架，適合快速建立 Python 後端。
+        若需要在瀏覽器中直接執行 Python，Pyodide 透過 WebAssembly 將 CPython 帶到瀏覽器，並支援部分科學套件。
+      </p>
+
+      <pre><code># Python：將實驗資料整理成網頁可讀的 JSON
+import json
+
+data = [
+    {"solution": "醋", "type": "酸性", "color": "紅色"},
+    {"solution": "純水", "type": "中性", "color": "紫色"},
+    {"solution": "小蘇打水", "type": "鹼性", "color": "藍綠色"}
+]
+
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)</code></pre>
+    </section>
+
+    <section id="timing" class="section">
+      <h2>什麼時機使用 SVG、JavaScript、Python？</h2>
+
+      <h3>1. 只需要清楚的靜態示意圖：優先 SVG</h3>
+      <p>
+        如果目標是畫出科學概念，例如電路圖、磁力線、植物構造、月相位置、實驗流程，
+        而且希望在手機、平板、投影幕上放大都清楚，SVG 是優先選擇。
+      </p>
+      <div class="note green">
+        <strong>適用範例：</strong>
+        紫色高麗菜汁實驗示意圖、酸性/中性/鹼性三欄整理圖、電池與燈泡連接示意、昆蟲旅館構造圖。
+      </div>
+
+      <h3>2. 需要點擊、拖拉、變色、動畫：SVG + JavaScript</h3>
+      <p>
+        如果圖形本身不複雜，但希望學生可以操作，例如「點醋，燒杯變紅」、「拖曳小蘇打水到試管」，
+        建議用 SVG 繪製畫面，再用 JavaScript 控制互動。
+      </p>
+      <div class="note purple">
+        <strong>適用範例：</strong>
+        酸鹼指示劑變色、月相拖曳排序、電路開關互動、磁鐵吸引物品分類。
+      </div>
+
+      <h3>3. 需要大量資料、統計、圖表：Python 先處理，前端再呈現</h3>
+      <p>
+        當資料量增加，例如全班實驗紀錄、問卷、科展測量數據、聲音波形數據，
+        可先用 Python 的 Pandas、Matplotlib、Plotly 等工具處理與產生圖表。
+        Plotly Python 文件指出，互動圖表可以匯出成 HTML 檔，讓瀏覽器直接開啟。
+      </p>
+      <div class="note orange">
+        <strong>適用範例：</strong>
+        雨聲筒波形分析、植物生長紀錄圖、科展問卷統計、班級實驗結果視覺化。
+      </div>
+
+      <h3>4. 需要後端、登入、資料庫或 AI：Python 後端</h3>
+      <p>
+        如果網站需要儲存學生作答、產生個人化回饋、連接 AI 模型、讀寫資料庫，
+        單純 GitHub Pages 就不夠，這時可以用 Flask、FastAPI 或其他後端框架。
+        不過一旦加入後端，就需要部署到支援伺服器的環境，例如 Render、Railway、Zeabur、Cloud Run 或自架伺服器。
+      </p>
+
+      <h3>5. 想在瀏覽器中直接跑 Python：考慮 Pyodide，但要小心載入成本</h3>
+      <p>
+        Pyodide 可以讓 Python 在瀏覽器執行，適合科學計算展示、Python 教學、離線小型運算。
+        但它通常比單純 JavaScript 檔案更重，對國小教材而言，除非真的需要 Python 生態系，否則不一定是第一選擇。
+      </p>
+    </section>
+
+    <section id="canvas" class="section">
+      <h2>補充：Canvas 什麼時候比 SVG 更適合？</h2>
+      <p>
+        雖然本文件主軸是 Python、SVG、JavaScript，但網頁動畫常會遇到另一個選項：Canvas。
+        MDN 將 Canvas API 說明為透過 JavaScript 與 <code>&lt;canvas&gt;</code> 元素繪製圖形的方式，
+        可用於動畫、遊戲圖形、資料視覺化、照片處理與即時影像處理。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>比較項目</th>
+            <th>SVG</th>
+            <th>Canvas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>圖形本質</td>
+            <td>向量圖形，每個圖形元素都是 DOM 節點</td>
+            <td>像素畫布，畫完後不保留每個物件的 DOM 節點</td>
+          </tr>
+          <tr>
+            <td>放大清晰度</td>
+            <td>通常較清晰，適合 RWD 與投影</td>
+            <td>需要處理解析度與縮放，否則可能模糊</td>
+          </tr>
+          <tr>
+            <td>互動控制</td>
+            <td>可直接選取某個圖形元素，例如某個燒杯、按鈕、箭頭</td>
+            <td>需自行計算滑鼠座標與物件碰撞</td>
+          </tr>
+          <tr>
+            <td>適合情境</td>
+            <td>圖示、流程圖、少量物件互動、教材示意圖</td>
+            <td>大量粒子、遊戲、連續動畫、影像處理、模擬大量物件</td>
+          </tr>
+          <tr>
+            <td>國小教材建議</td>
+            <td>多數互動教材優先選擇</td>
+            <td>做遊戲型或大量動畫時再考慮</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="workflow" class="section">
+      <h2>建議教材開發流程：從教案到互動網頁</h2>
+
+      <div class="flow">
+        <div class="flow-item"><strong>1</strong>確認學習目標</div>
+        <div class="flow-item"><strong>2</strong>決定圖像類型</div>
+        <div class="flow-item"><strong>3</strong>選擇互動方式</div>
+        <div class="flow-item"><strong>4</strong>製作資料與素材</div>
+        <div class="flow-item"><strong>5</strong>部署與測試</div>
+      </div>
+
+      <h3>以「紫色高麗菜汁變色」互動教材為例</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>教材需求</th>
+            <th>建議工具</th>
+            <th>理由</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>畫燒杯、滴管、試管、液面</td>
+            <td><span class="tag">SVG</span></td>
+            <td>線條清楚、可縮放、容易被 JavaScript 控制顏色。</td>
+          </tr>
+          <tr>
+            <td>按下「加入醋」後變紅</td>
+            <td><span class="tag">JavaScript</span><span class="tag">SVG</span></td>
+            <td>JavaScript 變更 SVG 的 <code>fill</code> 屬性即可完成。</td>
+          </tr>
+          <tr>
+            <td>學生拖曳試劑到燒杯</td>
+            <td><span class="tag">JavaScript</span></td>
+            <td>需要處理拖拉事件、碰撞區域、結果判斷。</td>
+          </tr>
+          <tr>
+            <td>將學生操作結果存在網頁內</td>
+            <td><span class="tag">JavaScript</span><span class="tag">LocalStorage</span></td>
+            <td>小型單機教材可直接存在瀏覽器，不需要後端。</td>
+          </tr>
+          <tr>
+            <td>彙整全班實驗結果</td>
+            <td><span class="tag">Python</span><span class="tag">CSV</span></td>
+            <td>適合用 Python 做資料清理、統計與圖表。</td>
+          </tr>
+          <tr>
+            <td>老師想批次產生多個單元網頁</td>
+            <td><span class="tag">Python</span><span class="tag">模板</span></td>
+            <td>可用 Python 將單元資料套入 HTML 模板，自動產生多份教材。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>實務建議：</strong>
+        先不要一開始就做很複雜的後端。
+        若教材主要是展示、操作、互動、練習，先用 HTML + CSS + JavaScript + SVG 完成，最容易部署到 GitHub Pages。
+      </div>
+    </section>
+
+    <section id="demo" class="section">
+      <h2>互動範例：SVG 畫燒杯，JavaScript 控制變色</h2>
+      <p>
+        下方是一個簡化版示例：SVG 負責畫出燒杯與液體，JavaScript 負責根據按鈕改變液體顏色與文字。
+        這種模式很適合國小自然互動教材。
+      </p>
+
+      <div class="demo-wrap">
+        <div class="demo-panel">
+          <svg viewBox="0 0 360 260" width="100%" role="img" aria-label="紫色高麗菜汁變色互動示意">
+            <defs>
+              <linearGradient id="glass" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#dbeafe" stop-opacity="0.35"/>
+              </linearGradient>
+            </defs>
+            <rect x="115" y="42" width="130" height="176" rx="16" fill="url(#glass)" stroke="#334155" stroke-width="4"/>
+            <line x1="118" y1="82" x2="242" y2="82" stroke="#64748b" stroke-width="3"/>
+            <rect id="liquid" x="126" y="126" width="108" height="82" rx="9" fill="#8b5cf6" opacity="0.82"/>
+            <path id="wave" d="M128 128 C150 118, 170 138, 192 128 S220 118, 234 128" fill="none" stroke="#ffffff" stroke-width="5" opacity=".7"/>
+            <text x="180" y="244" text-anchor="middle" font-size="18" fill="#334155">紫色高麗菜汁</text>
+            <circle cx="285" cy="62" r="9" fill="#93c5fd"/>
+            <path d="M277 70 C260 92, 246 105, 235 126" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+          <div class="beaker-label" id="result">目前：中性或未加入其他水溶液，呈現紫色</div>
+        </div>
+
+        <div class="demo-panel">
+          <h3>操作看看</h3>
+          <p>按下不同試劑，觀察燒杯液體顏色如何變化。</p>
+          <div class="buttons">
+            <button onclick="setLiquid('#ef4444','加入醋或檸檬汁：偏酸性，常見紅色或粉紅色變化')">加入酸性水溶液</button>
+            <button onclick="setLiquid('#8b5cf6','加入純水：接近中性，維持紫色')">加入純水</button>
+            <button onclick="setLiquid('#0ea5a4','加入小蘇打水：偏鹼性，常見藍綠色變化')">加入鹼性水溶液</button>
+            <button class="outline" onclick="setLiquid('#8b5cf6','目前：中性或未加入其他水溶液，呈現紫色')">重設</button>
+          </div>
+          <p class="small">
+            實際顏色會受濃度、材料、比例、光線、萃取方式影響。國小階段可先聚焦在「不同水溶液會讓指示劑顏色改變」的觀察與歸納。
+          </p>
+        </div>
+      </div>
+
+      <pre><code>&lt;button onclick="setLiquid('#ef4444', '加入酸性水溶液：變紅')"&gt;加入酸性水溶液&lt;/button&gt;
+
+&lt;svg viewBox="0 0 360 260"&gt;
+  &lt;rect id="liquid" x="126" y="126" width="108" height="82" fill="#8b5cf6" /&gt;
+&lt;/svg&gt;
+
+&lt;script&gt;
+function setLiquid(color, text) {
+  document.querySelector("#liquid").setAttribute("fill", color);
+  document.querySelector("#result").textContent = text;
+}
+&lt;/script&gt;</code></pre>
+    </section>
+
+    <section id="decision" class="section">
+      <h2>選型決策表：遇到需求時怎麼選？</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>需求情境</th>
+            <th>優先工具</th>
+            <th>原因</th>
+            <th>是否適合 GitHub Pages</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>科學示意圖、流程圖、圖示</td>
+            <td>SVG</td>
+            <td>可縮放、清楚、容易嵌入網頁</td>
+            <td>非常適合</td>
+          </tr>
+          <tr>
+            <td>按鈕變色、拖拉、互動測驗</td>
+            <td>JavaScript + SVG</td>
+            <td>SVG 負責畫面，JavaScript 負責操作</td>
+            <td>非常適合</td>
+          </tr>
+          <tr>
+            <td>大量粒子、遊戲、即時動畫</td>
+            <td>JavaScript + Canvas</td>
+            <td>Canvas 適合高頻率重繪與大量物件</td>
+            <td>適合</td>
+          </tr>
+          <tr>
+            <td>統計圖、科展數據圖</td>
+            <td>Python + Plotly / Matplotlib，或 JavaScript 圖表庫</td>
+            <td>Python 適合資料處理，Plotly 可輸出互動 HTML</td>
+            <td>若輸出靜態 HTML，適合</td>
+          </tr>
+          <tr>
+            <td>自動生成很多單元教材</td>
+            <td>Python + HTML 模板</td>
+            <td>可批次套版，減少重複排版</td>
+            <td>產出的 HTML 適合</td>
+          </tr>
+          <tr>
+            <td>學生登入、儲存成績、全班資料庫</td>
+            <td>Python 後端 + 資料庫</td>
+            <td>需要伺服器處理資料與權限</td>
+            <td>GitHub Pages 不適合單獨完成</td>
+          </tr>
+          <tr>
+            <td>AI 回饋、文字生成、影像辨識</td>
+            <td>Python 後端或外部 API + JavaScript 前端</td>
+            <td>AI 與金鑰不宜直接放在前端</td>
+            <td>通常需要後端</td>
+          </tr>
+          <tr>
+            <td>瀏覽器中教 Python 或跑科學計算</td>
+            <td>Pyodide</td>
+            <td>可在瀏覽器執行 Python，但載入較重</td>
+            <td>可行，但需評估效能</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>國小自然教材的建議分級</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>等級</th>
+            <th>技術組合</th>
+            <th>適合任務</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>入門</td>
+            <td>HTML + CSS + SVG</td>
+            <td>靜態圖文教材、流程圖、實驗步驟圖。</td>
+          </tr>
+          <tr>
+            <td>實用</td>
+            <td>HTML + CSS + JavaScript + SVG</td>
+            <td>互動教材、變色實驗、拖曳分類、簡易動畫。</td>
+          </tr>
+          <tr>
+            <td>進階</td>
+            <td>JavaScript + Canvas / D3.js</td>
+            <td>遊戲、資料互動視覺化、大量動畫。</td>
+          </tr>
+          <tr>
+            <td>專案型</td>
+            <td>Python + 前端網頁 + 後端部署</td>
+            <td>科展資料平台、AI 教材、學生紀錄系統。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="sources" class="section">
+      <h2>參考資料與延伸閱讀</h2>
+      <p>
+        本文件以官方文件與開發者文件為主要依據，並搭配部分技術文章作為 SVG / Canvas 比較參考。
+      </p>
+      <ol class="source-list">
+        <li>MDN Web Docs：<a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank" rel="noopener">SVG: Scalable Vector Graphics</a></li>
+        <li>MDN Web Docs：<a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API" target="_blank" rel="noopener">Canvas API</a></li>
+        <li>MDN Web Docs：<a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas" target="_blank" rel="noopener">HTML &lt;canvas&gt; element</a></li>
+        <li>D3 官方網站：<a href="https://d3js.org/" target="_blank" rel="noopener">D3 by Observable</a></li>
+        <li>D3 GitHub：<a href="https://github.com/d3/d3" target="_blank" rel="noopener">Data-Driven Documents</a></li>
+        <li>Flask 官方文件：<a href="https://flask.palletsprojects.com/" target="_blank" rel="noopener">Welcome to Flask</a></li>
+        <li>Pyodide 官方文件：<a href="https://pyodide.org/" target="_blank" rel="noopener">Pyodide</a></li>
+        <li>Plotly Python 官方文件：<a href="https://plotly.com/python/" target="_blank" rel="noopener">Plotly Python Graphing Library</a></li>
+        <li>Plotly：<a href="https://plotly.com/python/interactive-html-export/" target="_blank" rel="noopener">Interactive HTML Export in Python</a></li>
+        <li>Matplotlib 官方文件：<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html" target="_blank" rel="noopener">matplotlib.pyplot.savefig</a></li>
+        <li>JointJS Blog：<a href="https://www.jointjs.com/blog/svg-versus-canvas" target="_blank" rel="noopener">SVG versus Canvas: Which technology to choose and why?</a></li>
+      </ol>
+    </section>
+
+    <p class="footer">
+      製作建議：若要作為教材網站首頁，可將本檔命名為 <code>index.html</code> 後上傳至 GitHub Pages。
+    </p>
+  </main>
+
+  <script>
+    function setLiquid(color, text) {
+      const liquid = document.querySelector("#liquid");
+      const wave = document.querySelector("#wave");
+      const result = document.querySelector("#result");
+      liquid.setAttribute("fill", color);
+      wave.animate(
+        [
+          { transform: "translateX(0px)" },
+          { transform: "translateX(8px)" },
+          { transform: "translateX(0px)" }
+        ],
+        { duration: 420, iterations: 1, easing: "ease-in-out" }
+      );
+      result.textContent = text;
+    }
+  </script>
+</body>
+</html>
