@@ -26,6 +26,7 @@
 
     html {
       scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
@@ -69,7 +70,7 @@
     h1 {
       max-width: 900px;
       margin: 0;
-      font-size: clamp(2rem, 5vw, 3.75rem);
+      font-size: 3.25rem;
       line-height: 1.18;
       font-weight: 800;
     }
@@ -183,6 +184,7 @@
       border-collapse: collapse;
       margin: 16px 0 24px;
       font-size: 0.95rem;
+      table-layout: auto;
     }
 
     th,
@@ -244,7 +246,7 @@
 
     .source-list {
       padding-left: 1.1rem;
-      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .meta-grid {
@@ -274,14 +276,33 @@
       font-size: 0.92rem;
     }
 
+    @media (max-width: 1040px) {
+      h1 {
+        font-size: 2.65rem;
+      }
+
+      .layout {
+        width: min(100% - 28px, 960px);
+        grid-template-columns: 230px minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      main {
+        padding: 28px;
+      }
+    }
+
     @media (max-width: 860px) {
       .layout {
+        width: min(100% - 24px, 760px);
         grid-template-columns: 1fr;
+        margin-top: 18px;
       }
 
       .toc {
         position: static;
         max-height: none;
+        box-shadow: none;
       }
 
       main {
@@ -295,7 +316,59 @@
       table {
         display: block;
         overflow-x: auto;
-        white-space: nowrap;
+        white-space: normal;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      th,
+      td {
+        min-width: 160px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .header-inner {
+        width: min(100% - 24px, 520px);
+        padding: 30px 0 22px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .layout {
+        width: min(100% - 16px, 520px);
+      }
+
+      .toc {
+        padding: 14px;
+      }
+
+      main {
+        padding: 20px 14px;
+      }
+
+      h2 {
+        font-size: 1.45rem;
+      }
+
+      h3 {
+        font-size: 1.12rem;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2rem;
+      }
+
+      th,
+      td {
+        min-width: 145px;
+        padding: 9px 10px;
       }
     }
   </style>
