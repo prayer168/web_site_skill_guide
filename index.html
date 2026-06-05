@@ -276,6 +276,185 @@
       font-size: 0.92rem;
     }
 
+    .svg-demo {
+      margin: 22px 0 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fbfc;
+      overflow: hidden;
+    }
+
+    .svg-demo figcaption {
+      padding: 12px 16px 16px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .svg-demo svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .sandbox-pulse {
+      animation: sandboxPulse 2.6s ease-in-out infinite;
+    }
+
+    .sandbox-packet {
+      animation: sandboxPacket 3.8s ease-in-out infinite;
+    }
+
+    .sandbox-denied {
+      animation: sandboxDenied 3.8s ease-in-out infinite;
+    }
+
+    .scan-line {
+      animation: scanLine 3.2s ease-in-out infinite;
+    }
+
+    .allowed-call {
+      animation: allowedCall 4s ease-in-out infinite;
+    }
+
+    .blocked-call {
+      animation: blockedCall 4s ease-in-out infinite;
+    }
+
+    .meter-cpu {
+      animation: meterCpu 4s ease-in-out infinite;
+    }
+
+    .meter-memory {
+      animation: meterMemory 4s ease-in-out infinite;
+    }
+
+    .meter-output {
+      animation: meterOutput 4s ease-in-out infinite;
+    }
+
+    @keyframes sandboxPulse {
+      0%, 100% {
+        stroke-width: 4;
+        opacity: 0.9;
+      }
+      50% {
+        stroke-width: 7;
+        opacity: 1;
+      }
+    }
+
+    @keyframes sandboxPacket {
+      0% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+      15%, 80% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(170px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sandboxDenied {
+      0%, 45% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+      55%, 82% {
+        transform: translateX(56px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(56px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes scanLine {
+      0%, 100% {
+        transform: translateY(-34px);
+        opacity: 0.25;
+      }
+      50% {
+        transform: translateY(42px);
+        opacity: 0.9;
+      }
+    }
+
+    @keyframes allowedCall {
+      0% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+      15%, 72% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(255px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes blockedCall {
+      0%, 35% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+      50%, 78% {
+        transform: translateX(112px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(112px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes meterCpu {
+      0%, 100% {
+        width: 54px;
+      }
+      50% {
+        width: 178px;
+      }
+    }
+
+    @keyframes meterMemory {
+      0%, 100% {
+        width: 72px;
+      }
+      50% {
+        width: 210px;
+      }
+    }
+
+    @keyframes meterOutput {
+      0%, 100% {
+        width: 42px;
+      }
+      50% {
+        width: 150px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sandbox-pulse,
+      .sandbox-packet,
+      .sandbox-denied,
+      .scan-line,
+      .allowed-call,
+      .blocked-call,
+      .meter-cpu,
+      .meter-memory,
+      .meter-output {
+        animation: none;
+      }
+    }
+
     @media (max-width: 1040px) {
       h1 {
         font-size: 2.65rem;
@@ -499,6 +678,34 @@
           <li>讓高風險程式即使出錯或被攻擊，也不容易影響整個系統。</li>
         </ul>
         <p>可以把沙盒理解為「最小權限原則」的執行環境版本：程式只拿到完成任務所需的最低能力，其餘能力預設不可用。</p>
+        <figure class="svg-demo" aria-labelledby="sandbox-boundary-title">
+          <svg viewBox="0 0 760 320" role="img">
+            <title id="sandbox-boundary-title">沙盒邊界如何隔離程式與主機資源</title>
+            <rect width="760" height="320" fill="#f8fbfc"></rect>
+            <rect x="36" y="42" width="692" height="236" rx="8" fill="#ffffff" stroke="#d8dee8" stroke-width="2"></rect>
+            <text x="58" y="78" fill="#1c2430" font-size="22" font-weight="700">主機環境 Host</text>
+            <rect x="210" y="94" width="340" height="150" rx="8" fill="#e6f4f1" stroke="#0f766e" stroke-width="4" class="sandbox-pulse"></rect>
+            <text x="290" y="128" fill="#115e59" font-size="22" font-weight="700">沙盒 Sandbox</text>
+            <rect x="302" y="154" width="156" height="54" rx="8" fill="#ffffff" stroke="#115e59" stroke-width="2"></rect>
+            <text x="326" y="188" fill="#1c2430" font-size="18" font-weight="700">不可信程式</text>
+            <rect x="54" y="134" width="130" height="48" rx="6" fill="#eef4f8" stroke="#94a3b8"></rect>
+            <text x="78" y="164" fill="#334155" font-size="16">檔案系統</text>
+            <rect x="586" y="118" width="132" height="48" rx="6" fill="#eef4f8" stroke="#94a3b8"></rect>
+            <text x="626" y="148" fill="#334155" font-size="16">網路</text>
+            <rect x="586" y="188" width="132" height="48" rx="6" fill="#eef4f8" stroke="#94a3b8"></rect>
+            <text x="616" y="218" fill="#334155" font-size="16">硬體資源</text>
+            <g class="sandbox-packet">
+              <circle cx="236" cy="181" r="8" fill="#0f766e"></circle>
+              <text x="250" y="186" fill="#115e59" font-size="14">允許的 API</text>
+            </g>
+            <g class="sandbox-denied">
+              <circle cx="474" cy="181" r="8" fill="#ef4444"></circle>
+              <path d="M488 168 L516 196 M516 168 L488 196" stroke="#ef4444" stroke-width="5" stroke-linecap="round"></path>
+              <text x="526" y="186" fill="#991b1b" font-size="14">未授權阻擋</text>
+            </g>
+          </svg>
+          <figcaption>沙盒讓程式仍可執行，但外部資源必須透過被授權的 API 或 capability 才能存取；未授權的檔案、網路或硬體操作會被邊界擋下。</figcaption>
+        </figure>
         <a class="back-top" href="#top">回到頁首</a>
       </section>
 
@@ -552,6 +759,36 @@
         <h3>4.5 seccomp 系統呼叫過濾</h3>
         <p>seccomp-bpf 可限制程序能呼叫哪些 system call。Linux kernel 文件特別提醒：系統呼叫過濾本身不是完整沙盒，而是降低 kernel attack surface 的一層機制。</p>
         <p>實務上 seccomp 常和 namespaces、capabilities、AppArmor、SELinux、chroot 或容器 runtime 一起使用。</p>
+        <figure class="svg-demo" aria-labelledby="seccomp-filter-title">
+          <svg viewBox="0 0 760 300" role="img">
+            <title id="seccomp-filter-title">seccomp 如何允許或阻擋 system call</title>
+            <rect width="760" height="300" fill="#f8fbfc"></rect>
+            <rect x="48" y="72" width="145" height="82" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"></rect>
+            <text x="82" y="106" fill="#1c2430" font-size="18" font-weight="700">Process</text>
+            <text x="72" y="132" fill="#5e6977" font-size="14">發出 system call</text>
+            <rect x="300" y="54" width="160" height="118" rx="8" fill="#e6f4f1" stroke="#0f766e" stroke-width="3"></rect>
+            <text x="323" y="91" fill="#115e59" font-size="20" font-weight="700">seccomp</text>
+            <text x="318" y="118" fill="#115e59" font-size="15">BPF policy</text>
+            <line x1="318" y1="136" x2="442" y2="136" stroke="#0f766e" stroke-width="2" class="scan-line"></line>
+            <rect x="575" y="72" width="140" height="82" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"></rect>
+            <text x="612" y="106" fill="#1c2430" font-size="18" font-weight="700">Kernel</text>
+            <text x="594" y="132" fill="#5e6977" font-size="14">受限攻擊面</text>
+            <line x1="193" y1="112" x2="300" y2="112" stroke="#94a3b8" stroke-width="3" stroke-dasharray="8 8"></line>
+            <line x1="460" y1="112" x2="575" y2="112" stroke="#94a3b8" stroke-width="3" stroke-dasharray="8 8"></line>
+            <g class="allowed-call">
+              <circle cx="210" cy="112" r="9" fill="#0f766e"></circle>
+              <text x="194" y="92" fill="#115e59" font-size="14">read()</text>
+            </g>
+            <g class="blocked-call">
+              <circle cx="210" cy="194" r="9" fill="#ef4444"></circle>
+              <path d="M318 178 L352 212 M352 178 L318 212" stroke="#ef4444" stroke-width="6" stroke-linecap="round"></path>
+              <text x="184" y="222" fill="#991b1b" font-size="14">mount() 被阻擋</text>
+            </g>
+            <text x="74" y="246" fill="#5e6977" font-size="15">允許清單內的呼叫通過</text>
+            <text x="470" y="246" fill="#5e6977" font-size="15">高風險呼叫停在 policy 前</text>
+          </svg>
+          <figcaption>seccomp 像一個 system call 閘門：符合政策的呼叫可以進入 kernel，不符合政策的呼叫會被拒絕，藉此減少程式可觸碰的 kernel 攻擊面。</figcaption>
+        </figure>
 
         <h3>4.6 虛擬機與 microVM</h3>
         <p>如果威脅模型較高，可能會用 VM 或 microVM 作為隔離邊界。相較於容器，VM 有獨立 kernel，隔離通常更強，但啟動、效能與管理成本較高。</p>
@@ -625,6 +862,34 @@
 
         <h3>6.3 資源耗盡</h3>
         <p>沙盒內程式可能耗盡資源，即使不能逃逸，也能造成服務不可用。應對方式包含 CPU、memory、pid、file size 限制、timeout、輸出截斷、rate limit、job queue 隔離、配額與清理機制。</p>
+        <figure class="svg-demo" aria-labelledby="resource-limit-title">
+          <svg viewBox="0 0 760 330" role="img">
+            <title id="resource-limit-title">沙盒如何用資源配額避免耗盡主機資源</title>
+            <rect width="760" height="330" fill="#f8fbfc"></rect>
+            <rect x="42" y="42" width="676" height="246" rx="8" fill="#ffffff" stroke="#d8dee8" stroke-width="2"></rect>
+            <text x="66" y="78" fill="#1c2430" font-size="22" font-weight="700">資源限制 Resource Limits</text>
+            <rect x="78" y="112" width="240" height="40" rx="6" fill="#eef4f8" stroke="#cbd5e1"></rect>
+            <rect x="78" y="112" height="40" rx="6" fill="#0f766e" class="meter-cpu"></rect>
+            <line x1="270" y1="106" x2="270" y2="158" stroke="#ef4444" stroke-width="4"></line>
+            <text x="88" y="138" fill="#ffffff" font-size="15" font-weight="700">CPU</text>
+            <text x="336" y="138" fill="#5e6977" font-size="15">超過 quota 就降速或終止</text>
+            <rect x="78" y="172" width="240" height="40" rx="6" fill="#eef4f8" stroke="#cbd5e1"></rect>
+            <rect x="78" y="172" height="40" rx="6" fill="#2563eb" class="meter-memory"></rect>
+            <line x1="270" y1="166" x2="270" y2="218" stroke="#ef4444" stroke-width="4"></line>
+            <text x="88" y="198" fill="#ffffff" font-size="15" font-weight="700">Memory</text>
+            <text x="336" y="198" fill="#5e6977" font-size="15">避免大量配置拖垮主機</text>
+            <rect x="78" y="232" width="240" height="40" rx="6" fill="#eef4f8" stroke="#cbd5e1"></rect>
+            <rect x="78" y="232" height="40" rx="6" fill="#f59e0b" class="meter-output"></rect>
+            <line x1="270" y1="226" x2="270" y2="278" stroke="#ef4444" stroke-width="4"></line>
+            <text x="88" y="258" fill="#ffffff" font-size="15" font-weight="700">Output</text>
+            <text x="336" y="258" fill="#5e6977" font-size="15">輸出過大時截斷或停止</text>
+            <rect x="558" y="98" width="112" height="146" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"></rect>
+            <text x="584" y="138" fill="#991b1b" font-size="18" font-weight="700">上限</text>
+            <path d="M590 162 L638 210 M638 162 L590 210" stroke="#ef4444" stroke-width="8" stroke-linecap="round"></path>
+            <text x="570" y="272" fill="#5e6977" font-size="14">防止服務不可用</text>
+          </svg>
+          <figcaption>資源限制不是只防惡意攻擊，也能防一般 bug。當 CPU、記憶體或輸出量接近上限時，沙盒可以降速、截斷、timeout 或終止該任務。</figcaption>
+        </figure>
 
         <h3>6.4 網路與資料外洩</h3>
         <p>許多沙盒只限制檔案系統，卻允許網路出口。若沙盒內有機密資料，攻擊者可能透過 HTTP、DNS、WebSocket 或套件管理工具外傳。</p>
