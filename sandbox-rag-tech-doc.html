@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>關於沙盒</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --paper: #ffffff;
+      --ink: #1c2430;
+      --muted: #5e6977;
+      --line: #d8dee8;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --accent-soft: #e6f4f1;
+      --warn-soft: #fff7ed;
+      --warn-line: #fed7aa;
+      --code: #f1f5f9;
+      --shadow: 0 14px 40px rgba(22, 34, 51, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+      line-height: 1.75;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--accent-strong);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    a:hover {
+      color: #0b4f4a;
+    }
+
+    .site-header {
+      background: #10202c;
+      color: #fff;
+      border-bottom: 5px solid var(--accent);
+    }
+
+    .header-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 30px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #a7f3d0;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.75rem);
+      line-height: 1.18;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 18px 0 0;
+      color: #d9e7ef;
+      font-size: 1.08rem;
+    }
+
+    .layout {
+      width: min(1120px, calc(100% - 32px));
+      margin: 28px auto 56px;
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 18px;
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .toc h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .toc li + li {
+      margin-top: 7px;
+    }
+
+    main {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 34px;
+    }
+
+    section {
+      padding-top: 8px;
+      margin-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    section:first-child {
+      margin-top: 0;
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.75rem;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 28px 0 10px;
+      font-size: 1.24rem;
+      line-height: 1.4;
+    }
+
+    h4 {
+      margin: 22px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px;
+      padding-left: 1.45rem;
+    }
+
+    li + li {
+      margin-top: 5px;
+    }
+
+    code {
+      background: var(--code);
+      border: 1px solid #dce4ee;
+      border-radius: 4px;
+      padding: 0.08rem 0.28rem;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #eef4f8;
+      font-weight: 700;
+    }
+
+    .note,
+    .rag-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 18px;
+      background: #f8fafc;
+      margin: 0 0 18px;
+    }
+
+    .rag-box {
+      border-color: #b7ded7;
+      background: var(--accent-soft);
+    }
+
+    .warning {
+      border: 1px solid var(--warn-line);
+      border-radius: 8px;
+      background: var(--warn-soft);
+      padding: 16px 18px;
+      margin: 14px 0 20px;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .checklist li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.45em;
+      width: 17px;
+      height: 17px;
+      border: 2px solid var(--accent);
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .source-list {
+      padding-left: 1.1rem;
+      word-break: break-word;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 4px;
+    }
+
+    .meta-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #e6f4f1;
+    }
+
+    .meta-item strong {
+      display: block;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .back-top {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+        max-height: none;
+      }
+
+      main {
+        padding: 24px 18px;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" id="top">
+    <div class="header-inner">
+      <p class="eyebrow">RAG 技術文件｜Sandbox Security</p>
+      <h1>關於沙盒</h1>
+      <p class="subtitle">本頁將檢索資料整理為可閱讀的技術文件，說明沙盒如何限制不可信程式碼、隔離資源、降低攻擊面，並提供實務檢查表。</p>
+      <div class="meta-grid" aria-label="文件資訊">
+        <div class="meta-item"><strong>文件日期</strong>2026-06-05</div>
+        <div class="meta-item"><strong>整理方法</strong>RAG（Retrieval-Augmented Generation）</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="章節目錄">
+      <h2>目錄</h2>
+      <ol>
+        <li><a href="#rag">RAG 檢索摘要</a></li>
+        <li><a href="#definition">什麼是沙盒</a></li>
+        <li><a href="#roles">沙盒扮演的角色</a></li>
+        <li><a href="#principles">底層原理</a></li>
+        <li><a href="#scenarios">應用場景</a></li>
+        <li><a href="#risks">常見狀況與風險</a></li>
+        <li><a href="#framework">設計判斷框架</a></li>
+        <li><a href="#checklist">實務檢查表</a></li>
+        <li><a href="#summary">小結</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="rag">
+        <h2>1. RAG 檢索摘要</h2>
+        <div class="rag-box">
+          <p>本文件先檢索公開技術資料，再根據來源內容進行歸納。檢索重點包含沙盒的安全角色、隔離原理、平台實作、應用場景，以及實務中常見的失效模式。</p>
+        </div>
+
+        <h3>1.1 檢索問題</h3>
+        <ol>
+          <li>沙盒在程式設計與資安中扮演什麼角色？</li>
+          <li>沙盒的隔離原理有哪些層次？</li>
+          <li>常見應用場景包含哪些？</li>
+          <li>實務上可能遇到哪些限制、誤解與故障？</li>
+          <li>開發者設計或選用沙盒時應該如何判斷？</li>
+        </ol>
+
+        <h3>1.2 主要檢索來源</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>主題</th>
+              <th>來源</th>
+              <th>取用重點</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>一般定義</td>
+              <td>Wikipedia: Sandbox (computer security)</td>
+              <td>沙盒是用限制環境執行程式，以避免故障或漏洞擴散的安全機制。</td>
+            </tr>
+            <tr>
+              <td>瀏覽器沙盒</td>
+              <td>Chromium Sandbox Design</td>
+              <td>Chromium 將高風險處理工作放進受限制的子程序，透過 OS 安全邊界降低攻擊面。</td>
+            </tr>
+            <tr>
+              <td>容器隔離</td>
+              <td>Docker Engine Security</td>
+              <td>Docker 以 Linux namespaces 與 cgroups 建立容器隔離與資源限制。</td>
+            </tr>
+            <tr>
+              <td>系統呼叫過濾</td>
+              <td>Linux Kernel seccomp-bpf 文件</td>
+              <td>seccomp 用 BPF 規則限制系統呼叫，降低使用者程式暴露給 kernel 的攻擊面。</td>
+            </tr>
+            <tr>
+              <td>行動平台</td>
+              <td>Android Application Sandbox</td>
+              <td>Android 以 OS 層級沙盒隔離每個 App 的資料與執行。</td>
+            </tr>
+            <tr>
+              <td>桌面平台</td>
+              <td>Apple App Sandbox</td>
+              <td>macOS App Sandbox 透過權限與 capability 限制檔案、網路與硬體資源存取。</td>
+            </tr>
+            <tr>
+              <td>WebAssembly</td>
+              <td>WebAssembly Security / Wasmtime Security</td>
+              <td>Wasm 模組在受限環境中執行，I/O 需透過宿主環境或 WASI capability 授權。</td>
+            </tr>
+            <tr>
+              <td>Web 安全要求</td>
+              <td>OWASP AASVS Sanitization and Sandboxing</td>
+              <td>對不可信 HTML、動態執行與第三方內容應避免直接信任，需清理、隔離或限制。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>1.3 來源連結</h3>
+        <ul class="source-list">
+          <li><a href="https://en.wikipedia.org/wiki/Sandbox_%28computer_security%29">Wikipedia, Sandbox (computer security)</a></li>
+          <li><a href="https://www.chromium.org/developers/design-documents/sandbox/">Chromium Sandbox</a></li>
+          <li><a href="https://docs.docker.com/engine/security/">Docker Engine Security</a></li>
+          <li><a href="https://docs.docker.com/engine/security/userns-remap/">Docker user namespace isolation</a></li>
+          <li><a href="https://cdn.kernel.org/doc/html/latest/userspace-api/seccomp_filter.html">Linux Kernel seccomp-bpf</a></li>
+          <li><a href="https://source.android.google.cn/docs/security/app-sandbox">Android Application Sandbox</a></li>
+          <li><a href="https://developer.android.com/guide/topics/security/security.html">Android Security Checklist</a></li>
+          <li><a href="https://developer.apple.com/documentation/security/protecting-user-data-with-app-sandbox">Apple App Sandbox</a></li>
+          <li><a href="https://webassembly.org/docs/security/">WebAssembly Security</a></li>
+          <li><a href="https://docs.wasmtime.dev/security.html">Wasmtime Security</a></li>
+          <li><a href="https://owasp-aasvs4.readthedocs.io/en/latest/V5.2.html">OWASP AASVS 5.2 Sanitization and Sandboxing Requirements</a></li>
+        </ul>
+      </section>
+
+      <section id="definition">
+        <h2>2. 什麼是沙盒</h2>
+        <p>在程式設計與資安語境中，沙盒是一種「受限制的執行環境」。它讓程式可以執行，但不能任意接觸主機、作業系統、其他程式、使用者資料、網路或敏感資源。</p>
+        <p>沙盒的核心目的不是讓程式「絕對安全」，而是把風險限制在可控範圍內。</p>
+        <ul>
+          <li>限制程式能看到什麼。</li>
+          <li>限制程式能讀寫什麼。</li>
+          <li>限制程式能呼叫哪些系統能力。</li>
+          <li>限制程式能消耗多少 CPU、記憶體、磁碟與網路。</li>
+          <li>讓高風險程式即使出錯或被攻擊，也不容易影響整個系統。</li>
+        </ul>
+        <p>可以把沙盒理解為「最小權限原則」的執行環境版本：程式只拿到完成任務所需的最低能力，其餘能力預設不可用。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="roles">
+        <h2>3. 沙盒扮演的角色</h2>
+        <h3>3.1 安全邊界</h3>
+        <p>沙盒最常見的角色是安全邊界。當程式處理不可信輸入、第三方外掛、使用者上傳檔案、網頁內容或 AI 產生的程式碼時，沙盒可避免程式直接操作主機資源。</p>
+        <p>例如瀏覽器會把網頁渲染、JavaScript 執行、PDF 處理等高風險任務放入受限程序。即使某個網頁觸發了渲染引擎漏洞，攻擊者仍需要突破沙盒限制，才可能進一步控制主機。</p>
+
+        <h3>3.2 錯誤隔離</h3>
+        <p>沙盒也用於穩定性。若某個插件、頁籤、測試任務或使用者程式崩潰，沙盒能讓錯誤停留在局部，不拖垮主應用程式。</p>
+        <ul>
+          <li>瀏覽器單一頁籤崩潰，不一定造成整個瀏覽器關閉。</li>
+          <li>線上程式評測系統中，學生程式無限迴圈時，只終止該次執行。</li>
+          <li>CI 測試中，某個測試容器失敗，不污染其他測試環境。</li>
+        </ul>
+
+        <h3>3.3 資源治理</h3>
+        <p>沙盒常搭配配額與限制，例如 CPU 時間、記憶體、檔案系統容量、執行時間、網路連線與程序數量。這類限制可以防止誤用或惡意程式造成拒絕服務。</p>
+
+        <h3>3.4 可重現環境</h3>
+        <p>沙盒也能提供乾淨、可重現的執行環境。開發、測試、CI/CD 與教學常用容器或虛擬環境，確保依賴版本、檔案狀態與系統設定一致。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="principles">
+        <h2>4. 沙盒的底層原理</h2>
+        <p>沙盒不是單一技術，而是一組隔離與限制機制。不同場景會採用不同層次的沙盒。</p>
+
+        <h3>4.1 程序隔離</h3>
+        <p>將不可信任工作放進獨立 process，是常見的第一層隔離。不同 process 原本就有獨立位址空間，不能直接讀寫彼此記憶體。</p>
+        <p>但僅有 process 隔離通常不夠，因為 process 仍可能呼叫系統 API 存取檔案、網路與裝置。因此實務上會再加上權限限制、系統呼叫過濾或 OS sandbox policy。</p>
+
+        <h3>4.2 權限與 capability 模型</h3>
+        <p>沙盒會把「可做的事」明確列成授權項目。未授權的能力預設不可用。</p>
+        <ul>
+          <li>可讀取哪些目錄。</li>
+          <li>可寫入哪些目錄。</li>
+          <li>是否可以開啟網路。</li>
+          <li>是否可以存取相機、麥克風、藍牙、USB。</li>
+          <li>是否可以啟動子程序。</li>
+          <li>是否可以載入動態函式庫。</li>
+        </ul>
+
+        <h3>4.3 Linux namespaces</h3>
+        <p>Linux namespaces 讓程序看到的系統視圖被隔離。Docker 等容器技術會使用 namespaces 讓容器擁有獨立的 process ID、hostname、mount point、network interface、IPC 資源與 user ID 對應。</p>
+
+        <h3>4.4 cgroups 資源限制</h3>
+        <p>cgroups 用於限制、統計與控制資源使用量，例如 CPU、memory、I/O 與程序數。Docker 官方文件指出，容器會搭配 namespaces 與 cgroups，前者偏向隔離，後者偏向資源治理。</p>
+
+        <h3>4.5 seccomp 系統呼叫過濾</h3>
+        <p>seccomp-bpf 可限制程序能呼叫哪些 system call。Linux kernel 文件特別提醒：系統呼叫過濾本身不是完整沙盒，而是降低 kernel attack surface 的一層機制。</p>
+        <p>實務上 seccomp 常和 namespaces、capabilities、AppArmor、SELinux、chroot 或容器 runtime 一起使用。</p>
+
+        <h3>4.6 虛擬機與 microVM</h3>
+        <p>如果威脅模型較高，可能會用 VM 或 microVM 作為隔離邊界。相較於容器，VM 有獨立 kernel，隔離通常更強，但啟動、效能與管理成本較高。</p>
+
+        <h3>4.7 語言或 runtime 層沙盒</h3>
+        <p>某些語言或 runtime 提供受限執行，例如 JavaScript iframe sandbox、Node.js <code>vm</code>、Lua VM、WebAssembly runtime、Python restricted execution 或自訂 import policy。</p>
+        <div class="warning">
+          <p>這類沙盒方便，但不能一概視為強安全邊界。若程式碼完全不可信，通常應優先依賴 OS、容器、VM 或 Wasm runtime 的明確隔離能力。</p>
+        </div>
+
+        <h3>4.8 WebAssembly / WASI</h3>
+        <p>WebAssembly 的安全模型讓模組在隔離環境中執行，不能直接任意接觸宿主系統。若需要檔案或網路等 I/O，通常要由宿主 runtime 提供 API。</p>
+        <p>WASI 進一步採用 capability-based 模型。以 Wasmtime 為例，程式只能存取宿主明確授權的檔案或目錄。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="scenarios">
+        <h2>5. 常見應用場景</h2>
+        <h3>5.1 瀏覽器與網頁內容</h3>
+        <p>瀏覽器每天執行大量不可信網站內容，因此沙盒是瀏覽器安全架構的核心。常見隔離對象包含網頁渲染程序、JavaScript 執行環境、iframe、PDF viewer、擴充套件與 WebAssembly 模組。</p>
+        <p>常見限制包含同源政策、iframe sandbox 屬性、Content Security Policy、權限提示與分程序架構。</p>
+
+        <h3>5.2 容器化開發與部署</h3>
+        <p>Docker、Kubernetes 等容器平台常被視為一種沙盒化部署方式。它們提供環境隔離、依賴封裝與資源限制，適合微服務部署、CI/CD 測試、本機開發環境、課堂程式執行環境與批次工作。</p>
+        <div class="warning">
+          <p>容器不是 VM。若容器以 privileged 模式執行、掛載敏感 host path、使用 host network、或暴露 Docker socket，沙盒邊界會大幅削弱。</p>
+        </div>
+
+        <h3>5.3 線上程式評測與教育平台</h3>
+        <p>執行學生或使用者提交的程式碼時，沙盒非常重要。應限制執行時間、CPU、記憶體、檔案讀寫、網路、子程序數量、系統呼叫與輸出大小。</p>
+
+        <h3>5.4 外掛與腳本系統</h3>
+        <p>許多應用會允許第三方擴充，例如 IDE 外掛、遊戲 Mod、CMS 外掛、SaaS workflow、使用者自訂公式或 AI agent 工具。這些場景中，良好設計通常是「只暴露必要 API」，而不是讓外掛拿到完整 process 權限。</p>
+
+        <h3>5.5 行動 App</h3>
+        <p>Android 與 iOS/macOS App Sandbox 都以 OS 層級隔離 App。每個 App 預設只能存取自己的資料，若要使用相機、定位、通訊錄或檔案，需要權限或 capability。</p>
+
+        <h3>5.6 惡意程式分析</h3>
+        <p>安全研究人員會在沙盒中執行可疑檔案，觀察檔案寫入、系統設定變更、網路連線、程序注入、加密或刪除行為。此類沙盒需要特別防範反沙盒偵測。</p>
+
+        <h3>5.7 AI 與自動化代理</h3>
+        <p>AI coding agent、資料分析 agent 或工具型 agent 可能會執行模型產生的指令與程式碼。這類輸出不應被視為天然可信。</p>
+        <ul>
+          <li>讀取本機機密檔案。</li>
+          <li>外傳 API key 或 token。</li>
+          <li>刪除或覆蓋工作目錄。</li>
+          <li>執行 package install 時帶入惡意依賴。</li>
+          <li>被 prompt injection 誘導執行危險命令。</li>
+        </ul>
+        <p>建議使用獨立工作目錄、最小權限 token、網路限制、審計記錄、容器或 microVM 隔離。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="risks">
+        <h2>6. 常見狀況與風險</h2>
+        <h3>6.1 誤以為「有沙盒就安全」</h3>
+        <p>沙盒降低風險，不代表消除風險。任何沙盒都可能有設定錯誤、runtime 漏洞、kernel 漏洞、權限授予過寬、掛載路徑過大、網路出口未限制、日誌或暫存檔洩漏。</p>
+        <p>設計時應先明確威脅模型：要防的是誤操作、壞掉的程式、惡意使用者，還是高能力攻擊者。</p>
+
+        <h3>6.2 沙盒逃逸</h3>
+        <p>沙盒逃逸是指程式突破限制，取得沙盒外的資源或更高權限。</p>
+        <ul>
+          <li>kernel 或 runtime 漏洞。</li>
+          <li>host 目錄掛載不當。</li>
+          <li>Docker socket 暴露給容器。</li>
+          <li>privileged container。</li>
+          <li>錯誤的 user namespace 設定。</li>
+          <li>過寬的 seccomp 或 AppArmor policy。</li>
+          <li>外掛 API 暴露了危險能力。</li>
+        </ul>
+
+        <h3>6.3 資源耗盡</h3>
+        <p>沙盒內程式可能耗盡資源，即使不能逃逸，也能造成服務不可用。應對方式包含 CPU、memory、pid、file size 限制、timeout、輸出截斷、rate limit、job queue 隔離、配額與清理機制。</p>
+
+        <h3>6.4 網路與資料外洩</h3>
+        <p>許多沙盒只限制檔案系統，卻允許網路出口。若沙盒內有機密資料，攻擊者可能透過 HTTP、DNS、WebSocket 或套件管理工具外傳。</p>
+        <p>應預設關閉網路、使用 allowlist、封鎖 metadata service、阻擋內網掃描、隔離 DNS，並對出站流量做審計。</p>
+
+        <h3>6.5 檔案系統污染</h3>
+        <p>若沙盒共享 host 目錄，程式可能修改原始碼、刪除資料、留下惡意檔案或污染快取。建議使用臨時工作目錄、唯讀資料、輸入輸出分離，以及任務結束後銷毀環境。</p>
+
+        <h3>6.6 時間、隨機性與可重現性</h3>
+        <p>沙盒可能導致測試結果與本機不同，例如系統時間、timezone、locale、隨機種子、CPU 架構、檔案路徑、權限與網路狀態不同。建議固定 timezone、locale、seed，並記錄 image digest 與 runtime version。</p>
+
+        <h3>6.7 效能成本</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>技術</th>
+              <th>隔離強度</th>
+              <th>啟動速度</th>
+              <th>管理成本</th>
+              <th>適合場景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>語言層 sandbox</td>
+              <td>低到中</td>
+              <td>快</td>
+              <td>低</td>
+              <td>插件、簡單腳本、低風險擴充</td>
+            </tr>
+            <tr>
+              <td>WebAssembly</td>
+              <td>中</td>
+              <td>快</td>
+              <td>中</td>
+              <td>插件、邊緣運算、可攜式不可信模組</td>
+            </tr>
+            <tr>
+              <td>容器</td>
+              <td>中</td>
+              <td>快</td>
+              <td>中</td>
+              <td>CI、服務部署、教學執行</td>
+            </tr>
+            <tr>
+              <td>強化容器</td>
+              <td>中到高</td>
+              <td>中</td>
+              <td>中到高</td>
+              <td>較高風險工作負載</td>
+            </tr>
+            <tr>
+              <td>VM / microVM</td>
+              <td>高</td>
+              <td>中到慢</td>
+              <td>高</td>
+              <td>多租戶、不可信程式碼、高風險任務</td>
+            </tr>
+            <tr>
+              <td>實體隔離</td>
+              <td>最高</td>
+              <td>慢</td>
+              <td>最高</td>
+              <td>惡意程式分析、極高安全需求</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>6.8 除錯困難</h3>
+        <p>沙盒會改變環境，導致程式在本機可用、沙盒內失敗。常見原因包含缺少權限、缺少系統套件、無法寫入路徑、DNS 或網路被封鎖、時間限制太短、記憶體限制太小、seccomp 擋掉 system call、AppArmor/SELinux 拒絕存取。</p>
+        <p>建議保留 sandbox 啟動參數、resource limit、stdout/stderr、kernel audit log、seccomp/AppArmor/SELinux 拒絕紀錄、image digest 與 runtime version。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="framework">
+        <h2>7. 設計沙盒時的判斷框架</h2>
+        <h3>7.1 先定義威脅模型</h3>
+        <ol>
+          <li>執行的程式碼是否完全不可信？</li>
+          <li>攻擊者是否能自由提交程式？</li>
+          <li>沙盒內是否有機密資料？</li>
+          <li>是否允許網路？</li>
+          <li>是否需要保護 host、其他租戶或內網？</li>
+          <li>失敗時可接受的影響範圍是什麼？</li>
+        </ol>
+        <p>若只是避免測試污染，容器可能足夠。若要執行陌生人的任意程式碼，應考慮強化容器、microVM 或 VM。</p>
+
+        <h3>7.2 預設 deny</h3>
+        <p>沙盒政策應以 deny by default 為基礎。需要的能力再逐項開放。</p>
+        <ul>
+          <li>預設無網路，需要下載依賴時才給短時間 allowlist。</li>
+          <li>預設唯讀輸入，只允許寫入 <code>/tmp/output</code>。</li>
+          <li>預設不掛載憑證，需要部署時使用短效 token。</li>
+          <li>預設不允許啟動巢狀容器或存取 Docker socket。</li>
+        </ul>
+
+        <h3>7.3 分離控制平面與執行平面</h3>
+        <p>管理任務的系統不應與執行不可信程式碼的環境共用權限。控制平面保存排程、使用者、權限與審計資料；執行平面只拿到單次任務所需資料，任務完成後回收環境。</p>
+
+        <h3>7.4 資源限制是必要條件</h3>
+        <p>即使不擔心惡意攻擊，也應設定 timeout、memory limit、CPU quota、disk quota、process limit 與 output limit。</p>
+
+        <h3>7.5 沙盒不能取代輸入驗證</h3>
+        <p>沙盒是隔離層，不是輸入清理器。Web 應用仍需驗證輸入、輸出編碼、HTML sanitizer、Content Security Policy，並避免不必要的 <code>eval</code> 或動態執行。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="checklist">
+        <h2>8. 實務檢查表</h2>
+        <h3>8.1 基本安全檢查</h3>
+        <ul class="checklist">
+          <li>是否明確定義不可信輸入與不可信程式碼？</li>
+          <li>是否使用最小權限？</li>
+          <li>是否限制檔案讀寫範圍？</li>
+          <li>是否預設禁止或限制網路？</li>
+          <li>是否設定 CPU、memory、pid、disk、timeout？</li>
+          <li>是否避免把 host secret 掛入沙盒？</li>
+          <li>是否避免 privileged container？</li>
+          <li>是否避免掛載 Docker socket？</li>
+          <li>是否使用唯讀 root filesystem？</li>
+          <li>是否有審計紀錄？</li>
+          <li>是否定期更新 runtime、kernel 與 base image？</li>
+        </ul>
+
+        <h3>8.2 容器沙盒檢查</h3>
+        <ul class="checklist">
+          <li>啟用 user namespace 或 rootless 模式。</li>
+          <li>限制 Linux capabilities。</li>
+          <li>啟用 seccomp profile。</li>
+          <li>啟用 AppArmor 或 SELinux。</li>
+          <li>使用 non-root user。</li>
+          <li>不使用 <code>--privileged</code>。</li>
+          <li>不使用 host network，除非有明確理由。</li>
+          <li>不掛載 <code>/</code>、<code>/var/run/docker.sock</code>、cloud credentials。</li>
+          <li>對 volume 掛載使用唯讀或最小範圍。</li>
+        </ul>
+
+        <h3>8.3 執行使用者程式碼檢查</h3>
+        <ul class="checklist">
+          <li>每次任務使用乾淨環境。</li>
+          <li>測資與答案分離。</li>
+          <li>禁止或限制網路。</li>
+          <li>限制輸出大小。</li>
+          <li>任務完成後銷毀環境。</li>
+          <li>對編譯器、package manager、interpreter 做版本鎖定。</li>
+          <li>記錄執行命令、限制、結果與錯誤。</li>
+        </ul>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="summary">
+        <h2>9. 小結</h2>
+        <p>沙盒在程式設計中是一種風險邊界：它允許程式執行，但限制程式能接觸的資源與能力。它可用於安全防護、錯誤隔離、資源治理與可重現環境。</p>
+        <p>沙盒的實作可能位於語言 runtime、瀏覽器、作業系統、容器、WebAssembly、VM 或 microVM 層。隔離層越接近 OS 或硬體，通常安全邊界越強，但成本也越高。</p>
+        <p>實務上最重要的觀念是：沙盒不是單一開關，而是一組策略。好的沙盒設計需要明確威脅模型、最小權限、資源限制、網路控制、審計紀錄與定期更新。對於完全不可信的程式碼，不能只依賴語言層限制或預設容器設定，應採用更完整的多層防護。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
