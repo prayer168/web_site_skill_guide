@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rolling AI 在 Vibe Coding 裡的使用</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --paper: #ffffff;
+      --ink: #1c2430;
+      --muted: #5e6977;
+      --line: #d8dee8;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --accent-soft: #e6f4f1;
+      --warn-soft: #fff7ed;
+      --warn-line: #fed7aa;
+      --code: #f1f5f9;
+      --shadow: 0 14px 40px rgba(22, 34, 51, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+      line-height: 1.75;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--accent-strong);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    .site-header {
+      background: #10202c;
+      color: #fff;
+      border-bottom: 5px solid var(--accent);
+    }
+
+    .header-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 30px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #a7f3d0;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: 3.25rem;
+      line-height: 1.18;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      max-width: 780px;
+      margin: 18px 0 0;
+      color: #d9e7ef;
+      font-size: 1.08rem;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 4px;
+    }
+
+    .meta-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #e6f4f1;
+    }
+
+    .meta-item strong {
+      display: block;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .layout {
+      width: min(1120px, calc(100% - 32px));
+      margin: 28px auto 56px;
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 18px;
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .toc h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .toc li + li {
+      margin-top: 7px;
+    }
+
+    main {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 34px;
+    }
+
+    section {
+      padding-top: 8px;
+      margin-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    section:first-child {
+      margin-top: 0;
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.75rem;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 28px 0 10px;
+      font-size: 1.24rem;
+      line-height: 1.4;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 18px;
+      padding-left: 1.45rem;
+    }
+
+    li + li {
+      margin-top: 5px;
+    }
+
+    code {
+      background: var(--code);
+      border: 1px solid #dce4ee;
+      border-radius: 4px;
+      padding: 0.08rem 0.28rem;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 0.95rem;
+      table-layout: auto;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #eef4f8;
+      font-weight: 700;
+    }
+
+    .rag-box,
+    .note {
+      border: 1px solid #b7ded7;
+      border-radius: 8px;
+      padding: 16px 18px;
+      background: var(--accent-soft);
+      margin: 0 0 18px;
+    }
+
+    .warning {
+      border: 1px solid var(--warn-line);
+      border-radius: 8px;
+      background: var(--warn-soft);
+      padding: 16px 18px;
+      margin: 14px 0 20px;
+    }
+
+    .source-list {
+      padding-left: 1.1rem;
+      overflow-wrap: anywhere;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .checklist li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.45em;
+      width: 17px;
+      height: 17px;
+      border: 2px solid var(--accent);
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .svg-demo {
+      margin: 22px 0 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fbfc;
+      overflow: hidden;
+    }
+
+    .svg-demo figcaption {
+      padding: 12px 16px 16px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .svg-demo svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .loop-dot {
+      animation: loopDot 5s linear infinite;
+      offset-path: path("M 380 70 C 560 70 650 145 650 205 C 650 270 515 285 380 285 C 245 285 110 270 110 205 C 110 145 200 70 380 70");
+    }
+
+    .pulse-ring {
+      animation: pulseRing 2.4s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .prompt-card {
+      animation: promptCard 4.8s ease-in-out infinite;
+    }
+
+    .feedback-card {
+      animation: feedbackCard 4.8s ease-in-out infinite;
+    }
+
+    .verify-scan {
+      animation: verifyScan 3s ease-in-out infinite;
+    }
+
+    .risk-bar {
+      animation: riskBar 4s ease-in-out infinite;
+    }
+
+    .gate-light {
+      animation: gateLight 4s ease-in-out infinite;
+    }
+
+    @keyframes loopDot {
+      0% { offset-distance: 0%; opacity: 0; }
+      8%, 92% { opacity: 1; }
+      100% { offset-distance: 100%; opacity: 0; }
+    }
+
+    @keyframes pulseRing {
+      0%, 100% { opacity: 0.45; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    @keyframes promptCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes feedbackCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+    }
+
+    @keyframes verifyScan {
+      0%, 100% { transform: translateX(-90px); opacity: 0.25; }
+      50% { transform: translateX(90px); opacity: 0.9; }
+    }
+
+    @keyframes riskBar {
+      0%, 100% { width: 70px; }
+      50% { width: 210px; }
+    }
+
+    @keyframes gateLight {
+      0%, 45%, 100% { fill: #0f766e; }
+      55%, 80% { fill: #ef4444; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .loop-dot,
+      .pulse-ring,
+      .prompt-card,
+      .feedback-card,
+      .verify-scan,
+      .risk-bar,
+      .gate-light {
+        animation: none;
+      }
+    }
+
+    .back-top {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1040px) {
+      h1 {
+        font-size: 2.65rem;
+      }
+
+      .layout {
+        width: min(100% - 28px, 960px);
+        grid-template-columns: 230px minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      main {
+        padding: 28px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        width: min(100% - 24px, 760px);
+        grid-template-columns: 1fr;
+        margin-top: 18px;
+      }
+
+      .toc {
+        position: static;
+        max-height: none;
+        box-shadow: none;
+      }
+
+      main {
+        padding: 24px 18px;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: normal;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      th,
+      td {
+        min-width: 160px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .header-inner {
+        width: min(100% - 24px, 520px);
+        padding: 30px 0 22px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .layout {
+        width: min(100% - 16px, 520px);
+      }
+
+      .toc {
+        padding: 14px;
+      }
+
+      main {
+        padding: 20px 14px;
+      }
+
+      h2 {
+        font-size: 1.45rem;
+      }
+
+      h3 {
+        font-size: 1.12rem;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.2rem;
+      }
+
+      th,
+      td {
+        min-width: 145px;
+        padding: 9px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" id="top">
+    <div class="header-inner">
+      <p class="eyebrow">RAG 技術文件｜Rolling AI for Vibe Coding</p>
+      <h1>Rolling AI 在 Vibe Coding 裡的使用</h1>
+      <p class="subtitle">本文把 Rolling AI 定義為一種滾動式 AI 協作方法：每次只讓 AI 完成一個可驗證的小步驟，透過執行結果與回饋推動下一輪修正。</p>
+      <div class="meta-grid" aria-label="文件資訊">
+        <div class="meta-item"><strong>文件日期</strong>2026-06-05</div>
+        <div class="meta-item"><strong>部署檔名</strong>rolling-ai-vibe-coding-tech-doc.html</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="章節目錄">
+      <h2>目錄</h2>
+      <ol>
+        <li><a href="#rag">RAG 檢索摘要</a></li>
+        <li><a href="#definition">操作性定義</a></li>
+        <li><a href="#workflow">核心流程</a></li>
+        <li><a href="#usage">如何使用</a></li>
+        <li><a href="#examples">提示範例</a></li>
+        <li><a href="#quality">品質控制</a></li>
+        <li><a href="#scenarios">適用場景</a></li>
+        <li><a href="#risks">風險與限制</a></li>
+        <li><a href="#checklist">檢查表</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="rag">
+        <h2>1. RAG 檢索摘要</h2>
+        <div class="rag-box">
+          <p>「Rolling AI」不是常見的正式技術名詞。本文將它整理為 vibe coding 中的工程化實作方法，並參考三個相近脈絡：vibe coding 的自然語言協作、AI agent 的觀察與修正迴圈、以及 rolling update / rolling window 的小步滾動概念。</p>
+        </div>
+
+        <h3>1.1 主要來源與取用重點</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>主題</th>
+              <th>來源</th>
+              <th>取用重點</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Vibe coding</td>
+              <td>Google Cloud、Cloudflare、Wikipedia、Karpathy 相關資料</td>
+              <td>Vibe coding 是以自然語言引導 AI 產生、修改與除錯軟體的開發方式。</td>
+            </tr>
+            <tr>
+              <td>AI 協作迴圈</td>
+              <td>LangGraph / LangChain workflows and agents、Hugging Face agents course</td>
+              <td>實務上常把 AI 工作拆成 observe、plan、act、verify、replan 等可控循環。</td>
+            </tr>
+            <tr>
+              <td>Rolling update</td>
+              <td>Kubernetes Deployment 文件</td>
+              <td>Rolling update 逐步替換舊版本，並保留監控、暫停、恢復與回滾能力。</td>
+            </tr>
+            <tr>
+              <td>Rolling window</td>
+              <td>scikit-learn TimeSeriesSplit 文件</td>
+              <td>時間序列處理中，滾動切分強調按照時間順序逐步使用資料，避免一次混用未來資訊。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>1.2 來源連結</h3>
+        <ul class="source-list">
+          <li><a href="https://cloud.google.com/discover/what-is-vibe-coding">Google Cloud: What is vibe coding?</a></li>
+          <li><a href="https://www.cloudflare.com/learning/ai/ai-vibe-coding/">Cloudflare: What is vibe coding?</a></li>
+          <li><a href="https://en.wikipedia.org/wiki/Vibe_coding">Wikipedia: Vibe coding</a></li>
+          <li><a href="https://docs.langchain.com/oss/python/langgraph/workflows-agents">LangChain docs: Workflows and agents</a></li>
+          <li><a href="https://huggingface.co/learn/agents-course/en/unit2/langgraph/document_analysis_agent">Hugging Face Agents Course: ReAct pattern</a></li>
+          <li><a href="https://kubernetes.io/docs/tasks/run-application/update-deployment-rolling/">Kubernetes: Update a Deployment Without Downtime</a></li>
+          <li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Kubernetes: Deployments</a></li>
+          <li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html">scikit-learn: TimeSeriesSplit</a></li>
+          <li><a href="https://arxiv.org/abs/2506.23253">Vibe coding: programming through conversation with artificial intelligence</a></li>
+        </ul>
+      </section>
+
+      <section id="definition">
+        <h2>2. 操作性定義</h2>
+        <p>在本文中，Rolling AI 指的是：在 vibe coding 裡，用一輪一輪可檢查的小步驟，讓 AI 持續根據最新狀態、測試結果與人類回饋修正程式。</p>
+        <p>它不是單純「一直叫 AI 寫程式」，而是把 AI 協作設計成有節奏的閉環：</p>
+        <ul>
+          <li>每輪只處理一個明確目標。</li>
+          <li>每輪都要讀取目前程式狀態。</li>
+          <li>每輪都要產出可執行、可測試的結果。</li>
+          <li>每輪結束後依據結果修正下一輪指令。</li>
+          <li>必要時暫停、回滾或縮小範圍。</li>
+        </ul>
+        <figure class="svg-demo" aria-labelledby="rolling-loop-title">
+          <svg viewBox="0 0 760 360" role="img">
+            <title id="rolling-loop-title">Rolling AI 的滾動式協作迴圈</title>
+            <rect width="760" height="360" fill="#f8fbfc"></rect>
+            <path d="M 380 70 C 560 70 650 145 650 205 C 650 270 515 285 380 285 C 245 285 110 270 110 205 C 110 145 200 70 380 70" fill="none" stroke="#94a3b8" stroke-width="4" stroke-dasharray="10 10"></path>
+            <circle cx="380" cy="70" r="52" fill="#e6f4f1" stroke="#0f766e" stroke-width="3" class="pulse-ring"></circle>
+            <text x="344" y="66" fill="#115e59" font-size="17" font-weight="700">意圖</text>
+            <text x="331" y="91" fill="#115e59" font-size="14">Intent</text>
+            <circle cx="650" cy="205" r="52" fill="#ffffff" stroke="#94a3b8" stroke-width="3"></circle>
+            <text x="617" y="202" fill="#1c2430" font-size="17" font-weight="700">生成</text>
+            <text x="614" y="226" fill="#5e6977" font-size="14">Code</text>
+            <circle cx="380" cy="285" r="52" fill="#ffffff" stroke="#94a3b8" stroke-width="3"></circle>
+            <text x="347" y="282" fill="#1c2430" font-size="17" font-weight="700">驗證</text>
+            <text x="340" y="306" fill="#5e6977" font-size="14">Verify</text>
+            <circle cx="110" cy="205" r="52" fill="#ffffff" stroke="#94a3b8" stroke-width="3"></circle>
+            <text x="78" y="202" fill="#1c2430" font-size="17" font-weight="700">回饋</text>
+            <text x="74" y="226" fill="#5e6977" font-size="14">Feedback</text>
+            <circle r="11" fill="#0f766e" class="loop-dot"></circle>
+            <text x="250" y="178" fill="#1c2430" font-size="20" font-weight="700">一次只滾動一個小步驟</text>
+            <text x="238" y="208" fill="#5e6977" font-size="16">看結果，再決定下一輪</text>
+          </svg>
+          <figcaption>Rolling AI 的重點是「每輪收斂一點」。人類不把完整系統一次丟給 AI，而是持續用結果修正下一個提示。</figcaption>
+        </figure>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="workflow">
+        <h2>3. 核心流程</h2>
+        <p>Rolling AI 可以用以下流程描述：</p>
+        <ol>
+          <li><strong>Observe：</strong>先讀現有程式、錯誤訊息、畫面或測試結果。</li>
+          <li><strong>Scope：</strong>把下一步限制在一個小任務。</li>
+          <li><strong>Prompt：</strong>給 AI 明確的修改目標、限制與驗收標準。</li>
+          <li><strong>Act：</strong>讓 AI 修改程式或產出設計。</li>
+          <li><strong>Verify：</strong>執行測試、開頁面、看截圖或檢查輸出。</li>
+          <li><strong>Feedback：</strong>把具體結果回饋給 AI，進入下一輪。</li>
+        </ol>
+        <figure class="svg-demo" aria-labelledby="prompt-feedback-title">
+          <svg viewBox="0 0 760 340" role="img">
+            <title id="prompt-feedback-title">提示、生成、驗證、回饋的滾動關係</title>
+            <rect width="760" height="340" fill="#f8fbfc"></rect>
+            <rect x="56" y="72" width="180" height="96" rx="8" fill="#e6f4f1" stroke="#0f766e" stroke-width="3" class="prompt-card"></rect>
+            <text x="91" y="112" fill="#115e59" font-size="19" font-weight="700">Prompt</text>
+            <text x="82" y="140" fill="#115e59" font-size="14">小任務 + 限制</text>
+            <rect x="296" y="72" width="168" height="96" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="3"></rect>
+            <text x="345" y="112" fill="#1c2430" font-size="19" font-weight="700">AI</text>
+            <text x="322" y="140" fill="#5e6977" font-size="14">生成 / 修改</text>
+            <rect x="524" y="72" width="180" height="96" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="3"></rect>
+            <text x="586" y="112" fill="#1c2430" font-size="19" font-weight="700">Code</text>
+            <text x="570" y="140" fill="#5e6977" font-size="14">可執行結果</text>
+            <path d="M236 120 H296 M464 120 H524" stroke="#94a3b8" stroke-width="4" marker-end="url(#arrow)"></path>
+            <rect x="296" y="226" width="168" height="70" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="3" class="feedback-card"></rect>
+            <text x="340" y="256" fill="#991b1b" font-size="18" font-weight="700">Feedback</text>
+            <text x="327" y="281" fill="#991b1b" font-size="14">錯誤、截圖、測試</text>
+            <path d="M614 168 C614 245 520 260 464 260" fill="none" stroke="#94a3b8" stroke-width="4"></path>
+            <path d="M296 260 C210 260 146 220 146 168" fill="none" stroke="#94a3b8" stroke-width="4"></path>
+            <rect x="532" y="190" width="164" height="28" rx="4" fill="#eef4f8" stroke="#cbd5e1"></rect>
+            <rect x="532" y="190" width="62" height="28" rx="4" fill="#0f766e" class="verify-scan"></rect>
+            <text x="570" y="240" fill="#5e6977" font-size="14">Verify</text>
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"></path>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption>Rolling AI 把提示變成可驗證的小批次。驗證結果不是結束，而是下一輪提示的輸入。</figcaption>
+        </figure>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="usage">
+        <h2>4. 在 Vibe Coding 裡如何使用</h2>
+        <h3>4.1 先定義最小可跑版本</h3>
+        <p>不要一開始要求 AI 建完整產品。先要求一個可以打開、可以執行、可以驗證的最小版本。</p>
+        <p>範例：先做登入畫面，不做資料庫；先做計時器，不做會員與統計；先做一頁技術文件，不做整站 CMS。</p>
+
+        <h3>4.2 每輪只處理一個變更</h3>
+        <p>一輪只改一個功能、修一個 bug、補一個版面或加一個測試。這可以讓錯誤容易定位，也能避免 AI 大量重寫。</p>
+
+        <h3>4.3 用具體觀察取代抽象感覺</h3>
+        <p>不要只說「不好看」或「壞掉了」。要說明在哪個頁面、哪個按鈕、哪個螢幕寬度、哪個錯誤訊息。</p>
+
+        <h3>4.4 每輪結束要驗收</h3>
+        <p>驗收可以是人工操作，也可以是自動測試、靜態檢查、截圖檢查或部署後 HTTP 檢查。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="examples">
+        <h2>5. 提示範例</h2>
+        <h3>5.1 起始輪</h3>
+        <p><code>請先做一個單頁 HTML，主題是 Rolling AI。包含標題、目錄、核心流程、使用方法。先不要加動畫或部署。</code></p>
+
+        <h3>5.2 功能輪</h3>
+        <p><code>現在加入三個 SVG 動畫：AI 協作迴圈、提示回饋流程、風險閘門。請保持單一 HTML，不使用外部素材。</code></p>
+
+        <h3>5.3 修正輪</h3>
+        <p><code>手機版表格太寬。請只修 RWD，保留桌機版視覺，不要改文章內容。</code></p>
+
+        <h3>5.4 驗收輪</h3>
+        <p><code>請檢查公開網址是否回傳 200，並確認頁面包含 title、h1、三個 SVG 動畫與 prefers-reduced-motion。</code></p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="quality">
+        <h2>6. 品質控制</h2>
+        <p>Rolling AI 的價值在於把 vibe coding 從「憑感覺接受 AI 結果」改成「小步驗證」。常見控制點如下：</p>
+        <table>
+          <thead>
+            <tr>
+              <th>控制點</th>
+              <th>目的</th>
+              <th>實作方式</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>範圍限制</td>
+              <td>避免一次改太多</td>
+              <td>每輪指定只改某個檔案、功能或 bug。</td>
+            </tr>
+            <tr>
+              <td>差異檢查</td>
+              <td>知道 AI 改了什麼</td>
+              <td>看 git diff、檔案列表與變更摘要。</td>
+            </tr>
+            <tr>
+              <td>自動測試</td>
+              <td>避免已知功能退化</td>
+              <td>執行 unit test、lint、build、型別檢查。</td>
+            </tr>
+            <tr>
+              <td>人工驗收</td>
+              <td>確認體驗符合需求</td>
+              <td>開頁面、操作流程、檢查 RWD 與文案。</td>
+            </tr>
+            <tr>
+              <td>回滾點</td>
+              <td>保留退路</td>
+              <td>小 commit、分支、部署前確認。</td>
+            </tr>
+          </tbody>
+        </table>
+        <figure class="svg-demo" aria-labelledby="risk-gate-title">
+          <svg viewBox="0 0 760 330" role="img">
+            <title id="risk-gate-title">Rolling AI 的風險閘門</title>
+            <rect width="760" height="330" fill="#f8fbfc"></rect>
+            <rect x="48" y="48" width="664" height="230" rx="8" fill="#ffffff" stroke="#d8dee8" stroke-width="2"></rect>
+            <text x="72" y="84" fill="#1c2430" font-size="22" font-weight="700">每一輪都要通過品質閘門</text>
+            <rect x="90" y="126" width="230" height="42" rx="6" fill="#eef4f8" stroke="#cbd5e1"></rect>
+            <rect x="90" y="126" height="42" rx="6" fill="#f59e0b" class="risk-bar"></rect>
+            <text x="106" y="153" fill="#ffffff" font-size="15" font-weight="700">變更風險</text>
+            <rect x="420" y="102" width="150" height="104" rx="8" fill="#e6f4f1" stroke="#0f766e" stroke-width="3"></rect>
+            <circle cx="455" cy="154" r="15" class="gate-light"></circle>
+            <text x="486" y="147" fill="#115e59" font-size="17" font-weight="700">Gate</text>
+            <text x="486" y="171" fill="#115e59" font-size="14">test / review</text>
+            <path d="M320 147 H420" stroke="#94a3b8" stroke-width="4" stroke-dasharray="8 8"></path>
+            <path d="M570 154 H658" stroke="#94a3b8" stroke-width="4" marker-end="url(#gateArrow)"></path>
+            <text x="600" y="129" fill="#0f766e" font-size="15" font-weight="700">通過</text>
+            <path d="M495 206 C495 250 330 248 252 206" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="8 8"></path>
+            <text x="260" y="244" fill="#991b1b" font-size="15" font-weight="700">未通過就縮小範圍或回滾</text>
+            <defs>
+              <marker id="gateArrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"></path>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption>Rolling AI 不追求一次做完，而是讓每一輪都通過品質閘門。沒有通過時，不進下一輪，先縮小問題或回滾。</figcaption>
+        </figure>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="scenarios">
+        <h2>7. 適用場景</h2>
+        <ul>
+          <li>原型設計：快速把想法做成可操作畫面。</li>
+          <li>教學網頁：逐步加入內容、互動、RWD、動畫與部署。</li>
+          <li>小型工具：先完成核心流程，再補資料保存、匯出與設定。</li>
+          <li>舊專案修補：每次只修一個 bug 或一段 UI。</li>
+          <li>文件與範例：先建立架構，再補圖解、程式碼與檢查表。</li>
+        </ul>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="risks">
+        <h2>8. 風險與限制</h2>
+        <h3>8.1 上下文漂移</h3>
+        <p>AI 可能忘記前面約束，或把任務擴大。應在提示中重申「只改這個範圍」，並用 diff 檢查。</p>
+
+        <h3>8.2 無意識接受錯誤</h3>
+        <p>Vibe coding 容易讓使用者只看表面效果。對資料、安全、金流、權限、部署設定等高風險部分，必須增加人工審查與測試。</p>
+
+        <h3>8.3 技術債累積</h3>
+        <p>每輪只求能跑，容易讓結構變亂。建議定期安排「整理輪」，只處理命名、重複程式碼、模組邊界與測試。</p>
+
+        <h3>8.4 不適合高風險一次上線</h3>
+        <p>醫療、金融、法律、資安、身分權限等高風險系統，不應只靠 vibe coding 與 Rolling AI 上線，需完整工程流程與責任審查。</p>
+        <a class="back-top" href="#top">回到頁首</a>
+      </section>
+
+      <section id="checklist">
+        <h2>9. 實務檢查表</h2>
+        <h3>9.1 每輪開始前</h3>
+        <ul class="checklist">
+          <li>這一輪是否只有一個明確目標？</li>
+          <li>是否指定不要修改的範圍？</li>
+          <li>是否提供目前錯誤、截圖、測試結果或檔案位置？</li>
+          <li>是否定義完成條件？</li>
+        </ul>
+
+        <h3>9.2 每輪完成後</h3>
+        <ul class="checklist">
+          <li>是否看過變更檔案與 diff？</li>
+          <li>是否執行必要測試或手動操作？</li>
+          <li>是否確認沒有無關重寫？</li>
+          <li>是否留下可回滾的 commit 或版本點？</li>
+        </ul>
+
+        <h3>9.3 進入下一輪前</h3>
+        <ul class="checklist">
+          <li>是否把驗證結果轉成具體回饋？</li>
+          <li>是否縮小下一輪任務？</li>
+          <li>是否需要先整理程式，而不是繼續加功能？</li>
+          <li>是否需要人工審查安全或資料風險？</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
