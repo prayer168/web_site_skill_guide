@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antigravity IDE 與 Antigravity 2.0 技術文件</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#fff;--text:#1f2937;--muted:#5b6472;--primary:#2563eb;--dark:#1e3a8a;--border:#d8dee9;--soft:#eef4ff;--code:#111827;--warn:#fff7ed;--ok:#ecfdf5;--shadow:0 10px 30px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}body{margin:0;font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.8;color:var(--text);background:radial-gradient(circle at top left,rgba(37,99,235,.12),transparent 30%),var(--bg)}
+    header{padding:64px 24px 48px;background:linear-gradient(135deg,#1e3a8a,#2563eb 58%,#0ea5e9);color:#fff;text-align:center}header .inner,main{max-width:1180px;margin:auto}.tag{display:inline-block;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);margin-bottom:16px}h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.2;margin:0 0 16px}.subtitle{font-size:clamp(1.05rem,2.2vw,1.3rem);opacity:.93;margin:0 auto;max-width:760px}
+    nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}nav .nav-inner{max-width:1180px;margin:auto;padding:10px 20px;display:flex;gap:10px;overflow-x:auto}nav a{white-space:nowrap;text-decoration:none;color:var(--text);padding:8px 12px;border-radius:999px}nav a:hover{background:var(--soft);color:var(--primary)}
+    main{padding:32px 20px 80px}section{margin-bottom:32px}.card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:clamp(22px,4vw,34px);box-shadow:var(--shadow)}h2{font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.35;margin:0 0 18px;color:#0f172a}h3{font-size:1.22rem;margin:24px 0 8px}.lead{font-size:1.12rem;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.box{padding:22px;border:1px solid var(--border);border-radius:18px;background:#fff}.box h3{margin-top:0;color:var(--dark)}.badge{display:inline-block;font-size:.84rem;color:#1e40af;background:#dbeafe;padding:4px 10px;border-radius:999px;margin-bottom:10px;font-weight:700}.big strong{display:block;font-size:1.3rem;color:var(--dark);margin-bottom:8px}
+    table{width:100%;border-collapse:collapse;font-size:.98rem;background:#fff}th,td{padding:13px 15px;border-bottom:1px solid var(--border);vertical-align:top;text-align:left}th{background:#eff6ff;color:#1e3a8a}.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:16px}.notice,.success{padding:18px 20px;border-radius:18px;margin:18px 0;border:1px solid}.notice{background:var(--warn);border-color:#fed7aa}.success{background:var(--ok);border-color:#a7f3d0}.flow{display:grid;gap:14px;counter-reset:step}.step{position:relative;padding:18px 18px 18px 70px;background:#fff;border:1px solid var(--border);border-radius:18px}.step:before{counter-increment:step;content:counter(step);position:absolute;left:18px;top:18px;width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800}
+    pre{background:var(--code);color:#e5e7eb;padding:20px;border-radius:18px;overflow-x:auto;line-height:1.65}.copy-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:20px 0 8px}.copy{border:0;background:var(--primary);color:#fff;border-radius:999px;padding:8px 13px;cursor:pointer;font-weight:700}.print{position:fixed;right:18px;bottom:18px;border:0;border-radius:999px;padding:12px 18px;background:#0f172a;color:#fff;font-weight:800;box-shadow:var(--shadow);cursor:pointer}footer{text-align:center;color:var(--muted);border-top:1px solid var(--border);padding:32px 20px;margin-top:60px}
+    @media(max-width:860px){.grid,.grid3{grid-template-columns:1fr}header{padding:48px 18px 38px}main{padding:24px 14px 70px}.card{border-radius:18px}.step{padding-left:62px}}@media print{nav,.print{display:none}body{background:#fff}header{background:#fff;color:#111827;border-bottom:2px solid #111827}.card,.box{box-shadow:none;break-inside:avoid}pre{white-space:pre-wrap}}
+  </style>
+</head>
+<body>
+  <header><div class="inner"><div class="tag">AI 開發工具技術文件</div><h1>Antigravity IDE 與 Antigravity 2.0</h1><p class="subtitle">差異比較、正確使用方式、安全設定與教材網站開發建議</p></div></header>
+  <nav><div class="nav-inner"><a href="#overview">核心概念</a><a href="#compare">差異比較</a><a href="#choose">如何選擇</a><a href="#workflow">使用流程</a><a href="#security">安全設定</a><a href="#prompts">提示詞範例</a><a href="#practice">教師應用</a></div></nav>
+  <main>
+    <section id="overview" class="card"><h2>一、核心概念</h2><p class="lead">Antigravity 相關工具可以分成兩種使用思維：一種是像傳統 IDE 一樣直接編輯程式；另一種則是把 AI Agents 當成專案助理，讓它們協助規劃、修改、測試與回報。</p><div class="grid"><div class="box big"><span class="badge">編輯器導向</span><strong>Antigravity IDE</strong><p>比較像 VS Code、Cursor 這類 AI 輔助程式編輯器，適合直接開啟專案資料夾，修改 HTML、CSS、JavaScript、Python 等檔案。</p></div><div class="box big"><span class="badge">Agent 導向</span><strong>Antigravity 2.0</strong><p>比較像 AI 專案任務控制台，適合把任務交給多個 AI Agents，讓它們進行規劃、分工、執行與成果回報。</p></div></div><div class="notice"><strong>簡單判斷：</strong>你要自己看著程式碼改，用 Antigravity IDE；你要分派任務給 AI Agents，使用 Antigravity 2.0。</div></section>
+    <section id="compare" class="card"><h2>二、Antigravity IDE 與 Antigravity 2.0 差異比較</h2><div class="table-wrap"><table><thead><tr><th>比較項目</th><th>Antigravity IDE</th><th>Antigravity 2.0</th></tr></thead><tbody><tr><td>核心定位</td><td>AI 輔助程式編輯器</td><td>多 Agent 任務管理平台</td></tr><tr><td>使用感覺</td><td>類似 VS Code、Cursor</td><td>類似 AI 專案任務控制台</td></tr><tr><td>主要用途</td><td>修改程式、檢查檔案、調整網頁、測試功能</td><td>規劃大型任務、分派多個 Agent、追蹤成果</td></tr><tr><td>適合任務</td><td>單一互動教材、RWD 網頁、HTML/CSS/JS 修改</td><td>大型教材網站、完整專案重構、文件與測試並行</td></tr><tr><td>操作方式</td><td>人看著專案，AI 協助修改</td><td>人給任務，Agent 規劃並執行</td></tr><tr><td>學習門檻</td><td>較低</td><td>較高</td></tr><tr><td>風險程度</td><td>中等</td><td>較高，因為 Agent 自主性更強</td></tr></tbody></table></div></section>
+    <section id="choose" class="card"><h2>三、如何正確選擇工具</h2><div class="grid3"><div class="box"><h3>日常小修改</h3><p>例如改教材網頁文字、調整按鈕、修正圖片路徑、檢查 CSS。建議使用 <strong>Antigravity IDE</strong>。</p></div><div class="box"><h3>中型網站開發</h3><p>例如建立一份可以部署到 GitHub Pages 的互動教材網站。建議以 <strong>IDE 為主，2.0 為輔</strong>。</p></div><div class="box"><h3>大型專案管理</h3><p>例如同時要做網頁、README、測試、部署說明與多頁教材。建議使用 <strong>Antigravity 2.0</strong>。</p></div></div><h3>教師常見任務建議</h3><div class="table-wrap"><table><thead><tr><th>任務</th><th>建議工具</th><th>原因</th></tr></thead><tbody><tr><td>修改單一 HTML 教材</td><td>Antigravity IDE</td><td>需要直接看程式碼與即時調整版面</td></tr><tr><td>調整 RWD、CSS、JavaScript 動畫</td><td>Antigravity IDE</td><td>比較適合逐步檢查與修正</td></tr><tr><td>整理 GitHub Pages 專案</td><td>Antigravity IDE</td><td>方便檢查資料夾、路徑與 index.html</td></tr><tr><td>大型教材網站規劃</td><td>Antigravity 2.0</td><td>可讓 Agents 分工處理架構、測試與文件</td></tr><tr><td>專案重構與測試</td><td>Antigravity 2.0</td><td>適合多步驟任務與成果回報</td></tr></tbody></table></div></section>
+    <section id="workflow" class="card"><h2>四、建議使用流程</h2><h3>流程 A：使用 Antigravity IDE</h3><div class="flow"><div class="step"><strong>開啟專案資料夾：</strong>使用 Open Folder 選擇教材或網站專案。</div><div class="step"><strong>先要求分析：</strong>請 AI 先閱讀專案架構，不要立即修改檔案。</div><div class="step"><strong>確認修改範圍：</strong>要求 AI 列出會動到哪些檔案。</div><div class="step"><strong>分階段修改：</strong>一次只改一個問題，例如 RWD、圖片、互動功能或部署設定。</div><div class="step"><strong>測試結果：</strong>請 AI 說明如何在瀏覽器中測試，並確認 GitHub Pages 路徑是否正確。</div></div><h3>流程 B：使用 Antigravity 2.0</h3><div class="flow"><div class="step"><strong>定義總任務：</strong>例如建立完整教材網站、重構專案或補齊文件。</div><div class="step"><strong>要求 Agent 先提出計畫：</strong>不要一開始就讓 Agent 直接修改。</div><div class="step"><strong>拆分任務：</strong>可分成介面設計、功能開發、測試、文件、部署。</div><div class="step"><strong>審查 Artifacts：</strong>查看 Agent 產出的計畫、截圖、測試紀錄與修改摘要。</div><div class="step"><strong>逐步核准：</strong>每完成一階段再進入下一階段，避免一次改太多造成錯誤。</div></div><div class="success"><strong>最佳做法：</strong>對教師教材開發而言，建議先用 Antigravity IDE 做小範圍修改，等專案變大或需要多任務分工時，再使用 Antigravity 2.0。</div></section>
+    <section id="security" class="card"><h2>五、安全設定建議</h2><p>AI Agent 工具可能會讀取專案檔案、執行終端機指令、修改程式碼或操作瀏覽器。初學者不要一開始就開啟完全自動化權限。</p><div class="table-wrap"><table><thead><tr><th>設定項目</th><th>建議設定</th><th>原因</th></tr></thead><tbody><tr><td>Terminal Execution Policy</td><td>Request Review</td><td>執行終端機指令前先讓使用者確認</td></tr><tr><td>Review Policy</td><td>Request Review 或 Agent Decides</td><td>初學建議先採人工審核</td></tr><tr><td>File Access</td><td>只允許目前 workspace</td><td>避免 AI 讀取或修改非專案資料</td></tr><tr><td>Browser Allowlist</td><td>只允許可信任網站</td><td>降低瀏覽器操作與網頁提示注入風險</td></tr><tr><td>自動執行高風險指令</td><td>不要開啟</td><td>避免誤刪檔案、覆蓋資料或安裝不必要套件</td></tr></tbody></table></div><div class="notice"><strong>特別提醒：</strong>不要讓 AI 自動執行刪除、格式化、清空資料夾、重新初始化 Git repository 等高風險指令。</div></section>
+    <section id="prompts" class="card"><h2>六、實用提示詞範例</h2><div class="copy-row"><span>提示詞 1：先分析、不修改</span><button class="copy" data-target="prompt1">複製</button></div><pre id="prompt1"><code>請先不要修改任何檔案。
+請先閱讀目前專案架構，列出：
+1. 主要檔案功能
+2. 目前可能的問題
+3. RWD 是否完整
+4. 是否適合部署到 GitHub Pages
+5. 建議修改順序
+
+等我確認後，再開始修改。</code></pre><div class="copy-row"><span>提示詞 2：安全修改規則</span><button class="copy" data-target="prompt2">複製</button></div><pre id="prompt2"><code>請依照剛才的建議修改。
+限制：
+1. 不要刪除既有功能
+2. 修改前先列出會動到哪些檔案
+3. 每次只完成一個階段
+4. 完成後請提供測試方式
+5. 不要執行會刪除檔案的指令</code></pre><div class="copy-row"><span>提示詞 3：教材網站檢查</span><button class="copy" data-target="prompt3">複製</button></div><pre id="prompt3"><code>請檢查這個教材網站是否適合部署到 GitHub Pages。
+請特別檢查：
+1. index.html 是否在正確位置
+2. 圖片與 CSS、JavaScript 路徑是否正確
+3. 手機與平板版面是否正常
+4. 是否有無法載入的資源
+5. 是否需要補 README.md
+
+請先列出問題，不要直接修改。</code></pre><div class="copy-row"><span>提示詞 4：Antigravity 2.0 多 Agent 任務</span><button class="copy" data-target="prompt4">複製</button></div><pre id="prompt4"><code>請協助我規劃這個教材網站專案。
+請將任務拆成以下幾個部分：
+1. 專案架構檢查
+2. RWD 版面優化
+3. JavaScript 互動功能測試
+4. GitHub Pages 部署檢查
+5. README 與教學說明文件整理
+
+請每個任務都先提出計畫，等我確認後再執行。</code></pre></section>
+    <section id="practice" class="card"><h2>七、給教師教材開發的建議</h2><p>如果主要目標是製作自然科互動教材、RWD 網頁、課程說明頁、GitHub Pages 教材平台，建議採用「IDE 先行、2.0 輔助」的方式。</p><div class="grid"><div class="box"><h3>平常備課與小型教材</h3><p>使用 Antigravity IDE。每次只處理一個頁面或一個功能，避免一次修改太多造成錯誤。</p></div><div class="box"><h3>大型教材平台或專案成果</h3><p>使用 Antigravity 2.0。先請 Agent 拆解工作，再逐步確認設計、程式、測試與文件。</p></div></div><h3>建議標準流程</h3><ol><li>先備份原始專案。</li><li>用 Antigravity IDE 檢查單一功能。</li><li>確認可正常運作後，再進行下一階段。</li><li>大型專案再交給 Antigravity 2.0 拆任務。</li><li>每次修改後都測試手機、平板與桌機版面。</li><li>部署到 GitHub Pages 前，檢查檔案路徑與 README。</li></ol><div class="success"><strong>結論：</strong>Antigravity IDE 適合「看著程式碼做精準修改」；Antigravity 2.0 適合「把大型任務交給 AI Agents 分工處理」。對教材開發者來說，兩者不是互相取代，而是依照任務大小搭配使用。</div></section>
+    <footer><p>Antigravity IDE 與 Antigravity 2.0 技術文件｜適用於 AI 教材開發、RWD 網站與 GitHub Pages 專案</p></footer>
+  </main>
+  <button class="print" onclick="window.print()">列印 / 另存 PDF</button>
+  <script>document.querySelectorAll('button.copy').forEach(btn=>{btn.addEventListener('click',async()=>{const target=document.getElementById(btn.dataset.target);try{await navigator.clipboard.writeText(target.innerText);const old=btn.textContent;btn.textContent='已複製';setTimeout(()=>btn.textContent=old,1200)}catch(e){alert('複製失敗，請手動選取文字。')}})});</script>
+</body>
+</html>
