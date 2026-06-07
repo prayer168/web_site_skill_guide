@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 跨電腦同步完整指南</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060810;
+  --bg2: #0c0f1a;
+  --bg3: #0f1422;
+  --bg4: #141829;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #ffffff;
+  --text2: #dde3f5;
+  --text3: #8a94b8;
+  --green: #3dffa0;
+  --yellow: #ffcc44;
+  --blue: #6ab8ff;
+  --red: #ff6b7a;
+  --purple: #c084fc;
+  --green-dim: rgba(61,255,160,0.1);
+  --yellow-dim: rgba(255,204,68,0.1);
+  --blue-dim: rgba(106,184,255,0.1);
+  --purple-dim: rgba(192,132,252,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text2);
+  font-family:'Noto Sans TC','IBM Plex Mono',monospace;
+  font-size:15px;
+  line-height:1.7;
+  min-height:100vh;
+}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  position:fixed;top:0;left:0;width:240px;height:100vh;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  padding:28px 0;
+  overflow-y:auto;
+  z-index:100;
+  display:flex;flex-direction:column;gap:0;
+}
+.sb-logo{
+  padding:0 20px 24px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:12px;
+}
+.sb-logo .title{
+  font-family:'Syne',sans-serif;
+  font-size:13px;font-weight:800;
+  color:var(--text);
+  letter-spacing:0.05em;
+  line-height:1.3;
+}
+.sb-logo .sub{font-size:11px;color:var(--text3);margin-top:3px;font-family:'IBM Plex Mono',monospace;}
+.sb-section{padding:4px 20px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-top:12px;margin-bottom:2px;}
+.sb-link{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 20px;
+  font-size:12px;color:var(--text3);
+  text-decoration:none;
+  border-left:2px solid transparent;
+  transition:all .15s;
+  font-family:'IBM Plex Mono',monospace;
+}
+.sb-link:hover{color:var(--text2);background:rgba(255,255,255,0.03);}
+.sb-link.active{color:var(--text);border-left-color:var(--green);background:rgba(61,255,160,0.05);}
+.sb-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* ── MAIN ── */
+#main{margin-left:240px;padding:48px 56px 80px;}
+.page-header{margin-bottom:48px;}
+.page-title{
+  font-family:'Syne',sans-serif;
+  font-size:32px;font-weight:800;
+  color:var(--text);
+  line-height:1.2;
+  margin-bottom:12px;
+}
+.page-title span{color:var(--green);}
+.page-desc{font-size:15px;color:var(--text3);max-width:600px;line-height:1.8;}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+.badge{
+  font-size:11px;font-weight:500;
+  padding:4px 12px;border-radius:20px;
+  font-family:'IBM Plex Mono',monospace;
+  border:1px solid;
+}
+.badge-green{background:var(--green-dim);color:var(--green);border-color:rgba(61,255,160,0.25);}
+.badge-blue{background:var(--blue-dim);color:var(--blue);border-color:rgba(106,184,255,0.25);}
+.badge-yellow{background:var(--yellow-dim);color:var(--yellow);border-color:rgba(255,204,68,0.25);}
+.badge-purple{background:var(--purple-dim);color:var(--purple);border-color:rgba(192,132,252,0.25);}
+
+/* ── SECTION ── */
+.section{margin-bottom:56px;}
+.section-header{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:28px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+}
+.section-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.icon-green{background:var(--green-dim);color:var(--green);}
+.icon-blue{background:var(--blue-dim);color:var(--blue);}
+.icon-yellow{background:var(--yellow-dim);color:var(--yellow);}
+.icon-purple{background:var(--purple-dim);color:var(--purple);}
+.section-title-text{
+  font-family:'Syne',sans-serif;
+  font-size:20px;font-weight:700;color:var(--text);
+}
+.section-subtitle{font-size:12px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+/* ── CARDS ── */
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.card-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;}
+.card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px 22px;
+}
+.card:hover{border-color:var(--border2);background:var(--bg3);}
+.card-full{grid-column:1/-1;}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.card-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:var(--green);}
+.dot-blue{background:var(--blue);}
+.dot-yellow{background:var(--yellow);}
+.dot-red{background:var(--red);}
+.dot-purple{background:var(--purple);}
+.card-head-title{font-size:14px;font-weight:500;color:var(--text);font-family:'IBM Plex Mono',monospace;}
+.card p{font-size:13px;color:var(--text3);line-height:1.75;}
+.card p + p{margin-top:8px;}
+
+/* ── CODE BLOCKS ── */
+.code-wrap{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  margin:12px 0;
+  position:relative;
+}
+.code-label{
+  background:var(--bg4);
+  border-bottom:1px solid var(--border);
+  padding:7px 14px;
+  font-size:11px;font-weight:500;
+  color:var(--text3);
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:0.05em;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.copy-btn{
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--border);
+  color:var(--text3);
+  font-size:10px;
+  padding:3px 10px;border-radius:4px;
+  cursor:pointer;font-family:'IBM Plex Mono',monospace;
+  transition:all .15s;
+}
+.copy-btn:hover{background:rgba(61,255,160,0.1);color:var(--green);border-color:rgba(61,255,160,0.3);}
+.copy-btn.copied{color:var(--green);}
+pre{
+  padding:16px 18px;
+  font-size:12.5px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--text2);
+  overflow-x:auto;
+  line-height:1.75;
+  white-space:pre;
+}
+.c-green{color:var(--green);}
+.c-yellow{color:var(--yellow);}
+.c-blue{color:var(--blue);}
+.c-red{color:var(--red);}
+.c-purple{color:var(--purple);}
+.c-dim{color:var(--text3);}
+
+/* ── STEPS ── */
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{
+  display:flex;gap:16px;
+  position:relative;
+  padding-bottom:24px;
+}
+.step:last-child{padding-bottom:0;}
+.step:not(:last-child) .step-line::after{
+  content:'';
+  position:absolute;
+  left:50%;transform:translateX(-50%);
+  top:32px;bottom:0;width:1px;
+  background:var(--border);
+}
+.step-num-wrap{position:relative;flex-shrink:0;}
+.step-num{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;
+  font-family:'IBM Plex Mono',monospace;
+  position:relative;z-index:1;
+}
+.step-num-g{background:var(--green-dim);color:var(--green);border:1px solid rgba(61,255,160,0.3);}
+.step-num-b{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(106,184,255,0.3);}
+.step-num-y{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,204,68,0.3);}
+.step-num-p{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(192,132,252,0.3);}
+.step-line{position:relative;}
+.step-content{flex:1;padding-top:5px;}
+.step-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.step-desc{font-size:13px;color:var(--text3);line-height:1.7;}
+
+/* ── TIP / ALERT ── */
+.tip{
+  border-left:3px solid;
+  padding:12px 16px;
+  border-radius:0 8px 8px 0;
+  margin:14px 0;
+  font-size:13px;
+  line-height:1.7;
+}
+.tip-green{border-color:var(--green);background:rgba(61,255,160,0.06);color:var(--text2);}
+.tip-yellow{border-color:var(--yellow);background:rgba(255,204,68,0.06);color:var(--text2);}
+.tip-blue{border-color:var(--blue);background:rgba(106,184,255,0.06);color:var(--text2);}
+.tip-red{border-color:var(--red);background:rgba(255,107,122,0.06);color:var(--text2);}
+.tip strong{color:var(--text);}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;margin:16px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;font-family:'IBM Plex Mono',monospace;}
+thead tr{background:var(--bg4);}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border2);}
+tbody tr:nth-child(odd){background:var(--bg2);}
+tbody tr:nth-child(even){background:var(--bg3);}
+tbody tr:hover{background:var(--bg4);}
+td{padding:10px 14px;color:var(--text2);border-bottom:1px solid var(--border);}
+td:first-child{font-weight:500;}
+
+/* ── FLOW ── */
+.flow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.flow-box{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:6px 14px;
+  font-size:12px;color:var(--text2);
+  font-family:'IBM Plex Mono',monospace;
+}
+.flow-arrow{color:var(--text3);font-size:16px;}
+
+/* ── SUMMARY CARDS ── */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0;}
+.summary-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+  position:relative;overflow:hidden;
+}
+.summary-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.sc-green::before{background:linear-gradient(90deg,var(--green),transparent);}
+.sc-blue::before{background:linear-gradient(90deg,var(--blue),transparent);}
+.sc-yellow::before{background:linear-gradient(90deg,var(--yellow),transparent);}
+.sc-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.sc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.sc-row:last-child{border-bottom:none;}
+.sc-label{color:var(--text3);}
+.sc-val{color:var(--text);font-family:'IBM Plex Mono',monospace;font-weight:500;}
+
+/* ── INLINE CODE ── */
+code{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:12px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--yellow);
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  #sidebar{display:none;}
+  #main{margin-left:0;padding:24px 20px 60px;}
+  .card-grid,.card-grid-3,.summary-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="title">AI Agent<br>同步指南</div>
+    <div class="sub">v2025 · 黑熊老師</div>
+  </div>
+  <div class="sb-section">概覽</div>
+  <a class="sb-link active" href="#overview"><div class="sb-dot" style="background:var(--green)"></div>總體策略</a>
+  <a class="sb-link" href="#summary"><div class="sb-dot" style="background:var(--blue)"></div>三工具比較</a>
+  <div class="sb-section">Claude Code CLI</div>
+  <a class="sb-link" href="#cc-concept"><div class="sb-dot" style="background:var(--green)"></div>運作原理</a>
+  <a class="sb-link" href="#cc-install"><div class="sb-dot" style="background:var(--green)"></div>安裝設定</a>
+  <a class="sb-link" href="#cc-sync"><div class="sb-dot" style="background:var(--green)"></div>同步方法</a>
+  <a class="sb-link" href="#cc-restore"><div class="sb-dot" style="background:var(--green)"></div>換機流程</a>
+  <div class="sb-section">OpenAI Codex CLI</div>
+  <a class="sb-link" href="#codex-concept"><div class="sb-dot" style="background:var(--blue)"></div>運作原理</a>
+  <a class="sb-link" href="#codex-install"><div class="sb-dot" style="background:var(--blue)"></div>安裝設定</a>
+  <a class="sb-link" href="#codex-sync"><div class="sb-dot" style="background:var(--blue)"></div>同步方法</a>
+  <a class="sb-link" href="#codex-restore"><div class="sb-dot" style="background:var(--blue)"></div>換機流程</a>
+  <div class="sb-section">Antigravity IDE</div>
+  <a class="sb-link" href="#anti-concept"><div class="sb-dot" style="background:var(--yellow)"></div>運作原理</a>
+  <a class="sb-link" href="#anti-settings"><div class="sb-dot" style="background:var(--yellow)"></div>設定檔備份</a>
+  <a class="sb-link" href="#anti-sync"><div class="sb-dot" style="background:var(--yellow)"></div>同步方法</a>
+  <a class="sb-link" href="#anti-memory"><div class="sb-dot" style="background:var(--yellow)"></div>記憶持久化</a>
+  <div class="sb-section">進階</div>
+  <a class="sb-link" href="#dotfiles"><div class="sb-dot" style="background:var(--purple)"></div>Dotfiles 統一管理</a>
+  <a class="sb-link" href="#workflow"><div class="sb-dot" style="background:var(--purple)"></div>日常工作流程</a>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-title">AI Agent<br><span>跨電腦同步</span>完整指南</div>
+    <p class="page-desc">Claude Code CLI、OpenAI Codex CLI、Antigravity IDE 三種 AI 開發工具的設定備份、API Key 管理、專案同步與換機重建完整步驟。</p>
+    <div class="badge-row">
+      <span class="badge badge-green">Claude Code CLI</span>
+      <span class="badge badge-blue">OpenAI Codex CLI</span>
+      <span class="badge badge-yellow">Antigravity IDE</span>
+      <span class="badge badge-purple">Windows / macOS</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 0: OVERVIEW
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon icon-green">⚡</div>
+      <div>
+        <div class="section-title-text">總體同步策略</div>
+        <div class="section-subtitle">三種工具共通的核心觀念</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-green"></div><span class="card-head-title">工具本身 → 重裝</span></div>
+        <p>CLI 工具與 IDE 本身<strong style="color:var(--text)">不需要同步</strong>，每台電腦重新安裝即可。真正需要保護的是設定、Key 和專案檔案。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-blue"></div><span class="card-head-title">API Key → 環境變數</span></div>
+        <p>API Key 永遠存在<strong style="color:var(--text)">系統環境變數</strong>，不放進任何程式碼檔案或 Git repo。每台電腦分別手動設定一次。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">專案檔案 → Git</span></div>
+        <p><strong style="color:var(--text)">Git + GitHub</strong> 是程式碼同步的黃金標準。所有教學網頁、CLAUDE.md、memory.md 都放進 repo，換電腦 clone 即完成。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-purple"></div><span class="card-head-title">IDE 設定 → Google Drive</span></div>
+        <p>IDE 的 <code>settings.json</code>、快捷鍵設定透過 <strong style="color:var(--text)">Google Drive 符號連結</strong>自動同步，一台改設定，其他台立即生效。</p>
+      </div>
+    </div>
+
+    <div class="tip tip-green">
+      <strong>你的最大優勢：</strong>你的專案已經在 Google Drive 本地資料夾裡，同時也有 Git。這是雙重備份，幾乎不會遺失任何資料。
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION SUMMARY TABLE
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="summary">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📊</div>
+      <div>
+        <div class="section-title-text">三工具同步策略比較</div>
+        <div class="section-subtitle">一眼看清楚每個工具要備份什麼</div>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card sc-green">
+        <div class="sc-name">Claude Code CLI</div>
+        <div class="sc-row"><span class="sc-label">安裝方式</span><span class="sc-val">npm install -g</span></div>
+        <div class="sc-row"><span class="sc-label">API Key</span><span class="sc-val">環境變數</span></div>
+        <div class="sc-row"><span class="sc-label">專案設定</span><span class="sc-val">CLAUDE.md → Git</span></div>
+        <div class="sc-row"><span class="sc-label">記憶持久化</span><span class="sc-val">memory.md → Git</span></div>
+        <div class="sc-row"><span class="sc-label">換機時間</span><span class="sc-val" style="color:var(--green)">5 分鐘</span></div>
+      </div>
+      <div class="summary-card sc-blue">
+        <div class="sc-name">OpenAI Codex CLI</div>
+        <div class="sc-row"><span class="sc-label">安裝方式</span><span class="sc-val">npm install -g</span></div>
+        <div class="sc-row"><span class="sc-label">API Key</span><span class="sc-val">環境變數</span></div>
+        <div class="sc-row"><span class="sc-label">專案設定</span><span class="sc-val">AGENTS.md → Git</span></div>
+        <div class="sc-row"><span class="sc-label">記憶持久化</span><span class="sc-val">memory.md → Git</span></div>
+        <div class="sc-row"><span class="sc-label">換機時間</span><span class="sc-val" style="color:var(--blue)">5 分鐘</span></div>
+      </div>
+      <div class="summary-card sc-yellow">
+        <div class="sc-name">Antigravity IDE</div>
+        <div class="sc-row"><span class="sc-label">安裝方式</span><span class="sc-val">下載安裝檔</span></div>
+        <div class="sc-row"><span class="sc-label">API Key</span><span class="sc-val">IDE 內 + 環境變數</span></div>
+        <div class="sc-row"><span class="sc-label">IDE 設定</span><span class="sc-val">GDrive 符號連結</span></div>
+        <div class="sc-row"><span class="sc-label">對話記憶</span><span class="sc-val">Scratchpad + memory.md</span></div>
+        <div class="sc-row"><span class="sc-label">換機時間</span><span class="sc-val" style="color:var(--yellow)">15 分鐘</span></div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>需要同步的項目</th>
+            <th>Claude Code</th>
+            <th>Codex CLI</th>
+            <th>Antigravity IDE</th>
+            <th>方法</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ANTHROPIC_API_KEY</td>
+            <td><span class="badge badge-green">必要</span></td>
+            <td>—</td>
+            <td><span class="badge badge-green">必要</span></td>
+            <td>系統環境變數</td>
+          </tr>
+          <tr>
+            <td>OPENAI_API_KEY</td>
+            <td>—</td>
+            <td><span class="badge badge-blue">必要</span></td>
+            <td><span class="badge badge-blue">選用</span></td>
+            <td>系統環境變數</td>
+          </tr>
+          <tr>
+            <td>CLAUDE.md / AGENTS.md</td>
+            <td><span class="badge badge-green">必要</span></td>
+            <td><span class="badge badge-blue">必要</span></td>
+            <td>—</td>
+            <td>Git repo</td>
+          </tr>
+          <tr>
+            <td>memory.md</td>
+            <td><span class="badge badge-green">強烈建議</span></td>
+            <td><span class="badge badge-blue">強烈建議</span></td>
+            <td><span class="badge badge-yellow">強烈建議</span></td>
+            <td>Git repo</td>
+          </tr>
+          <tr>
+            <td>IDE settings.json</td>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="badge badge-yellow">必要</span></td>
+            <td>Google Drive 符號連結</td>
+          </tr>
+          <tr>
+            <td>專案程式碼</td>
+            <td><span class="badge badge-green">必要</span></td>
+            <td><span class="badge badge-blue">必要</span></td>
+            <td><span class="badge badge-yellow">必要</span></td>
+            <td>Git + GitHub</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 1: CLAUDE CODE
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="cc-concept">
+    <div class="section-header">
+      <div class="section-icon icon-green">🟢</div>
+      <div>
+        <div class="section-title-text">Claude Code CLI — 運作原理</div>
+        <div class="section-subtitle">@anthropic-ai/claude-code · npm 全域安裝</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-green"></div><span class="card-head-title">什麼是 Claude Code？</span></div>
+        <p>Anthropic 官方 CLI Agent，在終端機內直接呼叫 Claude API，可以讀寫本地檔案、執行指令、自動完成多步驟開發任務。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-green"></div><span class="card-head-title">同步關鍵：CLAUDE.md</span></div>
+        <p>放在專案根目錄的特殊檔案，定義 Agent 的行為規則、偏好語言、架構說明。透過 Git 自動同步到每台電腦。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="cc-install">
+    <div class="section-header">
+      <div class="section-icon icon-green">⚙️</div>
+      <div>
+        <div class="section-title-text">Claude Code — 安裝與 API Key 設定</div>
+        <div class="section-subtitle">每台新電腦執行一次</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num-wrap step-line">
+          <div class="step-num step-num-g">1</div>
+        </div>
+        <div class="step-content">
+          <div class="step-title">確認 Node.js 18+ 已安裝</div>
+          <div class="step-desc">Claude Code 需要 Node.js 18 以上版本。</div>
+          <div class="code-wrap">
+            <div class="code-label">PowerShell / Terminal <button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+            <pre><span class="c-dim"># 查看目前版本</span>
+node -v
+
+<span class="c-dim"># 若未安裝，前往下載</span>
+<span class="c-blue">https://nodejs.org/</span>  <span class="c-dim"># 下載 LTS 版本</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num-wrap step-line">
+          <div class="step-num step-num-g">2</div>
+        </div>
+        <div class="step-content">
+          <div class="step-title">安裝 Claude Code CLI</div>
+          <div class="code-wrap">
+            <div class="code-label">PowerShell / Terminal <button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+            <pre>npm install -g @anthropic-ai/claude-code
+
+<span class="c-dim"># 驗證安裝</span>
+claude --version</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num-wrap step-line">
+          <div class="step-num step-num-g">3</div>
+        </div>
+        <div class="step-content">
+          <div class="step-title">設定 API Key — Windows</div>
+          <div class="step-desc">將 Key 存入系統環境變數，讓所有 IDE 都能讀到。</div>
+          <div class="code-wrap">
+            <div class="code-label">PowerShell（以一般使用者執行）<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+            <pre><span class="c-dim"># 永久設定使用者環境變數</span>
+[System.Environment]::SetEnvironmentVariable(
+  <span class="c-green">"ANTHROPIC_API_KEY"</span>,
+  <span class="c-yellow">"sk-ant-api03-xxxxx你的Key"</span>,
+  <span class="c-purple">"User"</span>
+)
+
+<span class="c-dim"># 驗證（開新視窗後執行）</span>
+echo $env:ANTHROPIC_API_KEY</pre>
+          </div>
+          <div class="tip tip-yellow">
+            <strong>注意：</strong>設定後需要關閉 PowerShell 視窗並重新開啟，或重啟 Antigravity IDE，新的環境變數才會生效。
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num-wrap step-line">
+          <div class="step-num step-num-g">4</div>
+        </div>
+        <div class="step-content">
+          <div class="step-title">設定 API Key — macOS / Linux</div>
+          <div class="code-wrap">
+            <div class="code-label">Terminal (bash/zsh) <button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+            <pre><span class="c-dim"># 加入 shell 設定檔（永久生效）</span>
+echo <span class="c-green">'export ANTHROPIC_API_KEY="sk-ant-api03-xxxxx"'</span> >> ~/.zshrc
+source ~/.zshrc
+
+<span class="c-dim"># bash 用戶改為</span>
+echo <span class="c-green">'export ANTHROPIC_API_KEY="sk-ant-api03-xxxxx"'</span> >> ~/.bashrc
+source ~/.bashrc
+
+<span class="c-dim"># 驗證</span>
+echo $ANTHROPIC_API_KEY</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="cc-sync">
+    <div class="section-header">
+      <div class="section-icon icon-green">🔄</div>
+      <div>
+        <div class="section-title-text">Claude Code — 專案設定同步</div>
+        <div class="section-subtitle">CLAUDE.md + memory.md 透過 Git 自動同步</div>
+      </div>
+    </div>
+
+    <div class="card card-full" style="margin-bottom:16px">
+      <div class="card-head"><div class="card-dot dot-green"></div><span class="card-head-title">CLAUDE.md — 專案行為設定</span></div>
+      <p>放在每個專案根目錄，告訴 Claude Code 這個專案的規則、技術棧、語言偏好。</p>
+      <div class="code-wrap">
+        <div class="code-label">CLAUDE.md 範本（適合你的教學專案）<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># 黑熊老師的自然科教學專案</span>
+
+<span class="c-green">## 專案說明</span>
+國小五年級自然科互動教學網頁，部署於 GitHub Pages。
+學生對象：10-12歲國小學生
+
+<span class="c-green">## 技術規範</span>
+- 語言：繁體中文（所有說明與注釋）
+- 框架：原生 HTML5 / CSS3 / JavaScript（無框架依賴）
+- 部署：GitHub Pages（靜態網頁）
+- 相容性：需支援平板與手機瀏覽器
+
+<span class="c-green">## 開發規則</span>
+- 所有程式碼注釋使用繁體中文
+- 動畫使用 CSS animation 或 requestAnimationFrame
+- 不使用 npm 套件，保持單一 HTML 檔案可獨立執行
+- 教學內容需符合 108 課綱架構
+
+<span class="c-green">## Git 部署</span>
+- Remote: git@github.com:prayer168/[repo-name].git
+- 部署分支: main
+- GitHub Pages 根目錄: / (root)</pre>
+      </div>
+    </div>
+
+    <div class="card card-full">
+      <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">memory.md — 跨對話記憶持久化</span></div>
+      <p>每次工作結束請 Claude 更新此檔案，下次開始把它貼給 Claude，立即恢復上下文。</p>
+      <div class="code-wrap">
+        <div class="code-label">memory.md 標準格式<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># memory.md — 電磁互動教學網頁</span>
+<span class="c-dim"># 最後更新：2025-06-07</span>
+
+<span class="c-green">## 專案狀態</span>
+- 已完成：電磁鐵實驗室接線修正 ✅
+- 已完成：動滑輪對齊驗證 ✅
+- 進行中：互動實驗室動畫往上調整
+
+<span class="c-green">## 已知問題</span>
+- style.css 第92/323/937行有 background-clip 廠商前綴警告（可忽略）
+- PowerShell 5.x 不支援 &&，需分開執行指令
+
+<span class="c-green">## 檔案結構</span>
+Electromagnetic/
+├── index.html   (主頁面)
+├── app.js       (互動邏輯)
+└── style.css    (樣式)
+
+<span class="c-green">## 部署資訊</span>
+GitHub Pages: https://prayer168.github.io/Electromagnetic/
+Git repo: C:\Users\user\我的雲端硬碟\...\Electromagnetic
+
+<span class="c-green">## Claude 恢復指令</span>
+請閱讀此 memory.md，繼續電磁互動教學網頁的開發工作。</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="cc-restore">
+    <div class="section-header">
+      <div class="section-icon icon-green">🚀</div>
+      <div>
+        <div class="section-title-text">Claude Code — 換機完整流程</div>
+        <div class="section-subtitle">新電腦 5 分鐘內就緒</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-g">1</div></div><div class="step-content"><div class="step-title">安裝 Node.js 18+</div><div class="step-desc">前往 nodejs.org 下載 LTS 版本安裝。</div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-g">2</div></div><div class="step-content"><div class="step-title">安裝 Claude Code</div><div class="code-wrap"><div class="code-label">Terminal<button class="copy-btn" onclick="copyCode(this)">COPY</button></div><pre>npm install -g @anthropic-ai/claude-code</pre></div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-g">3</div></div><div class="step-content"><div class="step-title">設定 ANTHROPIC_API_KEY 環境變數</div><div class="step-desc">參考上方安裝步驟 3，將 Key 加入系統環境變數。</div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-g">4</div></div><div class="step-content"><div class="step-title">Clone 專案（CLAUDE.md 自動還原）</div><div class="code-wrap"><div class="code-label">Terminal<button class="copy-btn" onclick="copyCode(this)">COPY</button></div><pre>git clone https://github.com/prayer168/Electromagnetic.git
+cd Electromagnetic
+claude  <span class="c-dim"># CLAUDE.md 自動讀入，立即開始工作</span></pre></div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-g">5</div></div><div class="step-content"><div class="step-title">貼上 memory.md 恢復上下文</div><div class="step-desc">在 Claude 對話開頭說：「請閱讀 memory.md，繼續上次的工作。」即可恢復所有進度。</div></div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 2: CODEX
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="codex-concept">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔵</div>
+      <div>
+        <div class="section-title-text">OpenAI Codex CLI — 運作原理</div>
+        <div class="section-subtitle">@openai/codex · npm 全域安裝 · GPT-4o 驅動</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-blue"></div><span class="card-head-title">什麼是 Codex CLI？</span></div>
+        <p>OpenAI 官方 CLI Agent，使用 GPT-4o 等模型，可在終端機執行多步驟程式碼任務，支援 sandbox 安全執行模式。與 Claude Code 架構類似，但使用 OpenAI API。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-blue"></div><span class="card-head-title">同步關鍵：AGENTS.md</span></div>
+        <p>Codex 使用 <code>AGENTS.md</code> 作為專案設定檔，功能與 Claude Code 的 CLAUDE.md 相同，放在根目錄並 commit 進 Git。</p>
+      </div>
+    </div>
+    <div class="tip tip-blue">
+      <strong>Claude Code vs Codex CLI：</strong>兩者可以共存於同一個專案！同時建立 CLAUDE.md 和 AGENTS.md，分別給不同 Agent 讀取。專案程式碼、memory.md 完全共用。
+    </div>
+  </section>
+
+  <section class="section" id="codex-install">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⚙️</div>
+      <div>
+        <div class="section-title-text">Codex CLI — 安裝與設定</div>
+        <div class="section-subtitle">每台新電腦執行一次</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num-wrap step-line"><div class="step-num step-num-b">1</div></div>
+        <div class="step-content">
+          <div class="step-title">安裝 Codex CLI</div>
+          <div class="code-wrap"><div class="code-label">Terminal<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre>npm install -g @openai/codex
+
+<span class="c-dim"># 驗證</span>
+codex --version</pre></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-wrap step-line"><div class="step-num step-num-b">2</div></div>
+        <div class="step-content">
+          <div class="step-title">設定 OPENAI_API_KEY — Windows</div>
+          <div class="code-wrap"><div class="code-label">PowerShell<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre>[System.Environment]::SetEnvironmentVariable(
+  <span class="c-green">"OPENAI_API_KEY"</span>,
+  <span class="c-yellow">"sk-proj-xxxxx你的Key"</span>,
+  <span class="c-purple">"User"</span>
+)
+
+<span class="c-dim"># 驗證（開新視窗）</span>
+echo $env:OPENAI_API_KEY</pre></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-wrap step-line"><div class="step-num step-num-b">3</div></div>
+        <div class="step-content">
+          <div class="step-title">設定 OPENAI_API_KEY — macOS</div>
+          <div class="code-wrap"><div class="code-label">Terminal<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre>echo <span class="c-green">'export OPENAI_API_KEY="sk-proj-xxxxx"'</span> >> ~/.zshrc
+source ~/.zshrc</pre></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-wrap step-line"><div class="step-num step-num-b">4</div></div>
+        <div class="step-content">
+          <div class="step-title">建立 AGENTS.md</div>
+          <div class="code-wrap"><div class="code-label">AGENTS.md 範本<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="c-dim"># 黑熊老師的自然科教學專案 (Codex)</span>
+
+<span class="c-green">## 專案說明</span>
+國小自然科互動教學網頁，GitHub Pages 部署
+
+<span class="c-green">## 技術規範</span>
+- 純 HTML/CSS/JS，無框架
+- 繁體中文注釋
+- 單一 HTML 檔案，可獨立執行
+
+<span class="c-green">## 執行環境</span>
+- OS: Windows 11
+- Shell: PowerShell 5.x（不支援 &&，請用 ; 分隔指令）
+- Git: 已設定 GitHub Pages 自動部署</pre></div>
+          <div class="tip tip-blue">
+            <strong>記住：</strong>AGENTS.md 要 <code>git add AGENTS.md && git commit -m "add AGENTS.md"</code> 推上去，換電腦 clone 就自動生效。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="codex-sync">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔄</div>
+      <div>
+        <div class="section-title-text">Codex CLI — 進階同步設定</div>
+        <div class="section-subtitle">全域設定檔與模型偏好</div>
+      </div>
+    </div>
+    <div class="card card-full" style="margin-bottom:16px">
+      <div class="card-head"><div class="card-dot dot-blue"></div><span class="card-head-title">全域設定檔位置</span></div>
+      <div class="code-wrap"><div class="code-label">路徑<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+      <pre><span class="c-dim"># Windows</span>
+C:\Users\{帳號}\.codex\config.yaml
+
+<span class="c-dim"># macOS / Linux</span>
+~/.codex/config.yaml</pre></div>
+    </div>
+    <div class="card card-full">
+      <div class="card-head"><div class="card-dot dot-blue"></div><span class="card-head-title">config.yaml 設定範本</span></div>
+      <div class="code-wrap"><div class="code-label">~/.codex/config.yaml<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+      <pre><span class="c-green">model</span>: <span class="c-yellow">o4-mini</span>          <span class="c-dim"># 預設模型</span>
+<span class="c-green">approval_mode</span>: <span class="c-yellow">suggest</span>  <span class="c-dim"># suggest / auto-edit / full-auto</span>
+<span class="c-green">notify</span>: <span class="c-yellow">true</span>
+<span class="c-green">history</span>:
+  <span class="c-green">max_entries</span>: <span class="c-yellow">1000</span>
+  <span class="c-green">save_sensitive</span>: <span class="c-yellow">false</span></pre></div>
+      <div class="tip tip-yellow" style="margin-top:12px">
+        <strong>同步 config.yaml：</strong>把 <code>~/.codex/</code> 資料夾加入 dotfiles repo，或用 Google Drive 符號連結，讓多台電腦用同樣設定。
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="codex-restore">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🚀</div>
+      <div>
+        <div class="section-title-text">Codex CLI — 換機流程</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-b">1</div></div><div class="step-content"><div class="step-title">安裝 Node.js 18+</div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-b">2</div></div><div class="step-content"><div class="step-title">npm install -g @openai/codex</div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-b">3</div></div><div class="step-content"><div class="step-title">設定 OPENAI_API_KEY 環境變數</div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-b">4</div></div><div class="step-content"><div class="step-title">還原 config.yaml（從 Google Drive 或 dotfiles）</div><div class="code-wrap"><div class="code-label">PowerShell<button class="copy-btn" onclick="copyCode(this)">COPY</button></div><pre>mkdir $HOME\.codex
+cp "$env:USERPROFILE\Google Drive\dotfiles\codex\config.yaml" $HOME\.codex\</pre></div></div></div>
+      <div class="step"><div class="step-num-wrap step-line"><div class="step-num step-num-b">5</div></div><div class="step-content"><div class="step-title">Clone 專案，AGENTS.md 自動生效</div><div class="code-wrap"><div class="code-label">Terminal<button class="copy-btn" onclick="copyCode(this)">COPY</button></div><pre>git clone https://github.com/prayer168/Electromagnetic.git
+cd Electromagnetic
+codex <span class="c-green">"繼續上次的開發，請先讀 memory.md"</span></pre></div></div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 3: ANTIGRAVITY IDE
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="anti-concept">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">⚡</div>
+      <div>
+        <div class="section-title-text">Antigravity IDE — 運作原理</div>
+        <div class="section-subtitle">桌面 IDE · 多模型支援 · 內建 Agent 面板</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">什麼是 Antigravity IDE？</span></div>
+        <p>整合式開發環境，右側 Agent 面板可切換 Gemini、Claude、GPT 等模型，支援瀏覽器控制、終端機操作、截圖驗證等 Agentic 功能。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">同步難點</span></div>
+        <p>對話記錄<strong style="color:var(--text)">不會自動儲存</strong>，關閉後消失。設定檔分散在系統 AppData 資料夾。需要主動策略才能實現跨機同步。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="anti-settings">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">📁</div>
+      <div>
+        <div class="section-title-text">Antigravity IDE — 設定檔備份</div>
+        <div class="section-subtitle">找到設定檔並備份</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">Windows 設定檔路徑</span></div>
+        <div class="code-wrap"><div class="code-label">路徑</div>
+        <pre>C:\Users\{帳號}\AppData\Roaming\Antigravity\
+├── <span class="c-yellow">settings.json</span>      ← 主要設定
+├── <span class="c-yellow">keybindings.json</span>   ← 快捷鍵
+└── snippets\          ← 程式碼片段</pre></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">快速開啟設定資料夾</span></div>
+        <div class="code-wrap"><div class="code-label">PowerShell<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># 直接開啟資料夾</span>
+explorer $env:APPDATA\Antigravity
+
+<span class="c-dim"># 或在 IDE 終端機輸入</span>
+cd $env:APPDATA\Antigravity
+ls</pre></div>
+      </div>
+    </div>
+
+    <div class="tip tip-yellow">
+      <strong>AppData 是隱藏資料夾：</strong>如果找不到，在檔案總管上方輸入 <code>%APPDATA%\Antigravity</code> 直接前往。
+    </div>
+  </section>
+
+  <section class="section" id="anti-sync">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🔄</div>
+      <div>
+        <div class="section-title-text">Antigravity IDE — 三種同步方法</div>
+      </div>
+    </div>
+
+    <div class="card card-full" style="margin-bottom:16px">
+      <div class="card-head"><div class="card-dot dot-green"></div><span class="card-head-title">方法 A：Google Drive 符號連結（推薦）</span>&nbsp;<span class="badge badge-green">最佳方案</span></div>
+      <p>把設定資料夾移到 Google Drive，原位置建立指向 Google Drive 的符號連結（Junction）。多台電腦指向同一份設定，修改立即同步。</p>
+      <div class="code-wrap">
+        <div class="code-label">PowerShell（以系統管理員執行）<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># ── 第一台電腦執行（設定來源）──</span>
+
+<span class="c-dim"># 1. 定義路徑</span>
+<span class="c-green">$src</span>  = <span class="c-yellow">"$env:APPDATA\Antigravity"</span>
+<span class="c-green">$gdrive</span> = <span class="c-yellow">"$env:USERPROFILE\Google Drive\My Drive\dotfiles\Antigravity"</span>
+
+<span class="c-dim"># 2. 複製設定到 Google Drive</span>
+Copy-Item <span class="c-green">$src</span> <span class="c-green">$gdrive</span> -Recurse -Force
+
+<span class="c-dim"># 3. 刪除本地設定資料夾</span>
+Remove-Item <span class="c-green">$src</span> -Recurse -Force
+
+<span class="c-dim"># 4. 建立 Junction（Windows 符號連結）</span>
+New-Item -ItemType Junction -Path <span class="c-green">$src</span> -Target <span class="c-green">$gdrive</span>
+
+<span class="c-dim"># 驗證</span>
+Get-Item <span class="c-green">$src</span>  <span class="c-dim"># 應顯示 LinkType: Junction</span></pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-label">第二台（或其他台）電腦執行<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># 確認 Google Drive 已同步完成後執行</span>
+<span class="c-green">$src</span>    = <span class="c-yellow">"$env:APPDATA\Antigravity"</span>
+<span class="c-green">$gdrive</span> = <span class="c-yellow">"$env:USERPROFILE\Google Drive\My Drive\dotfiles\Antigravity"</span>
+
+<span class="c-dim"># 若已有設定資料夾，先備份</span>
+if (Test-Path <span class="c-green">$src</span>) {
+  Rename-Item <span class="c-green">$src</span> <span class="c-yellow">"${src}_backup_$(Get-Date -f yyyyMMdd)"</span>
+}
+
+<span class="c-dim"># 建立 Junction 指向 Google Drive</span>
+New-Item -ItemType Junction -Path <span class="c-green">$src</span> -Target <span class="c-green">$gdrive</span>
+
+Write-Host <span class="c-yellow">"✅ 同步完成！重啟 Antigravity IDE 生效。"</span></pre>
+      </div>
+    </div>
+
+    <div class="card card-full" style="margin-bottom:16px">
+      <div class="card-head"><div class="card-dot dot-blue"></div><span class="card-head-title">方法 B：手動匯出匯入</span>&nbsp;<span class="badge badge-blue">簡單快速</span></div>
+      <div class="code-wrap">
+        <div class="code-label">備份 → 傳輸 → 還原<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># 備份（在舊電腦執行）</span>
+$backup = <span class="c-yellow">"$env:USERPROFILE\Desktop\antigravity-backup-$(Get-Date -f yyyyMMdd).zip"</span>
+Compress-Archive <span class="c-yellow">"$env:APPDATA\Antigravity"</span> <span class="c-green">$backup</span>
+Write-Host <span class="c-yellow">"備份完成：$backup"</span>
+
+<span class="c-dim"># 還原（在新電腦執行）</span>
+Expand-Archive <span class="c-yellow">"C:\path\to\antigravity-backup-xxxxxxxx.zip"</span> <span class="c-yellow">"$env:APPDATA\Antigravity"</span> -Force</pre>
+      </div>
+    </div>
+
+    <div class="card card-full">
+      <div class="card-head"><div class="card-dot dot-purple"></div><span class="card-head-title">方法 C：API Key 設定同步</span></div>
+      <p>Antigravity IDE 的 API Key 除了在 IDE 介面設定外，建議同時設定環境變數，這樣重裝 IDE 後不需要重新輸入。</p>
+      <div class="code-wrap">
+        <div class="code-label">PowerShell — 同時設定兩個 Key<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># Anthropic（Claude 系列）</span>
+[System.Environment]::SetEnvironmentVariable(<span class="c-green">"ANTHROPIC_API_KEY"</span>, <span class="c-yellow">"sk-ant-xxxxx"</span>, <span class="c-purple">"User"</span>)
+
+<span class="c-dim"># OpenAI（GPT 系列）</span>
+[System.Environment]::SetEnvironmentVariable(<span class="c-green">"OPENAI_API_KEY"</span>, <span class="c-yellow">"sk-proj-xxxxx"</span>, <span class="c-purple">"User"</span>)
+
+<span class="c-dim"># Google（Gemini 系列）</span>
+[System.Environment]::SetEnvironmentVariable(<span class="c-green">"GOOGLE_API_KEY"</span>, <span class="c-yellow">"AIzaSy-xxxxx"</span>, <span class="c-purple">"User"</span>)</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="anti-memory">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🧠</div>
+      <div>
+        <div class="section-title-text">Antigravity IDE — 對話記憶持久化</div>
+        <div class="section-subtitle">對話關閉後如何保留工作進度</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">Scratchpad 即時記錄</span></div>
+        <p>工作途中把重要的步驟、程式碼、決定貼到 <strong style="color:var(--text)">Scratchpad</strong> — 這是 IDE 內唯一會自動儲存的地方。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-green"></div><span class="card-head-title">結束前更新 memory.md</span></div>
+        <p>每次工作結束前在 Agent 對話框輸入：「請把這次的工作進度整理後更新到 memory.md」</p>
+      </div>
+    </div>
+
+    <div class="card card-full" style="margin-top:0">
+      <div class="card-head"><div class="card-dot dot-yellow"></div><span class="card-head-title">Antigravity IDE 標準工作流程</span></div>
+      <div class="flow-row">
+        <div class="flow-box">📂 開啟專案資料夾</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">📋 把 memory.md 貼給 Agent</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">🔨 完成工作</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">💾 請 Agent 更新 memory.md</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">🚀 git commit & push</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box">✅ 關閉 IDE</div>
+      </div>
+      <div class="tip tip-green" style="margin-top:12px">
+        <strong>換電腦時：</strong>Clone 專案 → 開啟 Antigravity → 把 memory.md 貼給 Agent → 立即繼續工作。對話記錄不重要，進度全在 memory.md 裡。
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 4: DOTFILES
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="dotfiles">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🗂️</div>
+      <div>
+        <div class="section-title-text">進階：Dotfiles 統一管理</div>
+        <div class="section-subtitle">一個 GitHub Private Repo 管理所有工具設定</div>
+      </div>
+    </div>
+
+    <div class="card card-full" style="margin-bottom:16px">
+      <div class="card-head"><div class="card-dot dot-purple"></div><span class="card-head-title">建議的 Dotfiles 結構</span></div>
+      <div class="code-wrap">
+        <div class="code-label">GitHub Private Repo: prayer168/dotfiles<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre>dotfiles/
+├── <span class="c-green">claude-code/</span>
+│   ├── CLAUDE.md.template      <span class="c-dim"># 專案設定範本</span>
+│   └── memory.md.template      <span class="c-dim"># 記憶檔範本</span>
+│
+├── <span class="c-blue">codex/</span>
+│   ├── config.yaml             <span class="c-dim"># Codex CLI 全域設定</span>
+│   └── AGENTS.md.template      <span class="c-dim"># 專案設定範本</span>
+│
+├── <span class="c-yellow">antigravity/</span>
+│   ├── settings.json           <span class="c-dim"># IDE 主設定（從 GDrive 複製）</span>
+│   └── keybindings.json        <span class="c-dim"># 快捷鍵</span>
+│
+├── <span class="c-purple">env/</span>
+│   └── .env.example            <span class="c-dim"># Key 範本（不放真實值！）</span>
+│
+├── <span class="c-red">install.ps1</span>                  <span class="c-dim"># Windows 自動安裝腳本</span>
+└── README.md</pre>
+      </div>
+    </div>
+
+    <div class="card card-full">
+      <div class="card-head"><div class="card-dot dot-red"></div><span class="card-head-title">install.ps1 — 一鍵換機腳本</span></div>
+      <div class="code-wrap">
+        <div class="code-label">install.ps1（在新電腦執行）<button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="c-dim"># ── 黑熊老師的 AI 環境一鍵安裝腳本 ──</span>
+<span class="c-dim"># 使用方式：以系統管理員執行 PowerShell，貼上此腳本</span>
+
+<span class="c-green">param</span>(
+  [string]<span class="c-green">$GDrivePath</span> = <span class="c-yellow">"$env:USERPROFILE\Google Drive\My Drive"</span>
+)
+
+Write-Host <span class="c-yellow">"🚀 開始安裝 AI 開發環境..."</span> -ForegroundColor Cyan
+
+<span class="c-dim"># 1. 安裝 Claude Code</span>
+Write-Host <span class="c-yellow">"[1/4] 安裝 Claude Code CLI..."</span>
+npm install -g @anthropic-ai/claude-code
+
+<span class="c-dim"># 2. 安裝 Codex CLI</span>
+Write-Host <span class="c-yellow">"[2/4] 安裝 Codex CLI..."</span>
+npm install -g @openai/codex
+
+<span class="c-dim"># 3. 設定 Antigravity IDE 設定符號連結</span>
+Write-Host <span class="c-yellow">"[3/4] 設定 Antigravity IDE 同步..."</span>
+<span class="c-green">$antiSrc</span>  = <span class="c-yellow">"$env:APPDATA\Antigravity"</span>
+<span class="c-green">$antiDst</span>  = <span class="c-yellow">"$GDrivePath\dotfiles\Antigravity"</span>
+if (Test-Path <span class="c-green">$antiSrc</span>) {
+  Rename-Item <span class="c-green">$antiSrc</span> <span class="c-yellow">"${antiSrc}_bak"</span>
+}
+New-Item -ItemType Junction -Path <span class="c-green">$antiSrc</span> -Target <span class="c-green">$antiDst</span> | Out-Null
+
+<span class="c-dim"># 4. 提示設定 API Keys</span>
+Write-Host <span class="c-yellow">"[4/4] 請設定 API Keys："</span> -ForegroundColor Yellow
+Write-Host <span class="c-yellow">'  [System.Environment]::SetEnvironmentVariable("ANTHROPIC_API_KEY","your-key","User")'</span>
+Write-Host <span class="c-yellow">'  [System.Environment]::SetEnvironmentVariable("OPENAI_API_KEY","your-key","User")'</span>
+
+Write-Host <span class="c-green">"✅ 安裝完成！請設定 API Keys 後重啟終端機。"</span> -ForegroundColor Green</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 5: DAILY WORKFLOW
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="workflow">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📅</div>
+      <div>
+        <div class="section-title-text">日常工作流程建議</div>
+        <div class="section-subtitle">讓三種工具無縫配合的最佳實踐</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-green"></div><span class="card-head-title">每天開始工作</span></div>
+        <div class="steps" style="margin-top:8px">
+          <div class="step" style="padding-bottom:10px"><div class="step-num-wrap"><div class="step-num step-num-g" style="width:24px;height:24px;font-size:11px">1</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc">Google Drive 確認已同步</div></div></div>
+          <div class="step" style="padding-bottom:10px"><div class="step-num-wrap"><div class="step-num step-num-g" style="width:24px;height:24px;font-size:11px">2</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc">開啟 Antigravity IDE / 終端機</div></div></div>
+          <div class="step" style="padding-bottom:10px"><div class="step-num-wrap"><div class="step-num step-num-g" style="width:24px;height:24px;font-size:11px">3</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc"><code>git pull</code> 取得最新程式碼</div></div></div>
+          <div class="step"><div class="step-num-wrap"><div class="step-num step-num-g" style="width:24px;height:24px;font-size:11px">4</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc">把 memory.md 貼給 Agent，說「繼續工作」</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-dot dot-red"></div><span class="card-head-title">每天結束工作</span></div>
+        <div class="steps" style="margin-top:8px">
+          <div class="step" style="padding-bottom:10px"><div class="step-num-wrap"><div class="step-num step-num-y" style="width:24px;height:24px;font-size:11px">1</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc">請 Agent 更新 memory.md</div></div></div>
+          <div class="step" style="padding-bottom:10px"><div class="step-num-wrap"><div class="step-num step-num-y" style="width:24px;height:24px;font-size:11px">2</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc"><code>git add . && git commit -m "今日進度"</code></div></div></div>
+          <div class="step" style="padding-bottom:10px"><div class="step-num-wrap"><div class="step-num step-num-y" style="width:24px;height:24px;font-size:11px">3</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc"><code>git push</code> 推到 GitHub</div></div></div>
+          <div class="step"><div class="step-num-wrap"><div class="step-num step-num-y" style="width:24px;height:24px;font-size:11px">4</div></div><div class="step-content" style="padding-top:2px"><div class="step-desc">Google Drive 自動同步設定</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:24px">
+      <table>
+        <thead>
+          <tr>
+            <th>情境</th>
+            <th>選用工具</th>
+            <th>理由</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>日常教學網頁開發</td><td><span class="badge badge-yellow">Antigravity IDE</span></td><td>視覺化介面，可即時預覽，適合 HTML/CSS</td></tr>
+          <tr><td>複雜邏輯除錯</td><td><span class="badge badge-green">Claude Code</span></td><td>終端機快，直接讀寫檔案，適合多步驟任務</td></tr>
+          <tr><td>需要 GPT-4o 的任務</td><td><span class="badge badge-blue">Codex CLI</span></td><td>OpenAI 模型，補足 Claude 的盲點</td></tr>
+          <tr><td>快速問答</td><td><span class="badge badge-yellow">Antigravity Agent 面板</span></td><td>不離開 IDE，隨問隨答</td></tr>
+          <tr><td>Git 部署</td><td>任一工具的終端機</td><td>三個工具都有終端機，指令相同</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tip tip-green" style="margin-top:24px">
+      <strong>核心心法：</strong>三種工具共用同一份程式碼（Git）和同一份記憶（memory.md），只是對話介面不同。不管換哪台電腦、用哪個工具，開發進度永遠在 GitHub 上。
+    </div>
+  </section>
+
+</main>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Active nav highlight on scroll
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.sb-link');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.sb-link[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-10% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
