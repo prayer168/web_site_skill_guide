@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Slash Commands 完整參考手冊</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary:    #060810;
+    --bg-row-a:      #0c0f1a;
+    --bg-row-b:      #0f1422;
+    --bg-sidebar:    #080b14;
+    --bg-header:     #0a0d18;
+    --bg-card:       #0d1020;
+    --bg-code:       #0a0e1c;
+    --text-primary:  #ffffff;
+    --text-secondary:#dde3f5;
+    --text-muted:    #7a85a8;
+    --accent-green:  #3dffa0;
+    --accent-yellow: #ffcc44;
+    --accent-blue:   #6ab8ff;
+    --accent-purple: #b47cff;
+    --border-dim:    #1c2340;
+    --border-mid:    #252d50;
+    --sidebar-w:     260px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-dim);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .sidebar-logo .logo-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .sidebar-logo h2 span {
+    color: var(--accent-blue);
+  }
+
+  nav { padding: 16px 0; flex: 1; }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: color 0.2s, background 0.2s, border-left-color 0.2s;
+    border-left: 2px solid transparent;
+    line-height: 1.4;
+  }
+
+  nav a:hover,
+  nav a.active {
+    color: var(--text-primary);
+    background: rgba(106, 184, 255, 0.06);
+    border-left-color: var(--accent-blue);
+  }
+
+  nav a .nav-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+  }
+
+  .nav-divider {
+    height: 1px;
+    background: var(--border-dim);
+    margin: 10px 20px;
+  }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ── MAIN ── */
+  main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0 48px 80px;
+    max-width: calc(100% - var(--sidebar-w));
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border-dim);
+    margin-bottom: 48px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .hero h1 .slash {
+    color: var(--accent-blue);
+  }
+
+  .hero-sub {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+
+  .badge-green { color: var(--accent-green); border-color: rgba(61,255,160,0.3); background: rgba(61,255,160,0.07); }
+  .badge-blue  { color: var(--accent-blue);  border-color: rgba(106,184,255,0.3); background: rgba(106,184,255,0.07); }
+  .badge-yellow{ color: var(--accent-yellow);border-color: rgba(255,204,68,0.3);  background: rgba(255,204,68,0.07); }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .section-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .icon-green  { background: rgba(61,255,160,0.1);  border: 1px solid rgba(61,255,160,0.2);  }
+  .icon-blue   { background: rgba(106,184,255,0.1); border: 1px solid rgba(106,184,255,0.2); }
+  .icon-yellow { background: rgba(255,204,68,0.1);  border: 1px solid rgba(255,204,68,0.2);  }
+  .icon-purple { background: rgba(180,124,255,0.1); border: 1px solid rgba(180,124,255,0.2); }
+
+  .section-header-text h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .section-header-text p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* ── TABLE ── */
+  .cmd-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .cmd-table thead th {
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 11px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-mid);
+  }
+
+  .cmd-table tbody tr:nth-child(odd)  { background: var(--bg-row-a); }
+  .cmd-table tbody tr:nth-child(even) { background: var(--bg-row-b); }
+
+  .cmd-table tbody tr {
+    transition: background 0.15s;
+  }
+  .cmd-table tbody tr:hover { background: #141830; }
+
+  .cmd-table td {
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border-dim);
+    vertical-align: top;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .cmd-table tbody tr:last-child td { border-bottom: none; }
+
+  .cmd-cell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-green);
+    white-space: nowrap;
+  }
+
+  .cmd-cell .cmd-param {
+    color: var(--accent-yellow);
+    font-size: 12px;
+  }
+
+  /* ── TIPS SECTION ── */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .tip-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 18px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+
+  .tip-card:hover { border-color: var(--border-mid); }
+
+  .tip-bullet {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-blue);
+    background: rgba(106,184,255,0.08);
+    border: 1px solid rgba(106,184,255,0.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .tip-content strong {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-yellow);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .tip-content span {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ── SPECIAL HIGHLIGHT ── */
+  .highlight-row td:first-child .cmd-cell {
+    color: var(--accent-purple);
+  }
+
+  /* ── COPY BTN ── */
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border: 1px solid var(--border-mid);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+  .copy-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .copy-btn.copied { border-color: var(--accent-green); color: var(--accent-green); }
+
+  /* ── SOURCE BAR ── */
+  .source-bar {
+    margin-top: 56px;
+    padding: 16px 24px;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    background: var(--bg-card);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .source-bar .src-label {
+    color: var(--accent-blue);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .source-bar a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .source-bar a:hover { color: var(--accent-blue); }
+
+  .source-sep { color: var(--border-mid); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a4570; }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    main { margin-left: 0; max-width: 100%; padding: 0 24px 60px; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">Reference Manual</div>
+    <h2>Claude Code<br><span>/</span>Slash Commands</h2>
+  </div>
+  <nav id="nav">
+    <a href="#session"     class="nav-link"><span class="nav-icon">💬</span>一、會話管理</a>
+    <a href="#config"      class="nav-link"><span class="nav-icon">⚙️</span>二、設定與配置</a>
+    <a href="#project"     class="nav-link"><span class="nav-icon">📁</span>三、專案與目錄</a>
+    <a href="#agents"      class="nav-link"><span class="nav-icon">🤖</span>四、代理與擴充</a>
+    <a href="#cost"        class="nav-link"><span class="nav-icon">📊</span>五、費用與統計</a>
+    <a href="#code"        class="nav-link"><span class="nav-icon">🔍</span>六、程式碼相關</a>
+    <a href="#misc"        class="nav-link"><span class="nav-icon">🛠️</span>七、其他</a>
+    <div class="nav-divider"></div>
+    <a href="#tips"        class="nav-link"><span class="nav-icon">💡</span>小技巧</a>
+  </nav>
+  <div class="sidebar-footer">
+    來源：code.claude.com<br>
+    更新：2026 年 5 月
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Claude Code ／ Complete Reference</div>
+    <h1>Slash Commands<br><span class="slash">/</span>完整參考手冊</h1>
+    <p class="hero-sub">涵蓋所有內建命令的分類說明，包含會話管理、模型配置、代理擴充、費用統計等七大類別。</p>
+    <div class="hero-badges">
+      <span class="badge badge-green">繁體中文版</span>
+      <span class="badge badge-blue">7 大類別</span>
+      <span class="badge badge-yellow">30+ 命令</span>
+    </div>
+  </div>
+
+  <!-- ① 會話管理 -->
+  <section class="section" id="session">
+    <div class="section-header">
+      <div class="section-icon icon-green">💬</div>
+      <div class="section-header-text">
+        <h2>一、會話管理</h2>
+        <p>控制對話 context、切換任務、恢復舊會話</p>
+      </div>
+      <div class="section-num">§ 01</div>
+    </div>
+    <table class="cmd-table">
+      <thead>
+        <tr>
+          <th style="width:180px">命令</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cmd-cell">/clear</span></td>
+          <td>清除目前對話的所有 context，切換任務時使用</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/compact</span></td>
+          <td>將舊訊息壓縮成摘要，釋放 token 但保留脈絡</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/context</span></td>
+          <td>以彩色方格視覺化顯示目前 context 用量</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/copy <span class="cmd-param">[N]</span></span></td>
+          <td>複製 Claude 最後一則回應到剪貼簿（<code style="color:var(--accent-yellow);font-size:12px">/copy N</code> 複製第 N 則）</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/resume</span></td>
+          <td>恢復之前儲存在磁碟上的舊會話</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/branch</span></td>
+          <td>在目前對話點建立分支新會話（別名：<code style="color:var(--accent-yellow);font-size:12px">/fork</code>）</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/btw</span></td>
+          <td>插問一個小問題，不打斷主要對話流程</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ② 設定與配置 -->
+  <section class="section" id="config">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⚙️</div>
+      <div class="section-header-text">
+        <h2>二、設定與配置</h2>
+        <p>調整模型、主題、記憶體與工具權限</p>
+      </div>
+      <div class="section-num">§ 02</div>
+    </div>
+    <table class="cmd-table">
+      <thead>
+        <tr>
+          <th style="width:220px">命令</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cmd-cell">/config</span></td>
+          <td>開啟設定面板</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/color</span></td>
+          <td>設定本次會話的提示列顏色</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/model</span></td>
+          <td>切換使用的 AI 模型（Sonnet / Opus / Haiku）</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/memory</span></td>
+          <td>查看並管理 Claude 記憶的專案資訊</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/permissions</span></td>
+          <td>管理工具使用權限</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/autofix-permissions</span></td>
+          <td>自動分析使用紀錄，建立允許清單以減少確認提示</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/theme</span></td>
+          <td>開啟主題選擇器 / 管理自訂主題</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ③ 專案與目錄 -->
+  <section class="section" id="project">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">📁</div>
+      <div class="section-header-text">
+        <h2>三、專案與目錄</h2>
+        <p>管理工作目錄與專案說明文件</p>
+      </div>
+      <div class="section-num">§ 03</div>
+    </div>
+    <table class="cmd-table">
+      <thead>
+        <tr>
+          <th style="width:180px">命令</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cmd-cell">/add-dir</span></td>
+          <td>新增工作目錄讓 Claude 可讀寫</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/init</span></td>
+          <td>初始化 <code style="color:var(--accent-yellow);font-size:12px">CLAUDE.md</code>（專案說明文件）</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ④ 代理與擴充 -->
+  <section class="section" id="agents">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🤖</div>
+      <div class="section-header-text">
+        <h2>四、代理與擴充</h2>
+        <p>子代理、MCP 伺服器連線、瀏覽器整合</p>
+      </div>
+      <div class="section-num">§ 04</div>
+    </div>
+    <table class="cmd-table">
+      <thead>
+        <tr>
+          <th style="width:200px">命令</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cmd-cell">/agents</span></td>
+          <td>管理 agent 設定（子代理配置）</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/advisor</span></td>
+          <td>設定 Advisor 工具，在關鍵時刻諮詢更強的模型</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/mcp</span></td>
+          <td>管理 MCP 伺服器連線</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/chrome</span></td>
+          <td>Chrome 瀏覽器整合（beta）設定</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/autofix-pr</span></td>
+          <td>監控並自動修復目前 PR 的問題</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑤ 費用與使用統計 -->
+  <section class="section" id="cost">
+    <div class="section-header">
+      <div class="section-icon icon-green">📊</div>
+      <div class="section-header-text">
+        <h2>五、費用與使用統計</h2>
+        <p>查看 API 花費與方案使用量</p>
+      </div>
+      <div class="section-num">§ 05</div>
+    </div>
+    <table class="cmd-table">
+      <thead>
+        <tr>
+          <th style="width:180px">命令</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cmd-cell">/cost</span></td>
+          <td>顯示本次會話的 API 費用</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/stats</span></td>
+          <td>開啟使用統計（每日用量、會話、連續使用天數）</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/usage</span></td>
+          <td>完整使用儀表板（方案限制、費率、費用、每日統計）</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑥ 程式碼相關 -->
+  <section class="section" id="code">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔍</div>
+      <div class="section-header-text">
+        <h2>六、程式碼相關</h2>
+        <p>程式碼審查、PR 評論、版本紀錄</p>
+      </div>
+      <div class="section-num">§ 06</div>
+    </div>
+    <table class="cmd-table">
+      <thead>
+        <tr>
+          <th style="width:200px">命令</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cmd-cell">/review</span></td>
+          <td>審查目前變更的程式碼（bug、安全性、風格）</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/pr-comments</span></td>
+          <td>查看並處理 PR 上的評論</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/release-notes</span></td>
+          <td>查看 Claude Code 的版本更新說明</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑦ 其他 -->
+  <section class="section" id="misc">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🛠️</div>
+      <div class="section-header-text">
+        <h2>七、其他</h2>
+        <p>說明、除錯、GitHub 整合與彩蛋</p>
+      </div>
+      <div class="section-num">§ 07</div>
+    </div>
+    <table class="cmd-table">
+      <thead>
+        <tr>
+          <th style="width:200px">命令</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cmd-cell">/help</span></td>
+          <td>顯示所有可用命令（含自訂命令）</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/bug</span></td>
+          <td>回報 Claude Code 的 bug</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/doctor</span></td>
+          <td>檢查 Claude Code 安裝是否正常</td>
+        </tr>
+        <tr>
+          <td><span class="cmd-cell">/install-github-app</span></td>
+          <td>安裝 Claude GitHub Actions 整合</td>
+        </tr>
+        <tr class="highlight-row">
+          <td><span class="cmd-cell">/buddy</span></td>
+          <td>🐾 孵化一隻終端機寵物陪你寫程式（官方彩蛋！）</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 小技巧 -->
+  <section class="section" id="tips">
+    <div class="section-header">
+      <div class="section-icon icon-green">💡</div>
+      <div class="section-header-text">
+        <h2>小技巧</h2>
+        <p>提升效率的使用技巧彙整</p>
+      </div>
+    </div>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-bullet">TIP</div>
+        <div class="tip-content">
+          <strong>輸入 / 後接字母</strong>
+          <span>即時篩選命令清單，快速定位所需命令</span>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-bullet">TIP</div>
+        <div class="tip-content">
+          <strong>MCP 伺服器命令</strong>
+          <span>連線後出現 <code style="color:var(--accent-green);font-size:12px">/mcp__&lt;伺服器&gt;__&lt;功能&gt;</code> 格式的額外命令</span>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-bullet">TIP</div>
+        <div class="tip-content">
+          <strong>/help</strong>
+          <span>永遠顯示最新的完整命令清單，含自訂命令</span>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-bullet">TIP</div>
+        <div class="tip-content">
+          <strong>自訂命令</strong>
+          <span>在 <code style="color:var(--accent-yellow);font-size:12px">.claude/commands/</code> 建立 <code style="color:var(--accent-yellow);font-size:12px">.md</code> 檔即可新增專屬命令</span>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-bullet">KEY</div>
+        <div class="tip-content">
+          <strong>/compact vs /clear</strong>
+          <span><code style="color:var(--accent-green);font-size:12px">/compact</code> 保留摘要；<code style="color:var(--accent-green);font-size:12px">/clear</code> 完全清空 context</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Source Bar -->
+  <div class="source-bar">
+    <span class="src-label">官方文件</span>
+    <a href="https://code.claude.com/docs/en/commands" target="_blank">code.claude.com/docs/en/commands</a>
+    <span class="source-sep">｜</span>
+    <span>2026 年 5 月</span>
+  </div>
+
+</main>
+
+<script>
+  // ── Scroll spy ──
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ── Copy button on command cells ──
+  document.querySelectorAll('.cmd-cell').forEach(cell => {
+    const cmd = cell.textContent.trim().split(/\s+/)[0];
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'copy';
+    btn.onclick = () => {
+      navigator.clipboard.writeText(cmd).then(() => {
+        btn.textContent = '✓ copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+      });
+    };
+    cell.appendChild(btn);
+  });
+</script>
+</body>
+</html>
