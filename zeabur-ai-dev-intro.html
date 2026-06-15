@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zeabur 服務介紹與 AI 程式開發應用</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary:    #060810;
+    --bg-row-a:      #0c0f1a;
+    --bg-row-b:      #0f1422;
+    --bg-sidebar:    #080b14;
+    --bg-header:     #0a0d18;
+    --bg-card:       #0d1020;
+    --bg-code:       #07090f;
+    --text-primary:  #ffffff;
+    --text-secondary:#dde3f5;
+    --text-muted:    #7a85a8;
+    --accent-green:  #3dffa0;
+    --accent-yellow: #ffcc44;
+    --accent-blue:   #6ab8ff;
+    --accent-purple: #b47cff;
+    --accent-red:    #ff6b6b;
+    --border-dim:    #1c2340;
+    --border-mid:    #252d50;
+    --sidebar-w:     268px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-dim);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 26px 22px 18px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .sidebar-logo .logo-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .sidebar-logo h2 .z { color: var(--accent-blue); }
+  .sidebar-logo h2 .ai { color: var(--accent-green); }
+
+  nav { padding: 14px 0; flex: 1; }
+
+  nav a {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 8px 22px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    transition: color 0.2s, background 0.2s, border-left-color 0.2s;
+    border-left: 2px solid transparent;
+    line-height: 1.45;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--text-primary);
+    background: rgba(106,184,255,0.06);
+    border-left-color: var(--accent-blue);
+  }
+
+  .nav-icon { font-size: 13px; flex-shrink: 0; width: 18px; text-align: center; margin-top: 1px; }
+
+  .nav-divider { height: 1px; background: var(--border-dim); margin: 8px 18px; }
+
+  .sidebar-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.9;
+  }
+
+  .sidebar-footer a { color: var(--accent-blue); text-decoration: none; }
+
+  /* ── MAIN ── */
+  main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0 48px 80px;
+    max-width: calc(100% - var(--sidebar-w));
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 54px 0 38px;
+    border-bottom: 1px solid var(--border-dim);
+    margin-bottom: 48px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .hero h1 .z  { color: var(--accent-blue); }
+
+  .hero-tagline {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-yellow);
+    margin-bottom: 14px;
+  }
+
+  .hero-sub {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 620px;
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+
+  .hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .badge-green  { color: var(--accent-green);  border-color: rgba(61,255,160,0.3);  background: rgba(61,255,160,0.07); }
+  .badge-blue   { color: var(--accent-blue);   border-color: rgba(106,184,255,0.3); background: rgba(106,184,255,0.07); }
+  .badge-yellow { color: var(--accent-yellow); border-color: rgba(255,204,68,0.3);  background: rgba(255,204,68,0.07); }
+  .badge-purple { color: var(--accent-purple); border-color: rgba(180,124,255,0.3); background: rgba(180,124,255,0.07); }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 52px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .section-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .icon-green  { background: rgba(61,255,160,0.1);  border: 1px solid rgba(61,255,160,0.2);  }
+  .icon-blue   { background: rgba(106,184,255,0.1); border: 1px solid rgba(106,184,255,0.2); }
+  .icon-yellow { background: rgba(255,204,68,0.1);  border: 1px solid rgba(255,204,68,0.2);  }
+  .icon-purple { background: rgba(180,124,255,0.1); border: 1px solid rgba(180,124,255,0.2); }
+  .icon-red    { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); }
+
+  .section-header-text h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 19px; font-weight: 700;
+    color: var(--text-primary);
+  }
+  .section-header-text p {
+    font-size: 12px; color: var(--text-muted);
+    margin-top: 2px; font-family: 'IBM Plex Mono', monospace;
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    margin-left: auto; flex-shrink: 0;
+  }
+
+  .section-body {
+    color: var(--text-secondary);
+    font-size: 14.5px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .section-body strong { color: var(--accent-yellow); }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  .data-table thead th {
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 11px 18px; text-align: left;
+    border-bottom: 1px solid var(--border-mid);
+  }
+
+  .data-table tbody tr:nth-child(odd)  { background: var(--bg-row-a); }
+  .data-table tbody tr:nth-child(even) { background: var(--bg-row-b); }
+  .data-table tbody tr { transition: background 0.15s; }
+  .data-table tbody tr:hover { background: #141830; }
+
+  .data-table td {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-dim);
+    vertical-align: top;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+
+  .cell-key   { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--accent-green); white-space: nowrap; }
+  .cell-blue  { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent-blue); }
+  .cell-warn  { color: var(--accent-yellow); font-size: 13px; }
+  .cell-ok    { color: var(--accent-green); font-size: 13px; }
+  .cell-muted { color: var(--text-muted); font-size: 13px; }
+
+  .star-high   { color: var(--accent-green); font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+  .star-mid    { color: var(--accent-blue);  font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+  .star-low    { color: var(--text-muted);   font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 18px 22px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+
+  .flow-node {
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .flow-box {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid;
+    line-height: 1.4;
+  }
+  .fb-blue   { color: var(--accent-blue);   border-color: rgba(106,184,255,0.3); background: rgba(106,184,255,0.08); }
+  .fb-green  { color: var(--accent-green);  border-color: rgba(61,255,160,0.3);  background: rgba(61,255,160,0.08); }
+  .fb-yellow { color: var(--accent-yellow); border-color: rgba(255,204,68,0.3);  background: rgba(255,204,68,0.08); }
+  .fb-purple { color: var(--accent-purple); border-color: rgba(180,124,255,0.3); background: rgba(180,124,255,0.08); }
+
+  .flow-arrow {
+    font-size: 16px;
+    color: var(--text-muted);
+    padding: 0 10px;
+    flex-shrink: 0;
+  }
+
+  /* ── ALERT ── */
+  .alert {
+    display: flex;
+    gap: 14px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .alert-tip  { background: rgba(61,255,160,0.06);  border: 1px solid rgba(61,255,160,0.2);  color: var(--text-secondary); }
+  .alert-warn { background: rgba(255,204,68,0.07);  border: 1px solid rgba(255,204,68,0.25); color: var(--text-secondary); }
+  .alert-info { background: rgba(106,184,255,0.07); border: 1px solid rgba(106,184,255,0.25); color: var(--text-secondary); }
+  .alert-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+  .alert-tip  strong { color: var(--accent-green); }
+  .alert-warn strong { color: var(--accent-yellow); }
+  .alert-info strong { color: var(--accent-blue); }
+
+  /* ── USE CASE CARDS ── */
+  .usecase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .uc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+  .uc-card:hover { border-color: var(--border-mid); }
+
+  .uc-card .uc-icon { font-size: 22px; margin-bottom: 10px; }
+  .uc-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .uc-card p { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+
+  /* ── SUMMARY BOX ── */
+  .summary-box {
+    background: var(--bg-card);
+    border: 1px solid rgba(61,255,160,0.2);
+    border-radius: 10px;
+    padding: 28px 30px;
+    margin-bottom: 16px;
+  }
+
+  .summary-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px; font-weight: 700;
+    color: var(--accent-green);
+    margin-bottom: 14px;
+  }
+
+  .summary-box p {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 14px;
+  }
+
+  .summary-box ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .summary-box li {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 5px 13px;
+    border-radius: 4px;
+    color: var(--accent-blue);
+    border: 1px solid rgba(106,184,255,0.3);
+    background: rgba(106,184,255,0.07);
+  }
+
+  /* ── REFS ── */
+  .ref-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ref-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: border-color 0.2s;
+  }
+  .ref-item:hover { border-color: var(--accent-blue); }
+
+  .ref-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    flex-shrink: 0;
+  }
+
+  .ref-item span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-blue);
+  }
+
+  /* ── SOURCE BAR ── */
+  .source-bar {
+    margin-top: 48px;
+    padding: 15px 22px;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    background: var(--bg-card);
+    display: flex; align-items: center; gap: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .source-bar .src-label {
+    color: var(--accent-blue); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .source-bar a { color: var(--text-secondary); text-decoration: none; }
+  .source-bar a:hover { color: var(--accent-blue); }
+  .source-sep { color: var(--border-mid); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    main { margin-left: 0; max-width: 100%; padding: 0 20px 60px; }
+    .hero h1 { font-size: 24px; }
+    .usecase-grid { grid-template-columns: 1fr; }
+    .flow-bar { flex-direction: column; gap: 8px; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">Service Introduction</div>
+    <h2><span class="z">Zeabur</span> 服務介紹<br><span class="ai">AI 程式開發應用</span></h2>
+  </div>
+  <nav>
+    <a href="#what"      class="nav-link"><span class="nav-icon">🌐</span>一、Zeabur 是什麼</a>
+    <a href="#services"  class="nav-link"><span class="nav-icon">⚙️</span>二、主要服務</a>
+    <a href="#diff"      class="nav-link"><span class="nav-icon">🔄</span>三、vs. 傳統雲端</a>
+    <a href="#workflow"  class="nav-link"><span class="nav-icon">🗺️</span>四、開發流程</a>
+    <a href="#backend"   class="nav-link"><span class="nav-icon">🔌</span>五、AI 後端 API</a>
+    <a href="#aihub"     class="nav-link"><span class="nav-icon">🤖</span>六、AI Hub</a>
+    <a href="#rag"       class="nav-link"><span class="nav-icon">📚</span>七、建立 RAG 系統</a>
+    <a href="#case"      class="nav-link"><span class="nav-icon">🏫</span>八、案例：教案助理</a>
+    <a href="#recommend" class="nav-link"><span class="nav-icon">⭐</span>九、適合的 AI 專案</a>
+    <a href="#pros"      class="nav-link"><span class="nav-icon">⚖️</span>十、優點與限制</a>
+    <a href="#edu"       class="nav-link"><span class="nav-icon">🎓</span>十一、教學意義</a>
+    <div class="nav-divider"></div>
+    <a href="#summary"   class="nav-link"><span class="nav-icon">💡</span>十二、一句話總結</a>
+    <a href="#refs"      class="nav-link"><span class="nav-icon">🔗</span>參考來源</a>
+  </nav>
+  <div class="sidebar-footer">
+    來源：<a href="https://zeabur.com/zh-TW/" target="_blank">zeabur.com</a><br>
+    2026 年 5 月
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Cloud Deployment ／ DevOps ／ AI Hub</div>
+    <h1><span class="z">Zeabur</span> 服務介紹<br>與 AI 程式開發應用</h1>
+    <div class="hero-tagline">從 AI 原型到正式上線的雲端部署與 DevOps 平台</div>
+    <p class="hero-sub">Zeabur 協助開發者把 AI 程式、網站、後端 API、資料庫、RAG 系統、AI Agent 等服務快速部署上線，讓你更專注於程式本身。</p>
+    <div class="hero-badges">
+      <span class="badge badge-blue">雲端部署</span>
+      <span class="badge badge-green">AI Hub</span>
+      <span class="badge badge-yellow">RAG / DevOps</span>
+      <span class="badge badge-purple">教學應用</span>
+    </div>
+  </div>
+
+  <!-- ① 是什麼 -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🌐</div>
+      <div class="section-header-text">
+        <h2>一、Zeabur 是什麼？</h2>
+        <p>AI 時代的雲端部署與 DevOps 平台</p>
+      </div>
+      <div class="section-num">§ 01</div>
+    </div>
+    <p class="section-body">
+      Zeabur 可以理解成一個「AI 時代的雲端部署與 DevOps 平台」。它主打的不是直接幫你寫 AI 程式，而是協助開發者把 AI 程式、網站、後端 API、資料庫、RAG 系統、AI Agent 等服務快速部署上線，並管理環境變數、網域、資料庫、模型 API 與維運流程。
+    </p>
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div><strong>一句話：</strong>Zeabur 是把 AI 應用「從寫好程式」推進到「真正上線運作」的平台。</div>
+    </div>
+  </section>
+
+  <!-- ② 主要服務 -->
+  <section class="section" id="services">
+    <div class="section-header">
+      <div class="section-icon icon-green">⚙️</div>
+      <div class="section-header-text">
+        <h2>二、Zeabur 主要提供的服務</h2>
+        <p>七大核心服務項目</p>
+      </div>
+      <div class="section-num">§ 02</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:180px">服務項目</th>
+          <th>白話說明</th>
+          <th>在 AI 開發中的用途</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-key">應用程式部署</span></td>
+          <td>把前端、後端、API、網站部署到雲端</td>
+          <td>上線 AI 聊天機器人、RAG 網站、AI 教學工具</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">Zeabur Agent / Skills</span></td>
+          <td>用自然語言協助操作 DevOps 工作</td>
+          <td>用一句話部署專案、設定資料庫、綁定網域</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">AI Hub</span></td>
+          <td>用單一 API 存取 GPT、Claude、Gemini 等模型</td>
+          <td>減少多平台 API Key 管理，方便測試不同模型</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">資料庫與服務模板</span></td>
+          <td>一鍵部署 PostgreSQL、Redis、n8n、Firecrawl 等</td>
+          <td>建立 RAG、AI Agent、自動化流程</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">網域與 DNS</span></td>
+          <td>管理網域、自動 SSL、一鍵整合</td>
+          <td>讓 AI 服務有正式網址</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">伺服器與叢集</span></td>
+          <td>選擇不同地區與供應商的伺服器</td>
+          <td>控制部署地區、效能與成本</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">郵件服務</span></td>
+          <td>寄送系統或行銷郵件</td>
+          <td>AI 系統通知、註冊驗證、任務結果寄送</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ③ vs 傳統 -->
+  <section class="section" id="diff">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🔄</div>
+      <div class="section-header-text">
+        <h2>三、它和傳統雲端平台有什麼不同？</h2>
+        <p>簡化 DevOps，讓開發者專注程式本身</p>
+      </div>
+      <div class="section-num">§ 03</div>
+    </div>
+    <p class="section-body">
+      傳統做法通常需要自己處理 GitHub、雲端伺服器、Docker、資料庫、環境變數、SSL 憑證、網域、log 與部署錯誤。對初學者、教師或學生專題來說，這些步驟很容易卡關。
+    </p>
+    <div class="alert alert-tip">
+      <span class="alert-icon">✅</span>
+      <div><strong>Zeabur 想解決的是：</strong>把部署、伺服器、資料庫、模型 API、網域、環境變數等 DevOps 工作簡化，讓開發者更專注於程式本身。</div>
+    </div>
+  </section>
+
+  <!-- ④ 開發流程 -->
+  <section class="section" id="workflow">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🗺️</div>
+      <div class="section-header-text">
+        <h2>四、在 AI 程式開發中如何使用 Zeabur？</h2>
+        <p>從想題目到部署上線的完整流程</p>
+      </div>
+      <div class="section-num">§ 04</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:80px">階段</th>
+          <th style="width:200px">你要做的事</th>
+          <th>Zeabur 扮演的角色</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-blue">① 想題目</span></td>
+          <td>決定 AI 工具用途，例如教案助理、文件問答</td>
+          <td><span class="cell-muted">尚未介入</span></td>
+        </tr>
+        <tr>
+          <td><span class="cell-blue">② 寫原型</span></td>
+          <td>用 Python、JavaScript、Next.js、FastAPI 等完成基本功能</td>
+          <td><span class="cell-muted">可先在本機測試</span></td>
+        </tr>
+        <tr>
+          <td><span class="cell-blue">③ 放上 GitHub</span></td>
+          <td>把程式碼做版本管理</td>
+          <td>連接 GitHub 後可自動部署</td>
+        </tr>
+        <tr>
+          <td><span class="cell-blue">④ 部署後端 API</span></td>
+          <td>讓 /ask、/summarize、/upload 等 API 可被網路呼叫</td>
+          <td>部署 FastAPI、Flask、Node.js、Next.js API</td>
+        </tr>
+        <tr>
+          <td><span class="cell-blue">⑤ 加資料庫</span></td>
+          <td>儲存使用者、文件資訊、查詢紀錄</td>
+          <td>部署 PostgreSQL、Redis 等服務</td>
+        </tr>
+        <tr>
+          <td><span class="cell-blue">⑥ 串接 AI 模型</span></td>
+          <td>呼叫 GPT、Claude、Gemini 等模型</td>
+          <td>使用 AI Hub 或外部模型 API</td>
+        </tr>
+        <tr>
+          <td><span class="cell-blue">⑦ 綁定網址</span></td>
+          <td>讓別人可以用正式網址進入服務</td>
+          <td>管理網域與 SSL</td>
+        </tr>
+        <tr>
+          <td><span class="cell-blue">⑧ 測試維護</span></td>
+          <td>看 log、修錯誤、更新版本、監控成本</td>
+          <td>協助維運、環境變數與部署管理</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑤ 後端 API -->
+  <section class="section" id="backend">
+    <div class="section-header">
+      <div class="section-icon icon-green">🔌</div>
+      <div class="section-header-text">
+        <h2>五、AI 後端 API 的部署應用</h2>
+        <p>本機原型 → 可分享的線上服務</p>
+      </div>
+      <div class="section-num">§ 05</div>
+    </div>
+    <p class="section-body">AI 應用通常會有一個後端 API，流程大致如下：</p>
+    <div class="flow-bar">
+      <div class="flow-node"><div class="flow-box fb-blue">使用者問題</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="flow-box fb-green">你的後端 API</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="flow-box fb-purple">呼叫 AI 模型</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="flow-box fb-yellow">回傳答案</div></div>
+    </div>
+    <p class="section-body">常見可部署的後端類型：</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <span class="badge badge-blue">FastAPI</span>
+      <span class="badge badge-blue">Flask</span>
+      <span class="badge badge-blue">Node.js / Express</span>
+      <span class="badge badge-blue">Next.js API Route</span>
+      <span class="badge badge-blue">Django</span>
+      <span class="badge badge-blue">Laravel</span>
+    </div>
+    <div class="alert alert-tip">
+      <span class="alert-icon">🚀</span>
+      <div><strong>部署到 Zeabur 後</strong>，就能從本機原型變成可分享、可測試、可展示的線上服務。</div>
+    </div>
+  </section>
+
+  <!-- ⑥ AI Hub -->
+  <section class="section" id="aihub">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🤖</div>
+      <div class="section-header-text">
+        <h2>六、AI Hub：集中管理不同模型 API</h2>
+        <p>OpenAI-compatible 單一入口</p>
+      </div>
+      <div class="section-num">§ 06</div>
+    </div>
+    <p class="section-body">
+      Zeabur 的 AI Hub 可用單一 API 連接多種主流大型語言模型，並使用 OpenAI-compatible 的呼叫格式。
+    </p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:200px">好處</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-key">減少 API Key 管理</span></td>
+          <td>不用分別處理多家模型供應商的金鑰與設定</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">方便測試不同模型</span></td>
+          <td>同一個 AI 應用可以比較不同 LLM 的效果</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">適合教學與原型</span></td>
+          <td>教師或學生不用一開始就卡在多平台設定</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">成本較容易觀察</span></td>
+          <td>模型呼叫費用可以集中管理與檢查</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑦ RAG -->
+  <section class="section" id="rag">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📚</div>
+      <div class="section-header-text">
+        <h2>七、用 Zeabur 建立 RAG 系統</h2>
+        <p>多元件快速部署與集中管理</p>
+      </div>
+      <div class="section-num">§ 07</div>
+    </div>
+    <p class="section-body">RAG 系統通常不是單一程式，而是由前端、後端、資料庫、文件索引、向量資料庫與 AI 模型組成。Zeabur 的價值在於協助這些元件快速部署與集中管理。</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:160px">RAG 元件</th>
+          <th style="width:200px">功能</th>
+          <th>Zeabur 可以扮演的角色</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-key">前端網站</span></td>
+          <td>讓使用者上傳文件、輸入問題</td>
+          <td>部署 Next.js、Vue、React 等網站</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">後端 API</span></td>
+          <td>處理上傳、檢索、呼叫 AI</td>
+          <td>部署 FastAPI、Node.js 等服務</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">文件儲存</span></td>
+          <td>存放 PDF、Word、圖片等</td>
+          <td>搭配物件儲存或外部儲存服務</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">資料庫</span></td>
+          <td>儲存使用者、文件資訊、查詢紀錄</td>
+          <td>部署 PostgreSQL、MySQL 等</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">向量資料庫</span></td>
+          <td>儲存文字向量，用於語意搜尋</td>
+          <td>可部署支援向量搜尋的資料庫或相關服務</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">AI 模型 API</span></td>
+          <td>生成回答</td>
+          <td>使用 Zeabur AI Hub 或外部 AI API</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">網域與 SSL</span></td>
+          <td>提供正式網址與安全連線</td>
+          <td>管理網域、DNS 與 SSL</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑧ 案例 -->
+  <section class="section" id="case">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🏫</div>
+      <div class="section-header-text">
+        <h2>八、案例：自然科教案 AI 助理</h2>
+        <p>108 課綱 × RAG × 教師工具</p>
+      </div>
+      <div class="section-num">§ 08</div>
+    </div>
+    <p class="section-body">
+      假設學校要建立一個「自然科教案 AI 助理」，老師可以上傳 108 課綱、教案、PDF、科展作品書，再讓 AI 根據資料產生教案、學習單、摘要或評量規準。
+    </p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:140px">模組</th>
+          <th style="width:200px">建議技術</th>
+          <th>Zeabur 用法</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-key">前端介面</span></td>
+          <td>Next.js / React</td>
+          <td>部署成網站，提供上傳與問答介面</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">後端 API</span></td>
+          <td>FastAPI</td>
+          <td>部署 AI API，負責處理文件與模型呼叫</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">資料庫</span></td>
+          <td>PostgreSQL</td>
+          <td>儲存使用者、文件資訊、查詢紀錄</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">快取 / 任務管理</span></td>
+          <td>Redis</td>
+          <td>加速查詢或處理背景任務</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">RAG 檢索</span></td>
+          <td>向量資料庫 / pgvector</td>
+          <td>儲存文件向量並進行語意搜尋</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">AI 回答</span></td>
+          <td>Zeabur AI Hub / OpenAI API</td>
+          <td>呼叫 GPT、Claude、Gemini 等模型</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">網域</span></td>
+          <td>自訂網域</td>
+          <td>例如 ai-lesson.yourschool.tw</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="flow-bar" style="flex-direction:column;align-items:flex-start;gap:6px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.08em;">整體流程</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div class="flow-box fb-blue">老師上傳 PDF / 教案</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box fb-green">後端切分文字</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box fb-green">建立向量索引</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box fb-blue">老師提問</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box fb-purple">檢索相關段落</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box fb-yellow">呼叫 AI 模型</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box fb-yellow">產生教案 / 學習單</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑨ 適合專案 -->
+  <section class="section" id="recommend">
+    <div class="section-header">
+      <div class="section-icon icon-green">⭐</div>
+      <div class="section-header-text">
+        <h2>九、適合用 Zeabur 的 AI 專案</h2>
+        <p>推薦程度一覽</p>
+      </div>
+      <div class="section-num">§ 09</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:120px">推薦程度</th>
+          <th style="width:200px">專案類型</th>
+          <th>原因</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="star-high">★★★ 很推薦</span></td>
+          <td>AI 教案助理</td>
+          <td>前端、後端、AI API、資料庫需求明確</td>
+        </tr>
+        <tr>
+          <td><span class="star-high">★★★ 很推薦</span></td>
+          <td>RAG 文件問答系統</td>
+          <td>適合測試知識庫應用</td>
+        </tr>
+        <tr>
+          <td><span class="star-high">★★★ 很推薦</span></td>
+          <td>科展資料整理工具</td>
+          <td>可展示 AI 與科學研究應用</td>
+        </tr>
+        <tr>
+          <td><span class="star-mid">★★☆ 推薦</span></td>
+          <td>學生 AI 專題作品</td>
+          <td>容易產生公開網址，方便展示</td>
+        </tr>
+        <tr>
+          <td><span class="star-mid">★★☆ 推薦</span></td>
+          <td>教師研習示範平台</td>
+          <td>適合示範 AI 應用如何上線</td>
+        </tr>
+        <tr>
+          <td><span class="star-low">★☆☆ 視情況</span></td>
+          <td>大型校務系統</td>
+          <td>需額外注意資安、權限與長期維護</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑩ 優缺點 -->
+  <section class="section" id="pros">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⚖️</div>
+      <div class="section-header-text">
+        <h2>十、優點與限制</h2>
+        <p>理性評估，選擇合適工具</p>
+      </div>
+      <div class="section-num">§ 10</div>
+    </div>
+    <table class="data-table" style="margin-bottom:14px;">
+      <thead>
+        <tr>
+          <th style="width:200px">優點</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-ok">上手比傳統雲端簡單</span></td>
+          <td>不需要一開始就深入 AWS、GCP、Azure 的複雜設定</td>
+        </tr>
+        <tr>
+          <td><span class="cell-ok">適合 AI 原型快速上線</span></td>
+          <td>很適合 demo、教學、專題、MVP</td>
+        </tr>
+        <tr>
+          <td><span class="cell-ok">可整合前後端與資料庫</span></td>
+          <td>AI 專案常見架構可以集中管理</td>
+        </tr>
+        <tr>
+          <td><span class="cell-ok">支援模板部署</span></td>
+          <td>可快速部署開源工具</td>
+        </tr>
+        <tr>
+          <td><span class="cell-ok">AI Hub 方便模型串接</span></td>
+          <td>減少多平台 API Key 管理</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:200px">限制</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-warn">大型企業架構仍需專業</span></td>
+          <td>超大型或高資安系統仍需要完整雲端架構設計</td>
+        </tr>
+        <tr>
+          <td><span class="cell-warn">成本仍需監控</span></td>
+          <td>AI API、GPU、伺服器、資料庫都可能產生費用</td>
+        </tr>
+        <tr>
+          <td><span class="cell-warn">資料隱私要特別注意</span></td>
+          <td>學生資料、校務文件不應隨意上傳或公開</td>
+        </tr>
+        <tr>
+          <td><span class="cell-warn">對完全零基礎者仍有門檻</span></td>
+          <td>仍需理解 API、環境變數、資料庫與基本部署概念</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ⑪ 教學意義 -->
+  <section class="section" id="edu">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🎓</div>
+      <div class="section-header-text">
+        <h2>十一、給教師與學生的學習意義</h2>
+        <p>從本機程式到可分享的線上服務</p>
+      </div>
+      <div class="section-num">§ 11</div>
+    </div>
+    <div class="usecase-grid">
+      <div class="uc-card">
+        <div class="uc-icon">👨‍🏫</div>
+        <h4>教師研習</h4>
+        <p>示範 AI 工具如何從本機部署到線上，讓老師親身體驗完整上線流程。</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">🔬</div>
+        <h4>科展專題</h4>
+        <p>建立資料分析 Dashboard 或 AI 助理，展示 AI 與科學研究的結合。</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">🎒</div>
+        <h4>學生專題</h4>
+        <p>讓學生作品有公開網址，可以展示與測試，提升學習成就感。</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">🏫</div>
+        <h4>校內工具</h4>
+        <p>建立教案、文件、行政問答系統，提升校務效率。</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">📖</div>
+        <h4>AI 課程</h4>
+        <p>理解 AI 應用背後的前端、後端、資料庫與部署流程，培養完整技術視野。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑫ 總結 -->
+  <section class="section" id="summary">
+    <div class="section-header">
+      <div class="section-icon icon-green">💡</div>
+      <div class="section-header-text">
+        <h2>十二、一句話總結</h2>
+        <p>核心定位與最適應用方向</p>
+      </div>
+    </div>
+    <div class="summary-box">
+      <h3>Zeabur 的核心定位</h3>
+      <p>Zeabur 是一個把 AI 應用從「寫好程式」推進到「真正上線運作」的平台。在 AI 程式開發中，它可以協助處理部署、資料庫、AI 模型 API、網域、環境變數、自動化與維運。</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">最適合的應用方向：</p>
+      <ul>
+        <li>教案 AI 助理</li>
+        <li>RAG 文件問答</li>
+        <li>科展資料分析工具</li>
+        <li>學生 AI 專題作品</li>
+        <li>教師研習示範平台</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 參考來源 -->
+  <section class="section" id="refs">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔗</div>
+      <div class="section-header-text">
+        <h2>參考來源</h2>
+        <p>Zeabur 官方文件與部落格</p>
+      </div>
+    </div>
+    <div class="ref-list">
+      <a class="ref-item" href="https://zeabur.com/zh-TW/" target="_blank">
+        <div class="ref-dot"></div>
+        <span>Zeabur 官方網站 — zeabur.com/zh-TW/</span>
+      </a>
+      <a class="ref-item" href="https://zeabur.com/docs/en-US/get-started/platform-overview" target="_blank">
+        <div class="ref-dot"></div>
+        <span>Zeabur Platform Overview — docs/en-US/get-started/platform-overview</span>
+      </a>
+      <a class="ref-item" href="https://zeabur.com/docs/en-US/deploy" target="_blank">
+        <div class="ref-dot"></div>
+        <span>Zeabur Deploy 文件 — docs/en-US/deploy</span>
+      </a>
+      <a class="ref-item" href="https://zeabur.com/templates" target="_blank">
+        <div class="ref-dot"></div>
+        <span>Zeabur Templates — zeabur.com/templates</span>
+      </a>
+      <a class="ref-item" href="https://zeabur.com/blogs/zeabur-agent-skills-guide" target="_blank">
+        <div class="ref-dot"></div>
+        <span>Zeabur Blog: Zeabur Agent Skills Guide</span>
+      </a>
+      <a class="ref-item" href="https://zeabur.com/blogs/deploy-dify-on-zeabur" target="_blank">
+        <div class="ref-dot"></div>
+        <span>Zeabur Blog: Deploy Dify on Zeabur</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Source Bar -->
+  <div class="source-bar">
+    <span class="src-label">官方來源</span>
+    <a href="https://zeabur.com/zh-TW/" target="_blank">zeabur.com</a>
+    <span class="source-sep">｜</span>
+    <span>2026 年 5 月</span>
+  </div>
+
+</main>
+
+<script>
+  // Scroll spy
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting)
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-20% 0px -65% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
