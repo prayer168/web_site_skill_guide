@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code CLI × Zeabur AI Hub 整合操作手冊</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary:    #060810;
+    --bg-row-a:      #0c0f1a;
+    --bg-row-b:      #0f1422;
+    --bg-sidebar:    #080b14;
+    --bg-header:     #0a0d18;
+    --bg-card:       #0d1020;
+    --bg-code:       #07090f;
+    --text-primary:  #ffffff;
+    --text-secondary:#dde3f5;
+    --text-muted:    #7a85a8;
+    --accent-green:  #3dffa0;
+    --accent-yellow: #ffcc44;
+    --accent-blue:   #6ab8ff;
+    --accent-purple: #b47cff;
+    --accent-red:    #ff6b6b;
+    --border-dim:    #1c2340;
+    --border-mid:    #252d50;
+    --sidebar-w:     260px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-dim);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .sidebar-logo .logo-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .sidebar-logo h2 .x {
+    color: var(--accent-yellow);
+  }
+  .sidebar-logo h2 .z {
+    color: var(--accent-blue);
+  }
+
+  nav { padding: 16px 0; flex: 1; }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s, background 0.2s, border-left-color 0.2s;
+    border-left: 2px solid transparent;
+    line-height: 1.4;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--text-primary);
+    background: rgba(106,184,255,0.06);
+    border-left-color: var(--accent-blue);
+  }
+
+  .nav-icon { font-size: 14px; flex-shrink: 0; width: 20px; text-align: center; }
+
+  .nav-divider { height: 1px; background: var(--border-dim); margin: 10px 20px; }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .sidebar-footer a {
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+
+  /* ── MAIN ── */
+  main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0 48px 80px;
+    max-width: calc(100% - var(--sidebar-w));
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border-dim);
+    margin-bottom: 48px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .hero h1 .x  { color: var(--accent-yellow); }
+  .hero h1 .z  { color: var(--accent-blue); }
+
+  .hero-sub {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 580px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .badge-green  { color: var(--accent-green);  border-color: rgba(61,255,160,0.3);  background: rgba(61,255,160,0.07); }
+  .badge-blue   { color: var(--accent-blue);   border-color: rgba(106,184,255,0.3); background: rgba(106,184,255,0.07); }
+  .badge-yellow { color: var(--accent-yellow); border-color: rgba(255,204,68,0.3);  background: rgba(255,204,68,0.07); }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .section-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .icon-green  { background: rgba(61,255,160,0.1);  border: 1px solid rgba(61,255,160,0.2);  }
+  .icon-blue   { background: rgba(106,184,255,0.1); border: 1px solid rgba(106,184,255,0.2); }
+  .icon-yellow { background: rgba(255,204,68,0.1);  border: 1px solid rgba(255,204,68,0.2);  }
+  .icon-purple { background: rgba(180,124,255,0.1); border: 1px solid rgba(180,124,255,0.2); }
+  .icon-red    { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); }
+
+  .section-header-text h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--text-primary);
+  }
+  .section-header-text p {
+    font-size: 13px; color: var(--text-muted);
+    margin-top: 2px; font-family: 'IBM Plex Mono', monospace;
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    margin-left: auto; flex-shrink: 0;
+  }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .data-table thead th {
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 11px 20px; text-align: left;
+    border-bottom: 1px solid var(--border-mid);
+  }
+
+  .data-table tbody tr:nth-child(odd)  { background: var(--bg-row-a); }
+  .data-table tbody tr:nth-child(even) { background: var(--bg-row-b); }
+  .data-table tbody tr { transition: background 0.15s; }
+  .data-table tbody tr:hover { background: #141830; }
+
+  .data-table td {
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border-dim);
+    vertical-align: top;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+
+  .cell-key {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; font-weight: 500;
+    color: var(--accent-green);
+    white-space: nowrap;
+  }
+
+  .cell-url {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--accent-blue);
+  }
+
+  .cell-warn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--accent-yellow);
+  }
+
+  .cell-err {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--accent-red);
+  }
+
+  .recommended {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; color: var(--accent-green);
+    border: 1px solid rgba(61,255,160,0.3);
+    background: rgba(61,255,160,0.07);
+    padding: 1px 7px; border-radius: 3px;
+    margin-left: 8px; vertical-align: middle;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-wrap {
+    background: var(--bg-code);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .code-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .code-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .copy-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid var(--border-mid);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover  { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .copy-btn.copied { border-color: var(--accent-green); color: var(--accent-green); }
+
+  pre {
+    padding: 20px 22px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text-secondary);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  pre .cmt  { color: var(--text-muted); }
+  pre .cmd  { color: var(--accent-green); }
+  pre .val  { color: var(--accent-yellow); }
+  pre .key  { color: var(--accent-blue); }
+
+  /* ── ALERT ── */
+  .alert {
+    display: flex;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .alert-warn {
+    background: rgba(255,204,68,0.07);
+    border: 1px solid rgba(255,204,68,0.25);
+    color: var(--text-secondary);
+  }
+  .alert-tip {
+    background: rgba(61,255,160,0.06);
+    border: 1px solid rgba(61,255,160,0.2);
+    color: var(--text-secondary);
+  }
+
+  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  .alert strong { color: var(--accent-yellow); }
+  .alert-tip strong { color: var(--accent-green); }
+
+  /* ── STEP LIST ── */
+  .step-list { display: flex; flex-direction: column; gap: 0; }
+
+  .step-item {
+    display: flex;
+    gap: 0;
+    position: relative;
+  }
+
+  .step-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 40px;
+  }
+
+  .step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--accent-blue);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--accent-blue);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-connector {
+    width: 2px;
+    flex: 1;
+    background: var(--border-dim);
+    margin: 4px 0;
+    min-height: 16px;
+  }
+
+  .step-item:last-child .step-connector { display: none; }
+
+  .step-body {
+    padding: 0 0 24px 16px;
+    flex: 1;
+    padding-top: 2px;
+  }
+
+  .step-body strong {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* ── SUMMARY TABLE ── */
+  .env-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--accent-purple);
+  }
+
+  /* ── SOURCE BAR ── */
+  .source-bar {
+    margin-top: 48px;
+    padding: 16px 24px;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    background: var(--bg-card);
+    display: flex; align-items: center; gap: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .source-bar .src-label {
+    color: var(--accent-blue); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .source-bar a { color: var(--text-secondary); text-decoration: none; }
+  .source-bar a:hover { color: var(--accent-blue); }
+  .source-sep { color: var(--border-mid); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    main { margin-left: 0; max-width: 100%; padding: 0 20px 60px; }
+    .hero h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">Integration Manual</div>
+    <h2>Claude Code CLI<br><span class="x">×</span> <span class="z">Zeabur AI Hub</span></h2>
+  </div>
+  <nav>
+    <a href="#what"    class="nav-link"><span class="nav-icon">🌐</span>一、什麼是 Zeabur AI Hub</a>
+    <a href="#cost"    class="nav-link"><span class="nav-icon">💰</span>二、費用比較</a>
+    <a href="#prereq"  class="nav-link"><span class="nav-icon">📦</span>三、前置需求</a>
+    <a href="#nodes"   class="nav-link"><span class="nav-icon">🗺️</span>四、選擇伺服器節點</a>
+    <a href="#setup"   class="nav-link"><span class="nav-icon">⚙️</span>五、設定方式</a>
+    <a href="#start"   class="nav-link"><span class="nav-icon">🚀</span>六、啟動與使用</a>
+    <a href="#trouble" class="nav-link"><span class="nav-icon">🔧</span>七、常見問題排解</a>
+    <div class="nav-divider"></div>
+    <a href="#summary" class="nav-link"><span class="nav-icon">📋</span>快速摘要</a>
+  </nav>
+  <div class="sidebar-footer">
+    來源：<a href="https://zeabur.com/blogs/use-claude-code-with-ai-hub" target="_blank">zeabur.com</a><br>
+    2026 年 5 月
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Integration Manual ／ 整合操作手冊</div>
+    <h1>Claude Code CLI <span class="x">×</span><br><span class="z">Zeabur AI Hub</span></h1>
+    <p class="hero-sub">按用量付費，免訂閱費。透過 Zeabur AI Hub 代理閘道使用 Claude Code，偶爾使用只需幾毛美元，不浪費每月固定費用。</p>
+    <div class="hero-badges">
+      <span class="badge badge-green">按用量計費</span>
+      <span class="badge badge-blue">東京低延遲節點</span>
+      <span class="badge badge-yellow">繁體中文版 2026.05</span>
+    </div>
+  </div>
+
+  <!-- ① 什麼是 Zeabur AI Hub -->
+  <section class="section" id="what">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🌐</div>
+      <div class="section-header-text">
+        <h2>一、什麼是 Zeabur AI Hub？</h2>
+        <p>Anthropic API 代理閘道（Gateway）</p>
+      </div>
+      <div class="section-num">§ 01</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:160px">特點</th>
+          <th>說明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-key">按用量付費</span></td>
+          <td>用多少付多少，不使用當月費用為 $0</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">無需訂閱</span></td>
+          <td>不需 Claude Pro $20／月的固定費用</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">支援多模型</span></td>
+          <td>Claude、Gemini、GPT 等主流模型均可存取</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">亞洲節點</span></td>
+          <td>東京節點 (hnd1) 提供台灣／亞洲低延遲連線</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">相容 Claude Code</span></td>
+          <td>直接指向 Zeabur 端點，無需修改工具</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="alert alert-tip">
+      <span class="alert-icon">💡</span>
+      <div><strong>適合偶爾使用的開發者：</strong>例如週末小專案只需花費約 $0.50，比每月 $20 訂閱更划算。</div>
+    </div>
+  </section>
+
+  <!-- ② 費用比較 -->
+  <section class="section" id="cost">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">💰</div>
+      <div class="section-header-text">
+        <h2>二、費用比較</h2>
+        <p>月費訂閱 vs. 按用量計費</p>
+      </div>
+      <div class="section-num">§ 02</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>方式</th>
+          <th style="width:200px">費用</th>
+          <th>適合對象</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Anthropic 官方訂閱</td>
+          <td><span style="color:var(--accent-yellow);font-family:'IBM Plex Mono',monospace;font-size:13px">$20 / 月（固定）</span></td>
+          <td>每天大量使用的重度用戶</td>
+        </tr>
+        <tr>
+          <td>Zeabur AI Hub</td>
+          <td><span style="color:var(--accent-green);font-family:'IBM Plex Mono',monospace;font-size:13px">依 token 用量計費</span></td>
+          <td>偶爾使用、想控制成本的開發者</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>使用情境</th>
+          <th style="width:200px">預估費用</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>週末小專案（約 2 小時使用）</td>
+          <td><span class="cell-key">~ $0.50 美元</span></td>
+        </tr>
+        <tr>
+          <td>整月都未使用</td>
+          <td><span style="color:var(--accent-green);font-family:'IBM Plex Mono',monospace;font-size:13px">$0（完全不收費）</span></td>
+        </tr>
+        <tr>
+          <td>每日密集開發（等同 Pro 用量）</td>
+          <td><span class="cell-warn">可能超過 $20，建議直接訂閱 Pro</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ③ 前置需求 -->
+  <section class="section" id="prereq">
+    <div class="section-header">
+      <div class="section-icon icon-green">📦</div>
+      <div class="section-header-text">
+        <h2>三、前置需求</h2>
+        <p>安裝 CLI 並取得 API Key</p>
+      </div>
+      <div class="section-num">§ 03</div>
+    </div>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot">3.1</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <strong>安裝 Claude Code CLI</strong>
+          <p style="color:var(--text-secondary);font-size:14px;margin-bottom:10px">確認已安裝 Node.js 18 以上版本，然後執行：</p>
+          <div class="code-wrap">
+            <div class="code-bar">
+              <span class="code-label">terminal</span>
+              <button class="copy-btn" data-copy="npm install -g @anthropic-ai/claude-code
+claude --version">copy</button>
+            </div>
+            <pre><span class="cmd">npm install -g @anthropic-ai/claude-code</span>
+<span class="cmd">claude --version</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot">3.2</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <strong>取得 Zeabur AI Hub API Key</strong>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:60px">步驟</th>
+                <th>操作說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="text-align:center"><span class="cell-key">1</span></td>
+                <td>前往 <a href="https://zeabur.com" target="_blank" style="color:var(--accent-blue)">zeabur.com</a> 並登入帳號</td>
+              </tr>
+              <tr>
+                <td style="text-align:center"><span class="cell-key">2</span></td>
+                <td>點選 Dashboard &gt; AI Hub</td>
+              </tr>
+              <tr>
+                <td style="text-align:center"><span class="cell-key">3</span></td>
+                <td>建立或複製你的 API Key</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ 節點選擇 -->
+  <section class="section" id="nodes">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🗺️</div>
+      <div class="section-header-text">
+        <h2>四、選擇最近的伺服器節點</h2>
+        <p>依地區選擇低延遲端點</p>
+      </div>
+      <div class="section-num">§ 04</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:160px">節點</th>
+          <th>端點 URL</th>
+          <th style="width:200px">建議地區</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-key">hnd1（東京）</span><span class="recommended">推薦</span></td>
+          <td><span class="cell-url">https://hnd1.aihub.zeabur.ai/</span></td>
+          <td>台灣、日本、東亞</td>
+        </tr>
+        <tr>
+          <td><span class="cell-key">sfo1（舊金山）</span></td>
+          <td><span class="cell-url">https://sfo1.aihub.zeabur.ai/</span></td>
+          <td>美西、北美地區</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="alert alert-tip">
+      <span class="alert-icon">💡</span>
+      <div><strong>台灣用戶</strong>請優先選擇 hnd1（東京）節點，延遲最低。</div>
+    </div>
+  </section>
+
+  <!-- ⑤ 設定方式 -->
+  <section class="section" id="setup">
+    <div class="section-header">
+      <div class="section-icon icon-purple">⚙️</div>
+      <div class="section-header-text">
+        <h2>五、設定方式</h2>
+        <p>臨時使用或永久寫入 shell 設定檔</p>
+      </div>
+      <div class="section-num">§ 05</div>
+    </div>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot">A</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <strong>方案 A：臨時使用（單次會話）</strong>
+          <p style="color:var(--text-secondary);font-size:14px;margin-bottom:10px">只要在終端機執行以下指令，本次會話即套用 Zeabur 設定：</p>
+
+          <div class="code-wrap">
+            <div class="code-bar">
+              <span class="code-label">Windows CMD</span>
+              <button class="copy-btn" data-copy="set ANTHROPIC_BASE_URL=https://hnd1.aihub.zeabur.ai/
+set ANTHROPIC_AUTH_TOKEN=你的_Zeabur_API_Key
+set CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1">copy</button>
+            </div>
+            <pre><span class="cmt"># Windows CMD</span>
+<span class="key">set</span> <span class="val">ANTHROPIC_BASE_URL</span>=https://hnd1.aihub.zeabur.ai/
+<span class="key">set</span> <span class="val">ANTHROPIC_AUTH_TOKEN</span>=你的_Zeabur_API_Key
+<span class="key">set</span> <span class="val">CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS</span>=1</pre>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-bar">
+              <span class="code-label">macOS / Linux / WSL</span>
+              <button class="copy-btn" data-copy='export ANTHROPIC_BASE_URL="https://hnd1.aihub.zeabur.ai/"
+export ANTHROPIC_AUTH_TOKEN="你的_Zeabur_API_Key"
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1'>copy</button>
+            </div>
+            <pre><span class="cmt"># macOS / Linux / WSL</span>
+<span class="key">export</span> <span class="val">ANTHROPIC_BASE_URL</span>=<span class="cmd">"https://hnd1.aihub.zeabur.ai/"</span>
+<span class="key">export</span> <span class="val">ANTHROPIC_AUTH_TOKEN</span>=<span class="cmd">"你的_Zeabur_API_Key"</span>
+<span class="key">export</span> <span class="val">CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS</span>=1</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-line">
+          <div class="step-dot">B</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-body">
+          <strong>方案 B：永久設定（加入 shell 設定檔）</strong>
+          <p style="color:var(--text-secondary);font-size:14px;margin-bottom:10px">讓每次開啟終端機都自動套用設定：</p>
+          <div class="code-wrap">
+            <div class="code-bar">
+              <span class="code-label">bash / zsh</span>
+              <button class="copy-btn" data-copy='# 步驟 1：開啟設定檔
+nano ~/.zshrc          # zsh（macOS 預設）
+# 或
+nano ~/.bashrc         # bash（Linux / WSL）
+
+# 步驟 2：在檔案最底部加入以下三行
+export ANTHROPIC_BASE_URL="https://hnd1.aihub.zeabur.ai/"
+export ANTHROPIC_AUTH_TOKEN="你的_Zeabur_API_Key"
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
+
+# 步驟 3：儲存並重新載入
+source ~/.zshrc'>copy</button>
+            </div>
+            <pre><span class="cmt"># 步驟 1：開啟設定檔</span>
+<span class="cmd">nano ~/.zshrc</span>          <span class="cmt"># zsh（macOS 預設）</span>
+<span class="cmt"># 或</span>
+<span class="cmd">nano ~/.bashrc</span>         <span class="cmt"># bash（Linux / WSL）</span>
+
+<span class="cmt"># 步驟 2：在檔案最底部加入以下三行</span>
+<span class="key">export</span> <span class="val">ANTHROPIC_BASE_URL</span>=<span class="cmd">"https://hnd1.aihub.zeabur.ai/"</span>
+<span class="key">export</span> <span class="val">ANTHROPIC_AUTH_TOKEN</span>=<span class="cmd">"你的_Zeabur_API_Key"</span>
+<span class="key">export</span> <span class="val">CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS</span>=1
+
+<span class="cmt"># 步驟 3：儲存後重新載入（Ctrl+O → Enter，Ctrl+X 退出）</span>
+<span class="cmd">source ~/.zshrc</span></pre>
+          </div>
+          <div class="alert alert-warn">
+            <span class="alert-icon">⚠️</span>
+            <div><strong>必須設定</strong> <code style="color:var(--accent-yellow);font-size:12px">CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1</code>，否則 Claude Code 會送出實驗性標頭，導致 Zeabur 閘道回傳 <code style="color:var(--accent-red);font-size:12px">invalid beta flag</code> 錯誤。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ 啟動與使用 -->
+  <section class="section" id="start">
+    <div class="section-header">
+      <div class="section-icon icon-green">🚀</div>
+      <div class="section-header-text">
+        <h2>六、啟動與使用</h2>
+        <p>啟動 Claude Code 並驗證連線</p>
+      </div>
+      <div class="section-num">§ 06</div>
+    </div>
+
+    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:10px">啟動 Claude Code：</p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <span class="code-label">terminal</span>
+        <button class="copy-btn" data-copy="claude --model claude-sonnet-4-5">copy</button>
+      </div>
+      <pre><span class="cmt"># 使用 Sonnet 4.5 模型（推薦）</span>
+<span class="cmd">claude</span> --model <span class="val">claude-sonnet-4-5</span>
+
+<span class="cmt"># 或直接啟動（使用預設模型）</span>
+<span class="cmd">claude</span></pre>
+    </div>
+
+    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:10px;margin-top:20px">驗證連線是否正常：</p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <span class="code-label">terminal</span>
+        <button class="copy-btn" data-copy="echo $ANTHROPIC_BASE_URL">copy</button>
+      </div>
+      <pre><span class="cmt"># 確認環境變數已設定</span>
+<span class="cmd">echo</span> <span class="val">$ANTHROPIC_BASE_URL</span>
+
+<span class="cmt"># 啟動後詢問一個簡單問題確認連線</span>
+<span class="cmd">claude</span>
+<span class="cmt">&gt; 你好，請說一句話確認連線正常</span></pre>
+    </div>
+  </section>
+
+  <!-- ⑦ 問題排解 -->
+  <section class="section" id="trouble">
+    <div class="section-header">
+      <div class="section-icon icon-red">🔧</div>
+      <div class="section-header-text">
+        <h2>七、常見問題排解</h2>
+        <p>錯誤訊息與對應解法</p>
+      </div>
+      <div class="section-num">§ 07</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:200px">問題</th>
+          <th style="width:200px">原因</th>
+          <th>解決方式</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-err">invalid beta flag 錯誤</span></td>
+          <td>未設定停用 beta 標頭</td>
+          <td>確認 <code style="color:var(--accent-yellow);font-size:12px">CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1</code> 已設定</td>
+        </tr>
+        <tr>
+          <td><span class="cell-err">連線逾時 / 速度慢</span></td>
+          <td>節點選擇不佳</td>
+          <td>台灣改用 hnd1（東京）節點</td>
+        </tr>
+        <tr>
+          <td><span class="cell-err">401 Unauthorized</span></td>
+          <td>API Key 錯誤或過期</td>
+          <td>至 Zeabur Dashboard 重新產生 API Key</td>
+        </tr>
+        <tr>
+          <td><span class="cell-err">claude 找不到指令</span></td>
+          <td>PATH 未設定正確</td>
+          <td>確認 npm 全域路徑已加入 PATH 環境變數</td>
+        </tr>
+        <tr>
+          <td><span class="cell-err">環境變數重開後消失</span></td>
+          <td>只有臨時設定</td>
+          <td>改用方案 B，將設定寫入 ~/.zshrc 或 ~/.bashrc</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 快速摘要 -->
+  <section class="section" id="summary">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📋</div>
+      <div class="section-header-text">
+        <h2>八、設定快速摘要</h2>
+        <p>三個環境變數一次搞定</p>
+      </div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>環境變數</th>
+          <th>設定值</th>
+          <th style="width:200px">用途</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="env-tag">ANTHROPIC_BASE_URL</span></td>
+          <td><span class="cell-url">https://hnd1.aihub.zeabur.ai/</span></td>
+          <td>指向 Zeabur 代理伺服器</td>
+        </tr>
+        <tr>
+          <td><span class="env-tag">ANTHROPIC_AUTH_TOKEN</span></td>
+          <td><span class="cell-warn">你的 Zeabur API Key</span></td>
+          <td>認證身份</td>
+        </tr>
+        <tr>
+          <td><span class="env-tag">CLAUDE_CODE_DISABLE_<br>EXPERIMENTAL_BETAS</span></td>
+          <td><span class="cell-key">1</span></td>
+          <td>避免 beta 標頭錯誤</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="alert alert-tip">
+      <span class="alert-icon">💡</span>
+      <div><strong>完成設定後</strong>，Claude Code 的所有功能與命令完全相同，只是計費方式從月費改為按用量。</div>
+    </div>
+  </section>
+
+  <!-- Source Bar -->
+  <div class="source-bar">
+    <span class="src-label">官方教學</span>
+    <a href="https://zeabur.com/blogs/use-claude-code-with-ai-hub" target="_blank">zeabur.com/blogs/use-claude-code-with-ai-hub</a>
+    <span class="source-sep">｜</span>
+    <span>2026 年 5 月</span>
+  </div>
+
+</main>
+
+<script>
+  // Scroll spy
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting)
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-25% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.copy || btn.closest('.code-wrap').querySelector('pre').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✓ copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+</script>
+</body>
+</html>
