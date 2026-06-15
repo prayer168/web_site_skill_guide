@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code CLI 命令完整參考手冊</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary:    #060810;
+    --bg-row-a:      #0c0f1a;
+    --bg-row-b:      #0f1422;
+    --bg-sidebar:    #080b14;
+    --bg-header:     #0a0d18;
+    --bg-card:       #0d1020;
+    --bg-code:       #07090f;
+    --text-primary:  #ffffff;
+    --text-secondary:#dde3f5;
+    --text-muted:    #7a85a8;
+    --accent-green:  #3dffa0;
+    --accent-yellow: #ffcc44;
+    --accent-blue:   #6ab8ff;
+    --accent-purple: #b47cff;
+    --accent-red:    #ff6b6b;
+    --border-dim:    #1c2340;
+    --border-mid:    #252d50;
+    --sidebar-w:     264px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-dim);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 26px 22px 18px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .sidebar-logo .logo-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.45;
+  }
+
+  .sidebar-logo h2 .hl { color: var(--accent-blue); }
+
+  nav { padding: 14px 0; flex: 1; }
+
+  nav a {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 8px 22px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    transition: color 0.2s, background 0.2s, border-left-color 0.2s;
+    border-left: 2px solid transparent;
+    line-height: 1.4;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--text-primary);
+    background: rgba(106,184,255,0.06);
+    border-left-color: var(--accent-blue);
+  }
+
+  .nav-icon { font-size: 13px; flex-shrink: 0; width: 18px; text-align: center; margin-top: 1px; }
+
+  .nav-sub {
+    padding-left: 49px !important;
+    font-size: 12px !important;
+    color: #5a6480 !important;
+  }
+  .nav-sub:hover, .nav-sub.active {
+    color: var(--text-muted) !important;
+    border-left-color: var(--border-mid) !important;
+  }
+
+  .nav-divider { height: 1px; background: var(--border-dim); margin: 8px 18px; }
+
+  .sidebar-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.9;
+  }
+  .sidebar-footer a { color: var(--accent-blue); text-decoration: none; }
+
+  /* ── MAIN ── */
+  main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0 48px 80px;
+    max-width: calc(100% - var(--sidebar-w));
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 54px 0 38px;
+    border-bottom: 1px solid var(--border-dim);
+    margin-bottom: 48px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .hero h1 .hl { color: var(--accent-blue); }
+
+  .hero-sub {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 600px;
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+
+  .hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .badge-green  { color: var(--accent-green);  border-color: rgba(61,255,160,0.3);  background: rgba(61,255,160,0.07); }
+  .badge-blue   { color: var(--accent-blue);   border-color: rgba(106,184,255,0.3); background: rgba(106,184,255,0.07); }
+  .badge-yellow { color: var(--accent-yellow); border-color: rgba(255,204,68,0.3);  background: rgba(255,204,68,0.07); }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 52px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .section-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .icon-green  { background: rgba(61,255,160,0.1);  border: 1px solid rgba(61,255,160,0.2);  }
+  .icon-blue   { background: rgba(106,184,255,0.1); border: 1px solid rgba(106,184,255,0.2); }
+  .icon-yellow { background: rgba(255,204,68,0.1);  border: 1px solid rgba(255,204,68,0.2);  }
+  .icon-purple { background: rgba(180,124,255,0.1); border: 1px solid rgba(180,124,255,0.2); }
+  .icon-red    { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); }
+
+  .section-header-text h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 19px; font-weight: 700;
+    color: var(--text-primary);
+  }
+  .section-header-text p {
+    font-size: 12px; color: var(--text-muted);
+    margin-top: 2px; font-family: 'IBM Plex Mono', monospace;
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    margin-left: auto; flex-shrink: 0;
+  }
+
+  /* ── SUB-SECTION ── */
+  .sub-section {
+    margin-bottom: 28px;
+    scroll-margin-top: 24px;
+  }
+
+  .sub-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 8px 0 8px 14px;
+    border-left: 3px solid var(--accent-blue);
+  }
+
+  .sub-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .sub-header .sub-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    color: var(--accent-blue);
+    border: 1px solid rgba(106,184,255,0.25);
+    background: rgba(106,184,255,0.07);
+  }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  .data-table thead th {
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 11px 18px; text-align: left;
+    border-bottom: 1px solid var(--border-mid);
+  }
+
+  .data-table tbody tr:nth-child(odd)  { background: var(--bg-row-a); }
+  .data-table tbody tr:nth-child(even) { background: var(--bg-row-b); }
+  .data-table tbody tr { transition: background 0.15s; }
+  .data-table tbody tr:hover { background: #141830; }
+
+  .data-table td {
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--border-dim);
+    vertical-align: top;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+
+  /* ── CMD CELLS ── */
+  .cmd {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--accent-green);
+    white-space: nowrap;
+  }
+
+  .flag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--accent-blue);
+    white-space: nowrap;
+  }
+
+  .ex {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  .danger {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--accent-red);
+  }
+
+  /* ── COPY BTN ── */
+  .copy-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border: 1px solid var(--border-mid);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    vertical-align: middle;
+    margin-left: 6px;
+    display: inline-block;
+  }
+  .copy-btn:hover  { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .copy-btn.copied { border-color: var(--accent-green); color: var(--accent-green); }
+
+  /* ── INSTALL STEPS ── */
+  .install-grid {
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .install-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg-row-a);
+    border-bottom: 1px solid var(--border-dim);
+    transition: background 0.15s;
+  }
+  .install-row:nth-child(even) { background: var(--bg-row-b); }
+  .install-row:last-child { border-bottom: none; }
+  .install-row:hover { background: #141830; }
+
+  .install-step {
+    width: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    border-right: 1px solid var(--border-dim);
+    background: var(--bg-header);
+  }
+
+  .install-label {
+    padding: 0 16px;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  .install-cmd {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-green);
+    padding: 0 16px;
+    flex: 1;
+    border-left: 1px solid var(--border-dim);
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── ALERT ── */
+  .alert {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .alert-tip  { background: rgba(61,255,160,0.06);  border: 1px solid rgba(61,255,160,0.2);  color: var(--text-secondary); }
+  .alert-warn { background: rgba(255,107,107,0.07); border: 1px solid rgba(255,107,107,0.25); color: var(--text-secondary); }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert-tip  strong { color: var(--accent-green); }
+  .alert-warn strong { color: var(--accent-red); }
+
+  /* ── SOURCE BAR ── */
+  .source-bar {
+    margin-top: 48px;
+    padding: 14px 20px;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    background: var(--bg-card);
+    display: flex; align-items: center; gap: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .source-bar .src-label {
+    color: var(--accent-blue); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .source-bar a { color: var(--text-secondary); text-decoration: none; }
+  .source-bar a:hover { color: var(--accent-blue); }
+  .source-sep { color: var(--border-mid); }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    main { margin-left: 0; max-width: 100%; padding: 0 20px 60px; }
+    .hero h1 { font-size: 24px; }
+    .install-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">CLI Reference</div>
+    <h2><span class="hl">Claude Code</span> CLI<br>命令完整參考手冊</h2>
+  </div>
+  <nav>
+    <a href="#cmds"    class="nav-link"><span class="nav-icon">⌨️</span>一、CLI 主要命令</a>
+    <a href="#flags"   class="nav-link"><span class="nav-icon">🚩</span>二、CLI 旗標（Flags）</a>
+    <a href="#f-session"  class="nav-sub nav-link">　2.1 會話控制</a>
+    <a href="#f-output"   class="nav-sub nav-link">　2.2 輸出與除錯</a>
+    <a href="#f-model"    class="nav-sub nav-link">　2.3 模型與效能</a>
+    <a href="#f-prompt"   class="nav-sub nav-link">　2.4 系統提示詞</a>
+    <a href="#f-tools"    class="nav-sub nav-link">　2.5 工具與權限</a>
+    <a href="#f-misc"     class="nav-sub nav-link">　2.6 其他實用旗標</a>
+    <div class="nav-divider"></div>
+    <a href="#install" class="nav-link"><span class="nav-icon">🚀</span>三、快速安裝指南</a>
+  </nav>
+  <div class="sidebar-footer">
+    官方文件：<a href="https://code.claude.com/docs/en/cli-reference" target="_blank">code.claude.com</a>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Official CLI Reference ／ 命令完整參考</div>
+    <h1><span class="hl">Claude Code</span> CLI<br>命令完整參考手冊</h1>
+    <p class="hero-sub">涵蓋所有主要命令、旗標分類與快速安裝步驟，依官方文件整理，繁體中文版。</p>
+    <div class="hero-badges">
+      <span class="badge badge-green">21 個主要命令</span>
+      <span class="badge badge-blue">6 類旗標</span>
+      <span class="badge badge-yellow">快速安裝 5 步驟</span>
+    </div>
+  </div>
+
+  <!-- ① 主要命令 -->
+  <section class="section" id="cmds">
+    <div class="section-header">
+      <div class="section-icon icon-green">⌨️</div>
+      <div class="section-header-text">
+        <h2>一、CLI 主要命令</h2>
+        <p>啟動會話、管道輸入、恢復對話與管理更新</p>
+      </div>
+      <div class="section-num">§ 01</div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:260px">命令</th>
+          <th>說明</th>
+          <th style="width:260px">範例</th>
+        </tr>
+      </thead>
+      <tbody id="cmd-table-body">
+        <tr>
+          <td><span class="cmd">claude</span></td>
+          <td>啟動互動式會話</td>
+          <td><span class="ex">claude</span><button class="copy-btn" data-copy="claude">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude "query"</span></td>
+          <td>帶初始提示啟動會話</td>
+          <td><span class="ex">claude "explain this project"</span><button class="copy-btn" data-copy='claude "explain this project"'>copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude -p "query"</span></td>
+          <td>單次查詢後退出（非互動模式）</td>
+          <td><span class="ex">claude -p "explain this function"</span><button class="copy-btn" data-copy='claude -p "explain this function"'>copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">cat file │ claude -p "query"</span></td>
+          <td>處理管道輸入內容</td>
+          <td><span class="ex">cat logs.txt │ claude -p "explain"</span><button class="copy-btn" data-copy='cat logs.txt | claude -p "explain"'>copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude -c</span></td>
+          <td>繼續最近一次的對話</td>
+          <td><span class="ex">claude -c</span><button class="copy-btn" data-copy="claude -c">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude -c -p "query"</span></td>
+          <td>以 SDK 模式繼續對話</td>
+          <td><span class="ex">claude -c -p "Check for errors"</span><button class="copy-btn" data-copy='claude -c -p "Check for errors"'>copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude -r "&lt;session&gt;" "query"</span></td>
+          <td>以 ID 或名稱恢復特定會話</td>
+          <td><span class="ex">claude -r "auth-refactor" "Finish PR"</span><button class="copy-btn" data-copy='claude -r "auth-refactor" "Finish PR"'>copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude update</span></td>
+          <td>更新到最新版本</td>
+          <td><span class="ex">claude update</span><button class="copy-btn" data-copy="claude update">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude install [version]</span></td>
+          <td>安裝或重新安裝指定版本</td>
+          <td><span class="ex">claude install stable</span><button class="copy-btn" data-copy="claude install stable">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude auth login</span></td>
+          <td>登入 Anthropic 帳號</td>
+          <td><span class="ex">claude auth login --console</span><button class="copy-btn" data-copy="claude auth login --console">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude auth logout</span></td>
+          <td>登出帳號</td>
+          <td><span class="ex">claude auth logout</span><button class="copy-btn" data-copy="claude auth logout">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude auth status</span></td>
+          <td>顯示認證狀態（JSON 格式）</td>
+          <td><span class="ex">claude auth status --text</span><button class="copy-btn" data-copy="claude auth status --text">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude agents</span></td>
+          <td>列出所有設定的子代理</td>
+          <td><span class="ex">claude agents</span><button class="copy-btn" data-copy="claude agents">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude auto-mode defaults</span></td>
+          <td>輸出自動模式預設規則</td>
+          <td><span class="ex">claude auto-mode defaults &gt; rules.json</span><button class="copy-btn" data-copy="claude auto-mode defaults > rules.json">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude mcp</span></td>
+          <td>設定 MCP 伺服器</td>
+          <td><span class="ex">claude mcp add github https://mcp.github.com</span><button class="copy-btn" data-copy="claude mcp add github https://mcp.github.com">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude plugin</span></td>
+          <td>管理 Claude Code 外掛</td>
+          <td><span class="ex">claude plugin install code-review@official</span><button class="copy-btn" data-copy="claude plugin install code-review@official">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude project purge [path]</span></td>
+          <td>刪除專案的所有本地狀態</td>
+          <td><span class="ex">claude project purge ~/work/repo --dry-run</span><button class="copy-btn" data-copy="claude project purge ~/work/repo --dry-run">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude remote-control</span></td>
+          <td>啟動遠端控制伺服器</td>
+          <td><span class="ex">claude remote-control --name "My Project"</span><button class="copy-btn" data-copy='claude remote-control --name "My Project"'>copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude setup-token</span></td>
+          <td>產生長效 OAuth token</td>
+          <td><span class="ex">claude setup-token</span><button class="copy-btn" data-copy="claude setup-token">copy</button></td>
+        </tr>
+        <tr>
+          <td><span class="cmd">claude ultrareview [target]</span></td>
+          <td>非互動式執行 ultrareview</td>
+          <td><span class="ex">claude ultrareview 1234 --json</span><button class="copy-btn" data-copy="claude ultrareview 1234 --json">copy</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ② 旗標 -->
+  <section class="section" id="flags">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🚩</div>
+      <div class="section-header-text">
+        <h2>二、CLI 旗標（Flags）</h2>
+        <p>自訂 Claude Code 行為的所有旗標，依功能分六類</p>
+      </div>
+      <div class="section-num">§ 02</div>
+    </div>
+
+    <!-- 2.1 會話控制 -->
+    <div class="sub-section" id="f-session">
+      <div class="sub-header">
+        <h3>2.1 會話控制</h3>
+        <span class="sub-tag">Session</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="width:260px">旗標</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="flag">-c / --continue</span></td><td>繼續最近的對話</td></tr>
+          <tr><td><span class="flag">-r / --resume</span></td><td>恢復指定會話（ID 或名稱）</td></tr>
+          <tr><td><span class="flag">-n / --name</span></td><td>設定會話顯示名稱</td></tr>
+          <tr><td><span class="flag">--fork-session</span></td><td>恢復時建立新 session ID</td></tr>
+          <tr><td><span class="flag">--from-pr</span></td><td>恢復與 PR 關聯的會話</td></tr>
+          <tr><td><span class="flag">--session-id</span></td><td>使用特定 UUID 作為 session ID</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2.2 輸出與除錯 -->
+    <div class="sub-section" id="f-output">
+      <div class="sub-header">
+        <h3>2.2 輸出與除錯</h3>
+        <span class="sub-tag">Output / Debug</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="width:260px">旗標</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="flag">-p / --print</span></td><td>非互動模式，直接輸出結果</td></tr>
+          <tr><td><span class="flag">--output-format</span></td><td>指定輸出格式：<code style="color:var(--accent-yellow);font-size:12px">text</code>、<code style="color:var(--accent-yellow);font-size:12px">json</code>、<code style="color:var(--accent-yellow);font-size:12px">stream-json</code></td></tr>
+          <tr><td><span class="flag">--max-turns</span></td><td>限制最大對話輪數（非互動模式）</td></tr>
+          <tr><td><span class="flag">--max-budget-usd</span></td><td>限制最大花費金額</td></tr>
+          <tr><td><span class="flag">--verbose</span></td><td>顯示詳細日誌</td></tr>
+          <tr><td><span class="flag">--debug</span></td><td>啟用除錯模式（可指定分類）</td></tr>
+          <tr><td><span class="flag">--debug-file &lt;path&gt;</span></td><td>將除錯日誌寫入指定檔案</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2.3 模型與效能 -->
+    <div class="sub-section" id="f-model">
+      <div class="sub-header">
+        <h3>2.3 模型與效能</h3>
+        <span class="sub-tag">Model / Performance</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="width:260px">旗標</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="flag">--model</span></td><td>指定模型（<code style="color:var(--accent-yellow);font-size:12px">sonnet</code>、<code style="color:var(--accent-yellow);font-size:12px">opus</code> 或完整名稱）</td></tr>
+          <tr><td><span class="flag">--effort</span></td><td>設定努力程度：<code style="color:var(--accent-yellow);font-size:12px">low / medium / high / xhigh / max</code></td></tr>
+          <tr><td><span class="flag">--fallback-model</span></td><td>模型過載時自動備援（非互動模式）</td></tr>
+          <tr><td><span class="flag">--betas</span></td><td>包含 Beta 標頭（API key 使用者）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2.4 系統提示詞 -->
+    <div class="sub-section" id="f-prompt">
+      <div class="sub-header">
+        <h3>2.4 系統提示詞</h3>
+        <span class="sub-tag">System Prompt</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="width:280px">旗標</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="flag">--system-prompt</span></td><td>取代整個系統提示詞</td></tr>
+          <tr><td><span class="flag">--system-prompt-file</span></td><td>從檔案載入替換系統提示詞</td></tr>
+          <tr><td><span class="flag">--append-system-prompt</span></td><td>附加到預設系統提示詞末尾</td></tr>
+          <tr><td><span class="flag">--append-system-prompt-file</span></td><td>從檔案附加到系統提示詞</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2.5 工具與權限 -->
+    <div class="sub-section" id="f-tools">
+      <div class="sub-header">
+        <h3>2.5 工具與權限</h3>
+        <span class="sub-tag">Tools / Permissions</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="width:280px">旗標</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="flag">--permission-mode</span></td><td>設定權限模式（<code style="color:var(--accent-yellow);font-size:12px">default / plan / auto / bypassPermissions</code> 等）</td></tr>
+          <tr><td><span class="flag">--allowedTools</span></td><td>不需確認即可執行的工具</td></tr>
+          <tr><td><span class="flag">--disallowedTools</span></td><td>完全禁用的工具</td></tr>
+          <tr><td><span class="flag">--tools</span></td><td>限制可用的內建工具</td></tr>
+          <tr><td><span class="danger">--dangerously-skip-permissions</span></td><td>跳過所有權限提示（<strong style="color:var(--accent-red)">危險！</strong>）</td></tr>
+          <tr><td><span class="flag">--allow-dangerously-skip-permissions</span></td><td>將 bypassPermissions 加入 Shift+Tab 循環</td></tr>
+        </tbody>
+      </table>
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>注意：</strong><code style="color:var(--accent-red);font-size:12px">--dangerously-skip-permissions</code> 會跳過所有安全確認，請僅在完全受控的環境中使用。</div>
+      </div>
+    </div>
+
+    <!-- 2.6 其他 -->
+    <div class="sub-section" id="f-misc">
+      <div class="sub-header">
+        <h3>2.6 其他實用旗標</h3>
+        <span class="sub-tag">Misc</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="width:260px">旗標</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="flag">--add-dir</span></td><td>新增額外工作目錄</td></tr>
+          <tr><td><span class="flag">--mcp-config</span></td><td>從 JSON 載入 MCP 伺服器設定</td></tr>
+          <tr><td><span class="flag">--worktree / -w</span></td><td>在獨立 git worktree 中執行</td></tr>
+          <tr><td><span class="flag">--bare</span></td><td>最精簡模式，跳過自動探索</td></tr>
+          <tr><td><span class="flag">--chrome</span></td><td>啟用 Chrome 瀏覽器整合</td></tr>
+          <tr><td><span class="flag">--ide</span></td><td>啟動時自動連接 IDE</td></tr>
+          <tr><td><span class="flag">--remote</span></td><td>在 claude.ai 建立新 web 會話</td></tr>
+          <tr><td><span class="flag">--remote-control / --rc</span></td><td>啟動互動會話並啟用遠端控制</td></tr>
+          <tr><td><span class="flag">--agent</span></td><td>指定本次會話使用的 agent</td></tr>
+          <tr><td><span class="flag">--tmux</span></td><td>為 worktree 建立 tmux 會話</td></tr>
+          <tr><td><span class="flag">-v / --version</span></td><td>顯示版本號</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ③ 快速安裝 -->
+  <section class="section" id="install">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🚀</div>
+      <div class="section-header-text">
+        <h2>三、快速安裝指南</h2>
+        <p>五個步驟，從安裝到啟動</p>
+      </div>
+      <div class="section-num">§ 03</div>
+    </div>
+    <div class="install-grid">
+      <div class="install-row">
+        <div class="install-step">01</div>
+        <div class="install-label">安裝 Claude Code</div>
+        <div class="install-cmd">
+          <span>npm install -g @anthropic-ai/claude-code</span>
+          <button class="copy-btn" data-copy="npm install -g @anthropic-ai/claude-code">copy</button>
+        </div>
+      </div>
+      <div class="install-row">
+        <div class="install-step">02</div>
+        <div class="install-label">登入帳號</div>
+        <div class="install-cmd">
+          <span>claude auth login</span>
+          <button class="copy-btn" data-copy="claude auth login">copy</button>
+        </div>
+      </div>
+      <div class="install-row">
+        <div class="install-step">03</div>
+        <div class="install-label">確認登入狀態</div>
+        <div class="install-cmd">
+          <span>claude auth status --text</span>
+          <button class="copy-btn" data-copy="claude auth status --text">copy</button>
+        </div>
+      </div>
+      <div class="install-row">
+        <div class="install-step">04</div>
+        <div class="install-label">啟動互動會話</div>
+        <div class="install-cmd">
+          <span>claude</span>
+          <button class="copy-btn" data-copy="claude">copy</button>
+        </div>
+      </div>
+      <div class="install-row">
+        <div class="install-step">05</div>
+        <div class="install-label">更新到最新版本</div>
+        <div class="install-cmd">
+          <span>claude update</span>
+          <button class="copy-btn" data-copy="claude update">copy</button>
+        </div>
+      </div>
+    </div>
+    <div class="alert alert-tip" style="margin-top:16px;">
+      <span class="alert-icon">💡</span>
+      <div><strong>提示：</strong>輸入錯誤的子命令時，Claude Code 會自動建議最接近的正確命令。</div>
+    </div>
+  </section>
+
+  <!-- Source Bar -->
+  <div class="source-bar">
+    <span class="src-label">官方文件</span>
+    <a href="https://code.claude.com/docs/en/cli-reference" target="_blank">code.claude.com/docs/en/cli-reference</a>
+  </div>
+
+</main>
+
+<script>
+  // Scroll spy
+  const allSections = document.querySelectorAll('.section[id], .sub-section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting)
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-15% 0px -70% 0px' });
+  allSections.forEach(s => observer.observe(s));
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.copy || '';
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>
