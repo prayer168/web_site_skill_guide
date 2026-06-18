@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code Skill 建置指南</title>
+<style>
+  :root {
+    --blue: #1d4ed8;
+    --blue-light: #dbeafe;
+    --blue-mid: #93c5fd;
+    --gray: #64748b;
+    --bg: #f8fafc;
+    --white: #ffffff;
+    --border: #e2e8f0;
+    --code-bg: #1e293b;
+    --code-text: #e2e8f0;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, sans-serif;
+    background: var(--bg);
+    color: #1e293b;
+    line-height: 1.75;
+  }
+
+  /* ---- Header ---- */
+  header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #3b82f6 100%);
+    color: white;
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+  }
+  header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 999px;
+    padding: 0.25rem 0.9rem;
+    font-size: 0.85rem;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.05em;
+  }
+  header h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  header p {
+    font-size: 1.1rem;
+    opacity: 0.85;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ---- Layout ---- */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ---- TOC ---- */
+  .toc {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin: 2.5rem auto;
+    max-width: 800px;
+  }
+  .toc-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 0.8rem;
+  }
+  .toc ol { padding-left: 1.2rem; }
+  .toc li { margin: 0.3rem 0; }
+  .toc a { color: var(--blue); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ---- Article ---- */
+  article { padding-bottom: 4rem; }
+
+  section { margin: 3rem 0; }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    border-bottom: 2px solid var(--blue-light);
+    padding-bottom: 0.4rem;
+    margin-bottom: 1.2rem;
+    scroll-margin-top: 1.5rem;
+  }
+  h2 .num {
+    display: inline-block;
+    background: var(--blue);
+    color: white;
+    width: 1.8rem;
+    height: 1.8rem;
+    line-height: 1.8rem;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    margin-right: 0.6rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin: 1.6rem 0 0.6rem;
+  }
+
+  p { margin-bottom: 1rem; }
+
+  /* ---- Code ---- */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 1rem 0;
+    position: relative;
+  }
+  pre .label {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.8rem;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  code {
+    font-family: "Cascadia Code", "Fira Code", "Courier New", monospace;
+  }
+  p code, li code {
+    background: #f1f5f9;
+    color: #be185d;
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  /* ---- Callouts ---- */
+  .callout {
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0;
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+  }
+  .callout .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.05rem; }
+  .callout.tip { background: var(--green-light); border-left: 4px solid var(--green); }
+  .callout.warn { background: var(--amber-light); border-left: 4px solid var(--amber); }
+  .callout.info { background: var(--blue-light); border-left: 4px solid var(--blue); }
+
+  /* ---- File Tree ---- */
+  .tree {
+    background: var(--code-bg);
+    color: #94a3b8;
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    margin: 1rem 0;
+  }
+  .tree .dir { color: #7dd3fc; }
+  .tree .file { color: #a3e635; }
+  .tree .comment { color: #475569; }
+
+  /* ---- Steps ---- */
+  .steps { counter-reset: step; list-style: none; padding: 0; }
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    align-items: flex-start;
+  }
+  .steps li::before {
+    content: counter(step);
+    background: var(--blue);
+    color: white;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  /* ---- Comparison Table ---- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+  th {
+    background: var(--blue);
+    color: white;
+    padding: 0.6rem 1rem;
+    text-align: left;
+  }
+  td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* ---- Footer ---- */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--gray);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 600px) {
+    header { padding: 2.5rem 1rem 2rem; }
+    .toc { margin: 1.5rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Claude Code · 技術指南</div>
+  <h1>如何用 Skill Creator<br>打造自訂 Claude Skill</h1>
+  <p>從需求分析到 SKILL.md 撰寫、測試與部署，完整的 Skill 建置流程</p>
+</header>
+
+<div class="container">
+
+  <nav class="toc">
+    <div class="toc-title">目錄</div>
+    <ol>
+      <li><a href="#what-is-skill">什麼是 Claude Code Skill？</a></li>
+      <li><a href="#file-structure">Skill 的檔案結構</a></li>
+      <li><a href="#frontmatter">撰寫 Frontmatter（最關鍵的一步）</a></li>
+      <li><a href="#body">撰寫 Skill 主體內容</a></li>
+      <li><a href="#supporting-files">進階：加入輔助檔案</a></li>
+      <li><a href="#deploy">放置位置與部署</a></li>
+      <li><a href="#test">測試與驗證</a></li>
+      <li><a href="#real-example">完整範例：interactive-science-courseware</a></li>
+    </ol>
+  </nav>
+
+  <article>
+
+    <!-- Section 1 -->
+    <section id="what-is-skill" class="container">
+      <h2><span class="num">1</span>什麼是 Claude Code Skill？</h2>
+
+      <p>
+        Skill 是一段寫給 Claude 的「作業程序說明」，存放在特定資料夾中。
+        當使用者輸入的訊息符合 Skill 的觸發條件時，Claude 會自動載入並依照說明執行任務，
+        不需要使用者每次都重複交代相同的背景與流程。
+      </p>
+
+      <p>你可以把 Skill 想成：</p>
+
+      <table>
+        <thead><tr><th>類比</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>公司 SOP 文件</td><td>把重複工作的步驟標準化，讓執行者（Claude）每次都照同一套流程做</td></tr>
+          <tr><td>VS Code Snippet</td><td>輸入特定關鍵字，自動展開一段預設程式碼/流程</td></tr>
+          <tr><td>GPT Custom Instructions</td><td>告訴 AI「在特定情境下，要怎麼思考、怎麼回應」</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="icon">💡</span>
+        <span>Skill 與一般 prompt 的最大差別：Skill 是<strong>持久化</strong>的。你寫一次，之後每個符合條件的對話都會自動套用，不需要每次重新說明。</span>
+      </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section id="file-structure" class="container">
+      <h2><span class="num">2</span>Skill 的檔案結構</h2>
+
+      <p>最精簡的 Skill 只需要一個 <code>SKILL.md</code> 檔案：</p>
+
+      <div class="tree">
+        <span class="dir">.claude/skills/</span><br>
+        &nbsp;&nbsp;<span class="dir">your-skill-name/</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">SKILL.md</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 必要：frontmatter + 操作說明</span>
+      </div>
+
+      <p>複雜的 Skill 可以加入輔助檔案：</p>
+
+      <div class="tree">
+        <span class="dir">.claude/skills/</span><br>
+        &nbsp;&nbsp;<span class="dir">your-skill-name/</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">SKILL.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 主要說明</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">reference.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 程式碼片段、參考資料</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">templates/</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">example.html.template</span>&nbsp;<span class="comment"># 可套用的範本</span>
+      </div>
+
+      <h3>命名規則</h3>
+      <ul style="padding-left:1.4rem;margin-bottom:1rem;">
+        <li>資料夾名稱 = Skill 名稱，用<strong>小寫 + 連字號</strong>（kebab-case）</li>
+        <li>命名反映「功能」而非「實作細節」</li>
+        <li>範例：<code>pdf-extractor</code>、<code>commit-message-writer</code>、<code>interactive-science-courseware</code></li>
+      </ul>
+    </section>
+
+    <!-- Section 3 -->
+    <section id="frontmatter" class="container">
+      <h2><span class="num">3</span>撰寫 Frontmatter（最關鍵的一步）</h2>
+
+      <p>
+        <code>SKILL.md</code> 的開頭必須有 YAML frontmatter，格式如下：
+      </p>
+
+      <pre><code><span class="label">SKILL.md</span>---
+name: your-skill-name
+description: &lt;這裡是 Claude 判斷是否載入此 Skill 的唯一依據&gt;
+---</code></pre>
+
+      <h3>description 怎麼寫才有效？</h3>
+
+      <p><code>description</code> 是 Claude 比對使用者訊息時用的關鍵欄位，寫法決定 Skill 的觸發精準度。</p>
+
+      <div class="callout warn">
+        <span class="icon">⚠️</span>
+        <span><strong>常見錯誤</strong>：只寫功能、不寫觸發情境。<br>
+        ❌ <code>Helps create interactive science lessons.</code><br>
+        ✅ <code>Use this skill when the user wants to create interactive digital teaching materials for natural science using SVG animations, CSS, and JavaScript. Triggers on phrases like "做一個自然科互動教材", "SVG 動畫教學"...</code></span>
+      </div>
+
+      <p>好的 description 包含三個要素：</p>
+
+      <ol class="steps">
+        <li>
+          <div>
+            <strong>使用時機（When）</strong><br>
+            以「Use this skill when the user wants to...」開頭，描述哪種情境下應套用此 Skill。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>觸發關鍵字（Triggers）</strong><br>
+            列出使用者可能說出的字句，中英文皆可，包含同義詞與不同說法。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>功能摘要（What）</strong><br>
+            說明這個 Skill 能做什麼，幫助 Claude 確認情境是否符合。
+          </div>
+        </li>
+      </ol>
+
+      <pre><code><span class="label">SKILL.md 範例</span>---
+name: interactive-science-courseware
+description: Use this skill when the user wants to create
+  interactive digital teaching materials for natural science
+  （自然科/理化/生物/地科）using SVG animations, CSS, and
+  JavaScript. Triggers on phrases like "做一個自然科互動教材",
+  "SVG 動畫教學", "互動式科學模擬",
+  "make an interactive science lesson with SVG/CSS/JS".
+---</code></pre>
+    </section>
+
+    <!-- Section 4 -->
+    <section id="body" class="container">
+      <h2><span class="num">4</span>撰寫 Skill 主體內容</h2>
+
+      <p>Frontmatter 之後是給 Claude 的操作說明，建議用以下結構組織：</p>
+
+      <h3>標準結構</h3>
+      <pre><code><span class="label">SKILL.md 主體結構</span># Skill 標題
+
+一句話說明此 Skill 的目的。
+
+## 流程
+
+### 1. 釐清需求
+說明需要向使用者確認哪些資訊，以及什麼情況下可以略過。
+
+### 2. 執行步驟
+列出逐步執行的具體動作，避免含糊描述。
+
+### 3. 輸出規格
+說明輸出物的格式、放置位置、命名規則。
+
+## 注意事項
+- 常見錯誤或邊界情況
+- 限制條件
+
+## 範例
+輸入：&lt;範例情境&gt;
+輸出：&lt;期望結果&gt;</code></pre>
+
+      <h3>撰寫原則</h3>
+
+      <div class="callout tip">
+        <span class="icon">✅</span>
+        <div>
+          <strong>只寫 Claude「執行時需要知道」的資訊</strong>——不要寫成完整教學文件。
+          把長段參考資料、程式碼片段移到 <code>reference.md</code>，在 SKILL.md 中用相對路徑引用。
+        </div>
+      </div>
+
+      <ul style="padding-left:1.4rem;margin-bottom:1rem;">
+        <li>用編號清單或標題分隔步驟，讓 Claude 能循序執行</li>
+        <li>說明「需要哪些輸入」和「如何取得缺少的資訊」</li>
+        <li>列出 1–2 個輸入輸出範例，幫助 Claude 校準格式</li>
+        <li>避免硬編碼無關的示範資料</li>
+      </ul>
+    </section>
+
+    <!-- Section 5 -->
+    <section id="supporting-files" class="container">
+      <h2><span class="num">5</span>進階：加入輔助檔案</h2>
+
+      <p>當 Skill 需要重複使用的程式碼、格式或大量參考資料時，應拆分為獨立檔案。</p>
+
+      <h3>reference.md — 程式碼片段與參考資料</h3>
+      <p>適合放：常用程式碼模式、API 參數說明、設計規範。在 SKILL.md 中用相對路徑引用：</p>
+      <pre><code>## 常用互動模式
+詳細程式碼片段請參考 `reference.md`。</code></pre>
+
+      <h3>templates/ — 可直接套用的範本</h3>
+      <p>適合放：空白骨架檔案（HTML、Markdown、JSON 等），讓 Claude 能直接複製後填入內容，減少每次從零生成的時間。</p>
+
+      <pre><code><span class="label">reference.md 片段範例</span>## 滑桿即時控制 SVG 屬性
+
+```js
+const slider = document.getElementById('angle');
+slider.addEventListener('input', () => {
+  element.setAttribute('transform', `rotate(${slider.value})`);
+});
+```</code></pre>
+    </section>
+
+    <!-- Section 6 -->
+    <section id="deploy" class="container">
+      <h2><span class="num">6</span>放置位置與部署</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>範圍</th>
+            <th>路徑</th>
+            <th>說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>專案層級</td>
+            <td><code>&lt;repo&gt;/.claude/skills/&lt;name&gt;/SKILL.md</code></td>
+            <td>僅在此 repo 的 Claude Code session 中可用</td>
+          </tr>
+          <tr>
+            <td>使用者層級</td>
+            <td><code>~/.claude/skills/&lt;name&gt;/SKILL.md</code></td>
+            <td>所有 repo 的 session 皆可使用</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="icon">💡</span>
+        <span>建議先放在<strong>專案層級</strong>測試，確認行為正確後再移到使用者層級推廣給所有專案使用。</span>
+      </div>
+
+      <p>確認路徑後，將整個 <code>.claude/</code> 資料夾提交到 Git，這樣團隊成員 clone repo 後就能共享同一套 Skill。</p>
+    </section>
+
+    <!-- Section 7 -->
+    <section id="test" class="container">
+      <h2><span class="num">7</span>測試與驗證</h2>
+
+      <ol class="steps">
+        <li>
+          <div>
+            <strong>檢查 frontmatter 格式</strong><br>
+            確認是合法 YAML，<code>name</code> 欄位與資料夾名稱一致。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>觸發測試</strong><br>
+            開啟新的 Claude Code session，輸入一句符合 <code>description</code> 觸發條件的話，
+            確認 Skill 被自動載入（左下角或對話中會顯示 Skill 名稱）。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>完整流程測試</strong><br>
+            走一遍 SKILL.md 中定義的完整流程，確認每個步驟可執行、引用的路徑（reference.md、templates/）正確。
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>邊界情況測試</strong><br>
+            測試使用者提供資訊不完整的情況——Skill 是否會要求補充？是否有合理的預設行為？
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Section 8 -->
+    <section id="real-example" class="container">
+      <h2><span class="num">8</span>完整範例：interactive-science-courseware</h2>
+
+      <p>以本次實際建置的自然科數位教材 Skill 為例，說明所有元素如何組合。</p>
+
+      <h3>最終檔案結構</h3>
+      <div class="tree">
+        <span class="dir">.claude/skills/interactive-science-courseware/</span><br>
+        &nbsp;&nbsp;<span class="file">SKILL.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 主要說明：設計流程 + SVG/CSS/JS 原則</span><br>
+        &nbsp;&nbsp;<span class="file">reference.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 5 種互動模式程式碼片段</span><br>
+        &nbsp;&nbsp;<span class="dir">templates/</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">lesson.html.template</span>&nbsp;&nbsp;<span class="comment"># 可直接運行的 HTML 骨架（單擺示範）</span>
+      </div>
+
+      <h3>SKILL.md frontmatter</h3>
+      <pre><code>---
+name: interactive-science-courseware
+description: Use this skill when the user wants to create
+  interactive digital teaching materials for natural science
+  （自然科/理化/生物/地科/物理/化學）using SVG animations,
+  CSS, and JavaScript. Triggers on phrases like
+  "做一個自然科互動教材", "SVG 動畫教學", "互動式科學模擬",
+  "做一個理化動畫網頁".
+---</code></pre>
+
+      <h3>觸發後的實際輸出</h3>
+      <p>
+        使用者說「<strong>幫我做一個關於奇妙的溶解的自然科互動教材</strong>」後，
+        Skill 依照流程產出了一份完整的 <code>dissolution.html</code>，包含：
+      </p>
+      <ul style="padding-left:1.4rem;margin-bottom:1rem;">
+        <li>三個分頁（分辨物質的方法 / 溶解的過程 / 溶解的應用）</li>
+        <li>SVG 動畫：物品投入水杯、粒子擴散模擬</li>
+        <li>互動控制：點選物品、滑桿調整攪拌速度、播放/重置</li>
+        <li>卡片式應用介紹 + 3 題互動小測驗</li>
+        <li>單一自包含 HTML 檔，直接用瀏覽器開啟即可教學</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="icon">🎯</span>
+        <div>
+          這就是 Skill 的價值：你只需要說出需求，Claude 會依照預先定義的流程（釐清需求→規劃結構→SVG 設計→JS 互動→測試）完整執行，
+          不需要每次都重新交代「什麼是好的教材設計」「SVG 應該怎麼寫」等背景知識。
+        </div>
+      </div>
+    </section>
+
+  </article>
+</div>
+
+<footer>
+  <p>Claude Code Skill 建置指南 · 使用 <strong>skill-creator</strong> Skill 建立</p>
+  <p style="margin-top:0.4rem;font-size:0.85rem;">Repo: prayer168/dissolve · Branch: claude/brave-albattani-6qpsjw</p>
+</footer>
+
+</body>
+</html>
