@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEO × GEO × AEO 網頁健檢執行流程</title>
+  <meta name="description" content="用 ChatGPT 或 Claude 執行 SEO、GEO、AEO 網頁健檢的完整步驟、Prompt、檢查表與修正計畫。" />
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --ink:#1d2733;
+      --muted:#667085;
+      --brand:#2563eb;
+      --brand2:#0f766e;
+      --accent:#f97316;
+      --danger:#dc2626;
+      --ok:#16a34a;
+      --line:#d9e2ec;
+      --soft:#e8f1ff;
+      --soft2:#ecfdf5;
+      --warn:#fff7ed;
+      --shadow:0 14px 38px rgba(31,41,55,.08);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.16), transparent 32rem),
+        radial-gradient(circle at 80% 10%, rgba(15,118,110,.12), transparent 28rem),
+        var(--bg);
+      line-height:1.75;
+    }
+    a{color:var(--brand)}
+    .wrap{max-width:1180px;margin:auto;padding:28px 18px 70px}
+    header.hero{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:26px;
+      align-items:center;
+      padding:36px 0 22px;
+    }
+    .hero-card{
+      background:linear-gradient(135deg,#ffffff 0%,#eef6ff 100%);
+      border:1px solid rgba(37,99,235,.13);
+      border-radius:32px;
+      padding:34px;
+      box-shadow:var(--shadow);
+    }
+    .tag{display:inline-flex;gap:8px;align-items:center;background:#e0f2fe;color:#075985;border-radius:999px;padding:7px 14px;font-weight:800;font-size:14px}
+    h1{font-size:clamp(34px,5vw,60px);line-height:1.08;margin:18px 0 14px;letter-spacing:-.04em}
+    h2{font-size:30px;margin:0 0 18px;line-height:1.25;letter-spacing:-.02em}
+    h3{font-size:22px;margin:0 0 12px;line-height:1.35}
+    h4{font-size:18px;margin:0 0 8px}
+    .lead{font-size:20px;color:#344054;margin:0 0 22px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+    .btn{display:inline-block;text-decoration:none;border-radius:14px;padding:11px 16px;font-weight:800;border:1px solid transparent}
+    .btn.primary{background:var(--brand);color:white}
+    .btn.ghost{background:white;color:var(--brand);border-color:#bfdbfe}
+    .score-panel{background:#101828;color:white;border-radius:32px;padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .score-panel:before{content:"";position:absolute;right:-70px;top:-70px;width:190px;height:190px;background:rgba(96,165,250,.22);border-radius:50%}
+    .metric{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.16)}
+    .metric span:first-child{color:#d0d5dd}.metric strong{font-size:20px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px 0}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 8px 22px rgba(31,41,55,.04)}
+    .card.blue{background:var(--soft);border-color:#bfdbfe}.card.green{background:var(--soft2);border-color:#bbf7d0}.card.orange{background:var(--warn);border-color:#fed7aa}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:13px;font-weight:900;margin-bottom:10px}
+    .pill.blue{background:#dbeafe;color:#1d4ed8}.pill.green{background:#dcfce7;color:#15803d}.pill.orange{background:#ffedd5;color:#c2410c}.pill.red{background:#fee2e2;color:#b91c1c}
+    section{margin:34px 0}
+    .section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:16px}
+    .muted{color:var(--muted)}
+    .timeline{counter-reset:step;display:grid;gap:18px}
+    .step{display:grid;grid-template-columns:76px 1fr;gap:18px;background:white;border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 8px 22px rgba(31,41,55,.04)}
+    .num{counter-increment:step;width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,var(--brand),#60a5fa);color:white;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900}
+    .num:before{content:counter(step)}
+    .step-meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+    .mini{font-size:13px;background:#f2f4f7;color:#344054;padding:4px 9px;border-radius:999px;font-weight:800}
+    pre{white-space:pre-wrap;background:#0f172a;color:#e5e7eb;border-radius:18px;padding:18px;overflow:auto;font-size:15px;line-height:1.65;border:1px solid rgba(255,255,255,.08)}
+    .copy-label{font-size:13px;color:#667085;margin:0 0 6px;font-weight:800}
+    .checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+    .check{display:flex;gap:10px;align-items:flex-start;background:#f9fafb;border:1px solid #eaecf0;border-radius:16px;padding:12px}
+    .box{width:20px;height:20px;border-radius:6px;border:2px solid #98a2b3;background:white;flex:0 0 auto;margin-top:4px}
+    table{width:100%;border-collapse:collapse;background:white;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+    th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+    th{background:#f1f5f9;color:#334155;font-weight:900}
+    tr:last-child td{border-bottom:none}
+    .priority-high{color:var(--danger);font-weight:900}.priority-mid{color:#c2410c;font-weight:900}.priority-low{color:#475569;font-weight:900}
+    .note{border-left:5px solid var(--accent);background:#fff7ed;border-radius:16px;padding:16px 18px;color:#7c2d12}
+    .warning{border-left:5px solid var(--danger);background:#fef2f2;border-radius:16px;padding:16px 18px;color:#7f1d1d}
+    .success{border-left:5px solid var(--ok);background:#f0fdf4;border-radius:16px;padding:16px 18px;color:#14532d}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef2ff;border:1px solid #c7d2fe;border-radius:7px;padding:1px 6px;color:#3730a3;font-size:.92em}
+    footer{margin-top:48px;color:#667085;text-align:center;font-size:14px}
+    .toc{position:sticky;top:12px;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:0 8px 22px rgba(31,41,55,.05);z-index:5}
+    .toc a{display:inline-block;text-decoration:none;color:#344054;font-weight:800;margin:4px 8px;font-size:14px}
+    @media(max-width:860px){header.hero,.grid,.two-col,.checklist{grid-template-columns:1fr}.step{grid-template-columns:1fr}.hero-card,.score-panel{border-radius:24px;padding:24px}.section-head{display:block}th,td{font-size:14px}.wrap{padding:18px 12px 50px}}
+    @media print{.toc,.hero-actions{display:none}body{background:white}.card,.step,.hero-card,.score-panel{box-shadow:none}pre{white-space:pre-wrap}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" aria-label="頁面導覽">
+      <a href="#overview">三層目標</a>
+      <a href="#prepare">準備資料</a>
+      <a href="#workflow">7 步健檢</a>
+      <a href="#prompts">整包 Prompt</a>
+      <a href="#checklist">檢查表</a>
+      <a href="#plan">修正計畫</a>
+      <a href="#output">交付成果</a>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-card">
+        <span class="tag">SEO × GEO × AEO 可執行流程</span>
+        <h1>用 Claude／ChatGPT<br>完成網站搜尋曝光健檢</h1>
+        <p class="lead">把原本需要外部顧問、等待多日的網站健檢，整理成一套可以自己操作的下午工作流：先被 Google 找到，再讓 AI 願意引用，最後讓答案引擎更容易理解你的內容。</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#workflow">開始照步驟做</a>
+          <a class="btn ghost" href="#prompts">直接複製 Prompt</a>
+        </div>
+      </div>
+      <aside class="score-panel">
+        <h2>健檢目標</h2>
+        <div class="metric"><span>SEO</span><strong>被找到</strong></div>
+        <div class="metric"><span>GEO</span><strong>被 AI 選到</strong></div>
+        <div class="metric"><span>AEO</span><strong>被答案抽取</strong></div>
+        <p class="muted" style="color:#d0d5dd;margin-top:18px">核心觀念：不要只優化排名，也要優化「能不能被 AI 摘要、引用、推薦」。</p>
+      </aside>
+    </header>
+
+    <main>
+      <section id="overview">
+        <div class="section-head">
+          <div>
+            <h2>一、先搞懂三層搜尋曝光</h2>
+            <p class="muted">同一篇網頁，應同時兼顧搜尋排名、AI 引用與答案引擎可讀性。</p>
+          </div>
+        </div>
+        <div class="grid">
+          <article class="card blue">
+            <span class="pill blue">SEO</span>
+            <h3>Search Engine Optimization</h3>
+            <p>目標是讓 Google、Bing 等搜尋引擎能理解、索引並排序你的內容。重點包含 title、meta、內容品質、內外部連結、技術結構與使用者體驗。</p>
+          </article>
+          <article class="card green">
+            <span class="pill green">GEO</span>
+            <h3>Generative Engine Optimization</h3>
+            <p>目標是讓 ChatGPT、Claude、Perplexity、Gemini 等生成式 AI 更容易把你的內容選進答案。重點是明確答案、數據、來源、專業訊號與段落可抽取性。</p>
+          </article>
+          <article class="card orange">
+            <span class="pill orange">AEO</span>
+            <h3>Answer Engine Optimization</h3>
+            <p>目標是讓內容更適合被精選摘要、FAQ、大家也問、AI 摘要或語音回答使用。重點是問答格式、短答案、結構化資料與清楚的階層。</p>
+          </article>
+        </div>
+        <div class="note"><strong>執行原則：</strong>SEO 讓人找到你，GEO 讓 AI 願意替你說話，AEO 讓答案引擎更容易抽取你的重點。</div>
+      </section>
+
+      <section id="prepare">
+        <h2>二、開始前先準備這些資料</h2>
+        <div class="two-col">
+          <div class="card">
+            <h3>每一頁至少準備</h3>
+            <div class="checklist">
+              <label class="check"><span class="box"></span><span>網址 URL</span></label>
+              <label class="check"><span class="box"></span><span>頁面 title</span></label>
+              <label class="check"><span class="box"></span><span>meta description</span></label>
+              <label class="check"><span class="box"></span><span>H1、H2、H3 標題架構</span></label>
+              <label class="check"><span class="box"></span><span>正文內容</span></label>
+              <label class="check"><span class="box"></span><span>目標關鍵字或服務主題</span></label>
+              <label class="check"><span class="box"></span><span>目標受眾與轉換目標</span></label>
+              <label class="check"><span class="box"></span><span>競品網址 1～3 個，可選</span></label>
+            </div>
+          </div>
+          <div class="card">
+            <h3>貼給 AI 的建議格式</h3>
+            <p class="copy-label">可直接複製</p>
+            <pre>請協助我做 SEO／GEO／AEO 健檢。
+
+【網址】
+貼上 URL
+
+【頁面目的】
+這頁希望使用者看完後做什麼？例如：詢問、購買、下載、報名、了解主題。
+
+【目標受眾】
+例如：小企業主、家長、老師、學生、採購人員。
+
+【主要關鍵字】
+列出 1～3 個。
+
+【Title】
+貼上 title。
+
+【Meta Description】
+貼上 meta description。
+
+【標題架構】
+H1：
+H2：
+H3：
+
+【正文內容】
+貼上頁面主要內容。</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="workflow">
+        <div class="section-head">
+          <div>
+            <h2>三、7 步驟完整健檢流程</h2>
+            <p class="muted">建議一頁一頁處理。每完成一頁，就輸出修正清單，再進下一頁。</p>
+          </div>
+        </div>
+        <div class="timeline">
+          <article class="step">
+            <div class="num"></div>
+            <div>
+              <h3>檢查 Title 與 Meta</h3>
+              <div class="step-meta"><span class="mini">SEO 基礎</span><span class="mini">點擊率</span><span class="mini">搜尋結果呈現</span></div>
+              <p>檢查是否有主關鍵字、是否能說清楚頁面價值、是否太像內部文件標題、CTA 是否太弱。字數不要死守 60／155，因為搜尋結果常用像素截斷，也可能被 Google 自動改寫。</p>
+              <p class="copy-label">Prompt</p>
+              <pre>請審查這批 title／meta：
+1. 標出過長、過短、沒主關鍵字、語意不清、CTA 無力的地方。
+2. 說明每一個問題會影響什麼。
+3. 逐條改寫成更適合 SEO 與點擊率的版本。
+4. 每一組請給我 2 個版本：穩健版、吸引點擊版。</pre>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="num"></div>
+            <div>
+              <h3>確認內容是否對齊搜尋意圖</h3>
+              <div class="step-meta"><span class="mini">資訊型</span><span class="mini">導購型</span><span class="mini">交易型</span></div>
+              <p>先判斷使用者搜尋這個關鍵字時，真正想解決什麼問題。內容若跑題、太早推銷、缺少比較資訊，排名與轉換都會受影響。</p>
+              <p class="copy-label">Prompt</p>
+              <pre>請判斷這篇內容主要對應哪一種搜尋意圖：資訊型、導購型、交易型或混合型。
+
+請完成：
+1. 說明判斷理由。
+2. 找出內容中跑題、太淺、太像廣告、缺少關鍵資訊的段落。
+3. 補出使用者真正想知道但文章沒回答的問題。
+4. 給我具體改寫建議與新增段落大綱。</pre>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="num"></div>
+            <div>
+              <h3>提高內容可被 AI 引用的程度</h3>
+              <div class="step-meta"><span class="mini">GEO 重點</span><span class="mini">答案前置</span><span class="mini">資料來源</span></div>
+              <p>AI 偏好清楚、可信、可抽取的內容。每段最好先給結論，再補解釋；盡量加入具體數據、定義、來源、比較表與專業術語。</p>
+              <p class="copy-label">Prompt</p>
+              <pre>請用 GEO 標準審查這篇文章，重點是「是否容易被 AI 摘要與引用」。
+
+請檢查：
+1. 每段句首是否先給答案或結論。
+2. 是否有具體數據、年份、條件、比較基準。
+3. 是否有可信來源或可驗證依據。
+4. 是否有清楚定義與專業術語。
+5. 是否有表格、條列、FAQ 等容易抽取的結構。
+
+請逐段指出問題，並直接改寫成更容易被 ChatGPT／Claude／Perplexity／Gemini 引用的版本。</pre>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="num"></div>
+            <div>
+              <h3>補上 FAQ 與短答案</h3>
+              <div class="step-meta"><span class="mini">AEO</span><span class="mini">FAQ</span><span class="mini">可抽取答案</span></div>
+              <p>FAQ 不只是為了搜尋結果版位，更重要的是讓搜尋引擎與 AI 理解：這頁可以回答哪些問題。每則 FAQ 建議 40～80 字，第一句直接回答。</p>
+              <p class="copy-label">Prompt</p>
+              <pre>讀完這篇文章後，使用者最可能還會問哪 5～8 個問題？
+
+請幫我產出 FAQ：
+1. 問題要符合真實搜尋語氣。
+2. 每則回答 60 字內。
+3. 第一句先直接回答。
+4. 適合被 AI 或答案引擎直接抽取。
+5. 避免空泛行銷語。</pre>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="num"></div>
+            <div>
+              <h3>把 FAQ 轉成 JSON-LD Schema</h3>
+              <div class="step-meta"><span class="mini">結構化資料</span><span class="mini">Schema</span><span class="mini">搜尋理解</span></div>
+              <p>FAQ schema 現在不一定能搶到 SERP 版面，但仍有助於搜尋引擎與 AI 理解頁面結構。上線前建議用 Rich Results Test 或 Schema Markup Validator 檢查。</p>
+              <p class="copy-label">Prompt</p>
+              <pre>請把以下 FAQ 轉成合規的 FAQPage JSON-LD。
+
+要求：
+1. 使用繁體中文。
+2. 不要加入頁面上不存在的內容。
+3. 回答內容要和 FAQ 文字一致。
+4. 輸出完整 script 標籤。
+5. 另外提醒我應該貼在 HTML 的哪個位置。
+
+【FAQ】
+貼上 FAQ 問答。</pre>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="num"></div>
+            <div>
+              <h3>確認技術層是否讓 AI 讀得到</h3>
+              <div class="step-meta"><span class="mini">robots.txt</span><span class="mini">llms.txt</span><span class="mini">可爬取性</span></div>
+              <p>確認頁面沒有被 robots.txt、noindex、登入牆、阻擋腳本或過度動態載入擋住。可視需求放行 GPTBot、ClaudeBot、PerplexityBot 等 AI 爬蟲；也可建立 llms.txt 作為 LLM 導覽入口。</p>
+              <p class="copy-label">robots.txt 範例，請依網站策略調整</p>
+              <pre>User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://你的網域/sitemap.xml</pre>
+              <div class="warning"><strong>注意：</strong>放行 AI 爬蟲前，請確認網站內容是否允許被引用、摘要或訓練相關服務使用。商業機密、會員內容、付費內容不應直接放行。</div>
+            </div>
+          </article>
+
+          <article class="step">
+            <div class="num"></div>
+            <div>
+              <h3>整理成老闆看得懂的修正計畫</h3>
+              <div class="step-meta"><span class="mini">高／中／低影響</span><span class="mini">非技術語言</span><span class="mini">可派工</span></div>
+              <p>最後把問題轉成「可執行清單」，用影響力與執行難度排序，避免停留在診斷報告。</p>
+              <p class="copy-label">Prompt</p>
+              <pre>請把以上 SEO／GEO／AEO 問題整理成一份非技術老闆看得懂的優化計畫。
+
+請用表格輸出：
+1. 問題
+2. 影響層面：SEO／GEO／AEO／轉換
+3. 影響力：高／中／低
+4. 執行難度：高／中／低
+5. 建議修正方式
+6. 預期改善效果
+7. 建議負責角色：內容、設計、工程、行銷</pre>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="prompts">
+        <h2>四、整包 Prompt：一次貼給 AI 執行</h2>
+        <p class="muted">如果你想快速跑完整健檢，可以把頁面資料貼好後，使用這個總 Prompt。</p>
+        <pre>你是一位同時熟悉 SEO、GEO、AEO 的網站內容顧問。請根據我提供的頁面資料，完成完整健檢與修正建議。
+
+請依序輸出：
+
+一、頁面摘要
+1. 這頁主要在解決什麼問題？
+2. 目標受眾是誰？
+3. 目前最可能對應的搜尋意圖：資訊型／導購型／交易型／混合型。
+
+二、SEO 健檢
+1. Title 問題與改寫建議。
+2. Meta description 問題與改寫建議。
+3. H1、H2、H3 架構是否清楚。
+4. 主關鍵字、次關鍵字、語意相關詞是否足夠。
+5. 內容是否有重複、空泛、跑題或缺漏。
+
+三、GEO 健檢
+1. 內容是否容易被 ChatGPT、Claude、Perplexity、Gemini 引用。
+2. 哪些段落應該改成「句首先給答案」。
+3. 哪些地方需要加入數據、年份、來源、比較基準或專業術語。
+4. 請直接示範改寫 3～5 段。
+
+四、AEO 健檢
+1. 列出 5～8 個使用者可能追問的問題。
+2. 每個問題寫一則 60 字內、適合被抽取的答案。
+3. 將 FAQ 轉成 FAQPage JSON-LD。
+
+五、技術層檢查
+1. 提醒我應檢查 robots.txt、sitemap、noindex、canonical、頁面載入與行動版體驗。
+2. 說明是否適合建立 llms.txt。
+3. 提供 robots.txt 與 llms.txt 的參考範本。
+
+六、優先修正清單
+請用表格整理：問題、影響層面、影響力、執行難度、建議修正方式、負責角色、預期效果。
+
+七、最終交付
+請給我：
+1. 新 title 3 組。
+2. 新 meta description 3 組。
+3. 新文章架構。
+4. FAQ。
+5. Schema。
+6. 7 天內可完成的行動清單。</pre>
+      </section>
+
+      <section id="checklist">
+        <h2>五、SEO × GEO × AEO 檢查表</h2>
+        <table>
+          <thead>
+            <tr><th>類別</th><th>檢查項目</th><th>判斷標準</th><th>完成</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SEO</td><td>Title</td><td>有主關鍵字、清楚價值、自然可讀、不只是公司內部命名。</td><td>□</td></tr>
+            <tr><td>SEO</td><td>Meta</td><td>說明頁面價值，有行動誘因，不堆疊關鍵字。</td><td>□</td></tr>
+            <tr><td>SEO</td><td>搜尋意圖</td><td>內容符合使用者真正想解決的問題。</td><td>□</td></tr>
+            <tr><td>SEO</td><td>標題階層</td><td>H1 唯一，H2/H3 有邏輯，能快速掃讀。</td><td>□</td></tr>
+            <tr><td>GEO</td><td>答案前置</td><td>重要段落第一句先給結論，再補細節。</td><td>□</td></tr>
+            <tr><td>GEO</td><td>數據與來源</td><td>有年份、數字、比較基準、研究或官方資料來源。</td><td>□</td></tr>
+            <tr><td>GEO</td><td>專業訊號</td><td>有清楚定義、術語解釋、案例、流程、限制條件。</td><td>□</td></tr>
+            <tr><td>AEO</td><td>FAQ</td><td>補上使用者會追問的問題，答案短而明確。</td><td>□</td></tr>
+            <tr><td>AEO</td><td>Schema</td><td>FAQ、Article、Breadcrumb 等結構化資料符合頁面內容。</td><td>□</td></tr>
+            <tr><td>技術</td><td>可爬取</td><td>robots.txt、noindex、sitemap、canonical 設定正確。</td><td>□</td></tr>
+            <tr><td>技術</td><td>AI 爬蟲策略</td><td>明確決定是否放行 GPTBot、ClaudeBot、PerplexityBot 等。</td><td>□</td></tr>
+            <tr><td>技術</td><td>llms.txt</td><td>視需求建立網站重點內容導覽，方便 LLM 理解。</td><td>□</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="plan">
+        <h2>六、優先修正計畫範本</h2>
+        <table>
+          <thead><tr><th>優先級</th><th>建議先做什麼</th><th>原因</th><th>負責角色</th></tr></thead>
+          <tbody>
+            <tr><td class="priority-high">高</td><td>重寫 title、meta、H1 與第一段摘要。</td><td>最快影響搜尋呈現、點擊率與 AI 抽取。</td><td>內容／行銷</td></tr>
+            <tr><td class="priority-high">高</td><td>把文章開頭改成「先回答，再解釋」。</td><td>提高 GEO 與 AEO 可引用度。</td><td>內容</td></tr>
+            <tr><td class="priority-mid">中</td><td>補 FAQ、比較表、流程表與資料來源。</td><td>讓內容更完整，也更容易被 AI 摘要。</td><td>內容／設計</td></tr>
+            <tr><td class="priority-mid">中</td><td>加入 FAQPage JSON-LD 與 Breadcrumb schema。</td><td>協助搜尋引擎理解頁面結構。</td><td>工程</td></tr>
+            <tr><td class="priority-low">低</td><td>建立 llms.txt 與 AI 爬蟲政策。</td><td>屬新興實務，可作為長期 GEO 基礎建設。</td><td>工程／行銷</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="output">
+        <h2>七、最後交付成果建議</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="pill blue">文件</span>
+            <h3>SEO／GEO／AEO 健檢報告</h3>
+            <p>包含頁面問題、影響層面、具體修法與優先順序。適合給主管或客戶看。</p>
+          </article>
+          <article class="card">
+            <span class="pill green">內容</span>
+            <h3>改寫後頁面草稿</h3>
+            <p>包含 title、meta、前言、段落、FAQ、比較表與 CTA。</p>
+          </article>
+          <article class="card">
+            <span class="pill orange">技術</span>
+            <h3>可上線程式碼</h3>
+            <p>包含 JSON-LD、robots.txt 片段、sitemap 檢查與 llms.txt 初稿。</p>
+          </article>
+        </div>
+        <div class="success"><strong>建議執行節奏：</strong>先選 3～5 個最重要頁面試跑。修正後觀察搜尋流量、曝光、點擊率、AI 引用情形與詢問轉換，再擴大到整站。</div>
+      </section>
+
+      <section>
+        <h2>八、可複製的 llms.txt 簡易範本</h2>
+        <pre># 網站名稱
+一句話說明你的網站提供什麼內容。
+
+## 重要頁面
+- 首頁：https://你的網域/
+- 服務介紹：https://你的網域/services/
+- 常見問題：https://你的網域/faq/
+- 部落格：https://你的網域/blog/
+
+## 內容主題
+- 主題一：簡短說明
+- 主題二：簡短說明
+- 主題三：簡短說明
+
+## 建議引用方式
+若 AI 摘要本網站內容，請優先引用有作者、日期、資料來源與完整說明的頁面。
+
+## 聯絡方式
+可放公開聯絡頁，而非私人 email。</pre>
+      </section>
+    </main>
+
+    <footer>
+      <p>本頁整理自使用者提供之 SEO／GEO／AEO 流程內容，重新編排為可執行的網站健檢工作流。建議上線前再依實際網站、產業與搜尋資料調整。</p>
+    </footer>
+  </div>
+</body>
+</html>
