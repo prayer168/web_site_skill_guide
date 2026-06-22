@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大自然中的水循環 CSS 動畫｜技術文件教學網頁</title>
+  <style>
+    :root {
+      --bg: #eef5f7;
+      --card: #ffffff;
+      --ink: #1f3340;
+      --muted: #5d7480;
+      --line: #dbe7ec;
+      --accent: #2c7ca2;
+      --accent-2: #5ca86c;
+      --soft: #eff8fb;
+      --shadow: 0 14px 40px rgba(22, 56, 74, .10);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #f4fafc 0%, #eef5f7 100%);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.75;
+    }
+    .wrap { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; }
+    header.hero { padding: 42px 0 22px; }
+    .hero-card {
+      background: linear-gradient(135deg, #dff0f7 0%, #ffffff 48%, #edf7ef 100%);
+      border: 1px solid rgba(255,255,255,.9);
+      box-shadow: var(--shadow);
+      border-radius: 28px;
+      padding: 34px 32px;
+    }
+    .eyebrow {
+      display: inline-block;
+      background: rgba(44,124,162,.12);
+      color: #2b6d8a;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 46px); line-height: 1.2; color: #21495c; }
+    .lead { font-size: clamp(16px, 1.5vw, 19px); color: #496472; margin: 14px 0 0; max-width: 950px; }
+    .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 24px; }
+    .meta { background: rgba(255,255,255,.75); border: 1px solid #e4eef2; border-radius: 18px; padding: 14px 16px; }
+    .meta strong { display: block; color: #21495c; font-size: 15px; }
+    .meta span { color: var(--muted); font-size: 14px; }
+    .quick-nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(10px); background: rgba(244,250,252,.82); border-bottom: 1px solid rgba(219,231,236,.9); }
+    .quick-nav .wrap { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 0; }
+    .quick-nav a { text-decoration: none; color: #2a6078; font-weight: 700; background: #fff; border: 1px solid #dce8ed; padding: 8px 12px; border-radius: 999px; font-size: 14px; }
+    main { padding: 22px 0 44px; }
+    section.doc { margin: 0 0 22px; }
+    .card { background: var(--card); border: 1px solid #e2edf1; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; }
+    h2 { margin: 0 0 12px; font-size: clamp(24px, 2.3vw, 34px); color: #21495c; }
+    h3 { margin: 24px 0 8px; font-size: 22px; color: #255873; }
+    p, li { color: #35505d; }
+    ul, ol { padding-left: 1.35rem; }
+    .grid-2 { display: grid; grid-template-columns: 1.1fr .9fr; gap: 22px; align-items: start; }
+    .grid-2.equal { grid-template-columns: repeat(2, 1fr); }
+    .note { background: #f8fcfe; border-left: 5px solid #58a7ca; padding: 14px 16px; border-radius: 14px; color: #365666; }
+    .success { border-left-color: #68a874; background: #f6fbf7; }
+    .demo-frame { width: 100%; aspect-ratio: 16/9; border: 1px solid #d7e6ec; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.8); }
+    iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+    .caption { font-size: 14px; color: #607985; margin-top: 8px; }
+    .compare { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .pill-list { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; list-style: none; }
+    .pill-list li { background: #f3fafc; border: 1px solid #dbeff5; color: #2f6884; padding: 8px 12px; border-radius: 999px; font-weight: 700; font-size: 14px; }
+    pre { margin: 12px 0 0; background: #0f1c24; color: #d8edf7; padding: 18px; border-radius: 16px; overflow: auto; font-size: 14px; line-height: 1.6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; overflow: hidden; border-radius: 16px; }
+    th, td { border: 1px solid #dbe7ec; padding: 12px 14px; text-align: left; vertical-align: top; }
+    th { background: #f5fafc; color: #295d76; }
+    .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+    .steps li { position: relative; padding: 0 0 0 54px; margin: 18px 0; }
+    .steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 2px; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #2d7fa8, #5cb0cb); color: #fff; display: grid; place-items: center; font-weight: 800; }
+    footer { color: #6d808a; font-size: 14px; padding: 0 0 46px; text-align: center; }
+    .download a { display: inline-block; margin-right: 10px; margin-top: 8px; text-decoration: none; color: #fff; background: #2d7fa8; padding: 10px 14px; border-radius: 12px; font-weight: 700; }
+    .download a.secondary { background: #5f8b5d; }
+    @media (max-width: 980px) {
+      .grid-2, .grid-2.equal, .compare, .meta-grid { grid-template-columns: 1fr; }
+      .hero-card, .card { padding: 22px; }
+      .quick-nav .wrap { padding-inline: 10px; }
+      .wrap { width: min(100vw - 20px, 1180px); }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="hero-card">
+        <span class="eyebrow">CSS 動畫教學文件</span>
+        <h1>大自然中的水循環：<br>CSS 動畫技術文件教學網頁版</h1>
+        <p class="lead">本文件將「水循環」主題拆成教學說明、製作流程、程式結構、動畫範例與延伸實作，特別適合國小自然科學教學、教師研習、互動教材設計與投影片嵌入使用。文件中已嵌入兩個實作成果：<strong>完整循環版</strong>與<strong>互動點選版</strong>。</p>
+        <div class="meta-grid">
+          <div class="meta"><strong>主題</strong><span>大自然中的水循環</span></div>
+          <div class="meta"><strong>技術</strong><span>HTML + CSS + 少量 JavaScript</span></div>
+          <div class="meta"><strong>教學對象</strong><span>國小自然科學教學</span></div>
+          <div class="meta"><strong>畫面比例</strong><span>16:9，適合簡報</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="quick-nav">
+    <div class="wrap">
+      <a href="#overview">文件概覽</a>
+      <a href="#demo1">動畫範例一</a>
+      <a href="#demo2">動畫範例二</a>
+      <a href="#process">製作流程</a>
+      <a href="#code">程式重點</a>
+      <a href="#practice">教學實作</a>
+      <a href="#download">檔案下載</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="wrap">
+      <section class="doc" id="overview">
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <h2>一、文件概覽</h2>
+              <p>這份技術文件的目標，不只是展示動畫成果，而是幫助教師或教材製作者理解：<strong>怎麼用 CSS 把自然科學概念轉成可視化動畫</strong>。以本案例來說，我們把水循環拆成幾個可觀察的動態歷程：</p>
+              <ul>
+                <li>太陽持續發光，代表熱能來源。</li>
+                <li>海面波浪持續變動，讓畫面更有自然感。</li>
+                <li>蒸發：水蒸氣由海面上升。</li>
+                <li>凝結：雲逐漸形成並移動到山區。</li>
+                <li>降雨：雨滴自然落下。</li>
+                <li>地表逕流與河流：水回到海洋。</li>
+                <li>地下滲透與地下水：用半透明藍色箭頭表示水進入土壤、再慢慢回流。</li>
+              </ul>
+            </div>
+            <div>
+              <h3>本文件你可以學到</h3>
+              <ul class="pill-list">
+                <li>@keyframes 動畫設計</li>
+                <li>animation 屬性應用</li>
+                <li>圖層與場景配置</li>
+                <li>教學型資訊面板</li>
+                <li>按鈕互動切換</li>
+                <li>16:9 教材頁面設計</li>
+                <li>自然景觀式畫面構成</li>
+              </ul>
+              <div class="note">建議使用方式：先讓學生觀看「完整循環版」，建立整體概念；再切換到「互動點選版」，逐步討論每個階段的科學原理。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc" id="demo1">
+        <div class="card">
+          <h2>二、動畫範例一：完整循環播放版</h2>
+          <p>這是 15 秒自動循環播放的版本，適合放在課堂導入、教學影片、簡報頁面或展示牆。學生可以先從整體觀察水如何在海洋、空氣、山區、地表與地下之間循環。</p>
+          <div class="demo-frame"><iframe id="frame1" title="大自然中的水循環完整循環版"></iframe></div>
+          <p class="caption">特色：整體流程清楚、畫面柔和、全程自動播放，適合作為課堂導入或整體概念說明。</p>
+          <div class="note success">觀課建議：可以請學生先說出他在畫面中看到了哪些自然元素，再由老師引導連結到「蒸發 → 凝結 → 降雨 → 地表逕流 → 地下滲透 → 回到海洋」的完整歷程。</div>
+        </div>
+      </section>
+
+      <section class="doc" id="demo2">
+        <div class="card">
+          <h2>三、動畫範例二：互動點選學習版</h2>
+          <p>這個版本將流程拆成四個主要學習按鈕：蒸發、凝結、降雨、地下水。學生點擊不同階段後，畫面會強調該階段的動畫，右側同步顯示中文說明與科學解釋，適合分段教學與形成性提問。</p>
+          <div class="demo-frame"><iframe id="frame2" title="大自然中的水循環互動點選版"></iframe></div>
+          <p class="caption">特色：可分段聚焦、可重播、附中文說明與科學解釋，適合課堂討論與師生問答。</p>
+          <table>
+            <thead>
+              <tr><th>按鈕</th><th>學生看見的重點</th><th>教師可追問的問題</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>蒸發</td><td>海面上方的水蒸氣往上飄</td><td>為什麼天氣熱時衣服比較容易乾？</td></tr>
+              <tr><td>凝結</td><td>雲逐漸形成並移動</td><td>雲是水蒸氣嗎？還是小水滴？</td></tr>
+              <tr><td>降雨</td><td>雨滴從雲中落下</td><td>什麼情況下小水滴會掉下來？</td></tr>
+              <tr><td>地下水</td><td>藍色半透明箭頭往下滲透並回流</td><td>水進入土壤後會消失嗎？</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc" id="process">
+        <div class="card">
+          <h2>四、製作流程：從科學概念到動畫畫面</h2>
+          <ol class="steps">
+            <li><strong>先定義教學概念。</strong> 把水循環拆成可教學、可觀察的步驟，而不是一開始就急著寫程式。這樣動畫才會對應教材重點。</li>
+            <li><strong>規劃畫面元素。</strong> 本案例固定包含太陽、海洋、河流、山脈、雲、樹木與植被，讓學生能從真實自然景觀中理解水循環。</li>
+            <li><strong>決定哪些元素需要動。</strong> 例如太陽發光、波浪搖動、水蒸氣上升、雲移動、雨滴下落、地下水箭頭流動等。</li>
+            <li><strong>用圖層概念安排場景。</strong> 背景天空、山脈、地面、海洋、河流、植被、動態水汽與雲雨，各自分層，才容易控制前後關係。</li>
+            <li><strong>用 @keyframes 製作動畫。</strong> 每一種自然現象設計一段動畫，再透過 <code>animation</code> 屬性讓它重複播放。</li>
+            <li><strong>若要互動，就加入按鈕與說明面板。</strong> 利用資料屬性（例如 <code>data-stage</code>）切換狀態，再用 JavaScript 更新說明文字。</li>
+          </ol>
+          <div class="compare">
+            <div class="note">
+              <strong>完整循環版適合：</strong><br>
+              課堂導入、影片背景、自動展示、整體概念建立。
+            </div>
+            <div class="note success">
+              <strong>互動點選版適合：</strong><br>
+              分段講解、提問引導、學生操作、形成性評量。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc" id="code">
+        <div class="card">
+          <h2>五、程式重點解析</h2>
+          <h3>1. 基本 HTML 場景結構</h3>
+          <p>建立動畫時，先把場景元素放好，再讓它們動。下面是簡化過的結構範例：</p>
+          <pre><code>&lt;div class=&quot;sun&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;ocean&quot;&gt;
+  &lt;div class=&quot;wave one&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;wave two&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;wave three&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;vapor-area&quot;&gt;
+  &lt;div class=&quot;vapor v1&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;vapor v2&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cloud-system&quot;&gt;
+  &lt;div class=&quot;cloud&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+          <h3>2. 用 @keyframes 設計自然現象</h3>
+          <p>CSS 動畫的核心，就是透過 <code>@keyframes</code> 描述「從哪裡變到哪裡」。以下是太陽發光、水蒸氣上升與雨滴落下的簡化範例：</p>
+          <pre><code>@keyframes sunGlow {
+  from { filter: brightness(1); transform: scale(1); }
+  to   { filter: brightness(1.14); transform: scale(1.04); }
+}
+
+@keyframes vaporRise {
+  0%   { opacity: 0; transform: translateY(28px) scale(.9); }
+  20%  { opacity: .55; }
+  100% { opacity: 0; transform: translateY(-110px) scale(1.25); }
+}
+
+@keyframes rainFall {
+  0%   { opacity: 0; transform: translateY(-8px); }
+  20%  { opacity: .95; }
+  100% { opacity: 0; transform: translateY(150px); }
+}</code></pre>
+
+          <h3>3. 互動版的按鈕結構</h3>
+          <p>如果要讓學生點擊不同階段，就要先準備按鈕，並利用 <code>data-stage</code> 記錄每個階段名稱：</p>
+          <pre><code>&lt;nav class=&quot;controls&quot;&gt;
+  &lt;button class=&quot;stage-btn active&quot; data-stage=&quot;evaporation&quot;&gt;蒸發&lt;/button&gt;
+  &lt;button class=&quot;stage-btn&quot; data-stage=&quot;condensation&quot;&gt;凝結&lt;/button&gt;
+  &lt;button class=&quot;stage-btn&quot; data-stage=&quot;rain&quot;&gt;降雨&lt;/button&gt;
+  &lt;button class=&quot;stage-btn&quot; data-stage=&quot;groundwater&quot;&gt;地下水&lt;/button&gt;
+&lt;/nav&gt;</code></pre>
+
+          <h3>4. 切換說明與動畫狀態</h3>
+          <p>互動版利用 JavaScript 根據按鈕切換內容，並更新右側說明面板。下面是核心概念的簡化寫法：</p>
+          <pre><code>const content = {
+  evaporation: {
+    tag: &#x27;階段 1&#x27;,
+    title: &#x27;蒸發 Evaporation&#x27;,
+    desc: &#x27;太陽加熱海面，水分子變成水蒸氣後上升。&#x27;
+  },
+  condensation: {
+    tag: &#x27;階段 2&#x27;,
+    title: &#x27;凝結 Condensation&#x27;,
+    desc: &#x27;水蒸氣遇冷形成許多細小水滴，逐漸形成雲。&#x27;
+  }
+};
+
+function setStage(stage) {
+  slide.dataset.stage = stage;
+  buttons.forEach(btn =&gt; btn.classList.toggle(&#x27;active&#x27;, btn.dataset.stage === stage));
+  stageTitle.textContent = content[stage].title;
+  stageDesc.innerHTML = content[stage].desc;
+}</code></pre>
+
+          <h3>5. 本案例使用到的關鍵技術</h3>
+          <table>
+            <thead>
+              <tr><th>技術</th><th>用途</th><th>在本案例的應用</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>linear-gradient</code> / <code>radial-gradient</code></td><td>做自然色塊與光影</td><td>天空、太陽、海洋、土地、雲朵明暗</td></tr>
+              <tr><td><code>clip-path</code></td><td>裁切形狀</td><td>山脈與河流輪廓</td></tr>
+              <tr><td><code>::before</code> / <code>::after</code></td><td>補充裝飾層</td><td>太陽光暈、山頂明暗、河流流光</td></tr>
+              <tr><td><code>animation</code></td><td>播放動畫</td><td>波浪、蒸氣、雲移動、雨滴、地下水</td></tr>
+              <tr><td><code>data-stage</code></td><td>切換學習階段</td><td>互動版按鈕控制不同過程</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc" id="practice">
+        <div class="card">
+          <h2>六、教學實作建議</h2>
+          <div class="grid-2 equal">
+            <div>
+              <h3>課堂流程建議</h3>
+              <ol>
+                <li>先播放完整循環版，請學生觀察畫面中有哪些景物。</li>
+                <li>請學生依序說出水可能經過哪些地方。</li>
+                <li>再打開互動版，逐一點選蒸發、凝結、降雨、地下水。</li>
+                <li>每個階段都先讓學生預測，再觀看動畫，再回答科學解釋。</li>
+                <li>最後請學生畫出自己的水循環圖，或口頭解說完整流程。</li>
+              </ol>
+            </div>
+            <div>
+              <h3>延伸任務</h3>
+              <ul>
+                <li>把「地表逕流」做成可點擊的第五個按鈕。</li>
+                <li>加入「蒸散作用」說明植物也會把水分釋放到空氣中。</li>
+                <li>讓學生自行改變動畫顏色，做晴天與雨天版本。</li>
+                <li>挑戰製作「聖嬰現象」或「河川侵蝕」等其他自然主題動畫。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="note">如果要給學生操作，建議讓按鈕區更大、文字更少一點；如果要給老師示範，則可保留完整說明與英文專有名詞。</div>
+        </div>
+      </section>
+
+      <section class="doc" id="download">
+        <div class="card">
+          <h2>七、檔案下載與使用方式</h2>
+          <p>以下是本次教材相關檔案。可直接下載後用瀏覽器開啟，或部署到 GitHub Pages / Netlify 使用。</p>
+          <div class="download">
+            <a href="water_cycle_css_animation.html">下載完整循環版</a>
+            <a class="secondary" href="water_cycle_interactive_css_animation.html">下載互動點選版</a>
+          </div>
+          <ul>
+            <li><strong>完整循環版：</strong>適合投影片自動播放與整體導入。</li>
+            <li><strong>互動點選版：</strong>適合課堂提問、分段講解、學生操作。</li>
+            <li><strong>本技術文件：</strong>可當作教學說明頁、研習講義網頁版或備課筆記。</li>
+          </ul>
+          <div class="note success">若你之後需要，我也可以再幫你把這份技術文件進一步擴充成：<strong>可切換分頁的教材網站版、附教學流程圖版，或加入可複製程式碼按鈕的專業文件版</strong>。</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    水循環 CSS 動畫技術文件｜適用於國小自然科學教學、教師研習與數位教材設計
+  </footer>
+
+  <script>
+    const demo1 = "<!DOCTYPE html>\n<html lang=\"zh-Hant\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>\u5927\u81ea\u7136\u4e2d\u7684\u6c34\u5faa\u74b0 CSS \u52d5\u756b</title>\n  <style>\n    * {\n      box-sizing: border-box;\n    }\n\n    body {\n      margin: 0;\n      min-height: 100vh;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      background: #eef4f7;\n      font-family: \"Noto Sans TC\", \"Microsoft JhengHei\", sans-serif;\n      color: #21313a;\n    }\n\n    .slide {\n      width: min(96vw, 1280px);\n      aspect-ratio: 16 / 9;\n      position: relative;\n      overflow: hidden;\n      border-radius: 26px;\n      background: linear-gradient(to bottom, #dceff7 0%, #edf7fb 45%, #d7ead2 76%, #b9d6ad 100%);\n      box-shadow: 0 22px 60px rgba(29, 65, 84, 0.22);\n      isolation: isolate;\n    }\n\n    .title {\n      position: absolute;\n      top: 28px;\n      left: 38px;\n      z-index: 20;\n      background: rgba(255, 255, 255, 0.72);\n      backdrop-filter: blur(5px);\n      padding: 14px 22px;\n      border-radius: 18px;\n      box-shadow: 0 8px 24px rgba(42, 70, 82, 0.12);\n    }\n\n    .title h1 {\n      margin: 0;\n      font-size: clamp(24px, 3vw, 42px);\n      letter-spacing: 0.04em;\n      color: #23485a;\n    }\n\n    .title p {\n      margin: 4px 0 0;\n      font-size: clamp(13px, 1.25vw, 18px);\n      color: #4f6976;\n    }\n\n    .sky-haze {\n      position: absolute;\n      inset: 0;\n      background:\n        radial-gradient(circle at 22% 25%, rgba(255, 245, 197, 0.26), transparent 18%),\n        radial-gradient(circle at 72% 35%, rgba(255, 255, 255, 0.32), transparent 26%);\n      pointer-events: none;\n      z-index: 0;\n    }\n\n    /* 1. \u592a\u967d\u6301\u7e8c\u767c\u5149 */\n    .sun {\n      position: absolute;\n      top: 82px;\n      right: 140px;\n      width: 110px;\n      height: 110px;\n      border-radius: 50%;\n      background: radial-gradient(circle, #fff8b8 0%, #f7d46a 52%, #e6aa3d 100%);\n      box-shadow: 0 0 32px rgba(247, 213, 106, 0.9), 0 0 70px rgba(247, 213, 106, 0.55);\n      animation: sunGlow 3s ease-in-out infinite alternate;\n      z-index: 3;\n    }\n\n    .sun::before {\n      content: \"\";\n      position: absolute;\n      inset: -30px;\n      border-radius: 50%;\n      background: radial-gradient(circle, rgba(255, 227, 117, 0.33), transparent 68%);\n      animation: sunAura 3s ease-in-out infinite alternate;\n    }\n\n    @keyframes sunGlow {\n      from { filter: brightness(1); transform: scale(1); }\n      to { filter: brightness(1.14); transform: scale(1.04); }\n    }\n\n    @keyframes sunAura {\n      from { opacity: 0.55; transform: scale(0.95); }\n      to { opacity: 0.9; transform: scale(1.15); }\n    }\n\n    /* \u5c71\u8108 */\n    .mountains {\n      position: absolute;\n      right: 0;\n      bottom: 175px;\n      width: 58%;\n      height: 380px;\n      z-index: 4;\n    }\n\n    .mountain {\n      position: absolute;\n      bottom: 0;\n      width: 360px;\n      height: 300px;\n      background: linear-gradient(135deg, #8ea284 0%, #697d68 52%, #4f6456 100%);\n      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);\n      filter: drop-shadow(-8px 18px 14px rgba(45, 64, 50, 0.16));\n    }\n\n    .mountain::after {\n      content: \"\";\n      position: absolute;\n      width: 100%;\n      height: 100%;\n      background: linear-gradient(120deg, rgba(255,255,255,0.46), rgba(255,255,255,0.05) 36%, transparent 37%);\n      clip-path: polygon(50% 0%, 67% 35%, 54% 29%, 42% 48%, 32% 35%);\n    }\n\n    .m1 { right: 270px; height: 320px; width: 390px; }\n    .m2 { right: 60px; height: 385px; width: 460px; background: linear-gradient(135deg, #9caf91, #61765f 60%, #43574c); }\n    .m3 { right: -130px; height: 285px; width: 360px; background: linear-gradient(135deg, #879d7e, #5a6f5b 58%, #45594e); }\n\n    /* \u5730\u9762 */\n    .land {\n      position: absolute;\n      left: 0;\n      right: 0;\n      bottom: 0;\n      height: 285px;\n      background: linear-gradient(to bottom, #9ecb8e 0%, #80ae75 46%, #6f9a66 100%);\n      z-index: 5;\n    }\n\n    .soil-cutaway {\n      position: absolute;\n      left: 0;\n      right: 0;\n      bottom: 0;\n      height: 112px;\n      background:\n        radial-gradient(circle at 10% 45%, rgba(83, 60, 39, .16) 0 3px, transparent 4px),\n        radial-gradient(circle at 34% 72%, rgba(83, 60, 39, .16) 0 3px, transparent 4px),\n        radial-gradient(circle at 70% 42%, rgba(83, 60, 39, .16) 0 3px, transparent 4px),\n        linear-gradient(to bottom, #8a6a46 0%, #664a31 100%);\n      z-index: 8;\n    }\n\n    /* \u6d77\u6d0b\u8207\u6ce2\u6d6a */\n    .ocean {\n      position: absolute;\n      left: 0;\n      bottom: 0;\n      width: 48%;\n      height: 235px;\n      background: linear-gradient(to bottom, #68abc5 0%, #3c86aa 52%, #246a91 100%);\n      z-index: 9;\n      overflow: hidden;\n      border-top-right-radius: 58% 32%;\n    }\n\n    .wave {\n      position: absolute;\n      left: -120px;\n      width: 760px;\n      height: 42px;\n      background: repeating-radial-gradient(ellipse at center, rgba(255,255,255,0.45) 0 8px, transparent 9px 40px);\n      opacity: 0.52;\n      animation: waveMove 4s linear infinite;\n    }\n\n    .wave.one { top: 30px; }\n    .wave.two { top: 83px; animation-duration: 5.5s; opacity: 0.35; }\n    .wave.three { top: 138px; animation-duration: 6.2s; opacity: 0.24; }\n\n    @keyframes waveMove {\n      from { transform: translateX(0); }\n      to { transform: translateX(170px); }\n    }\n\n    /* \u6cb3\u6d41\uff1a\u7531\u5c71\u5340\u6d41\u5411\u6d77\u6d0b */\n    .river {\n      position: absolute;\n      left: 350px;\n      bottom: 85px;\n      width: 590px;\n      height: 125px;\n      z-index: 12;\n      background: linear-gradient(105deg, transparent 0 11%, rgba(106, 177, 207, 0.0) 11%, rgba(92, 166, 204, 0.85) 18%, rgba(67, 146, 190, 0.95) 35%, rgba(64, 138, 182, 0.92) 58%, rgba(50, 120, 168, 0.96) 78%, rgba(42, 108, 158, 0.0) 100%);\n      clip-path: polygon(96% 20%, 81% 27%, 70% 40%, 58% 45%, 45% 55%, 31% 59%, 17% 72%, 0% 83%, 0% 100%, 22% 91%, 38% 80%, 52% 74%, 68% 62%, 82% 52%, 100% 38%);\n      opacity: 0.92;\n    }\n\n    .river::after {\n      content: \"\";\n      position: absolute;\n      inset: 0;\n      background: repeating-linear-gradient(105deg, rgba(255,255,255,0.0) 0 28px, rgba(255,255,255,0.36) 30px 38px, rgba(255,255,255,0.0) 42px 70px);\n      animation: riverFlow 1.8s linear infinite;\n    }\n\n    @keyframes riverFlow {\n      from { transform: translateX(80px); }\n      to { transform: translateX(-80px); }\n    }\n\n    /* \u6a39\u6728\u8207\u690d\u88ab */\n    .forest {\n      position: absolute;\n      right: 90px;\n      bottom: 105px;\n      width: 390px;\n      height: 145px;\n      z-index: 14;\n    }\n\n    .tree {\n      position: absolute;\n      bottom: 0;\n      width: 12px;\n      height: 62px;\n      background: #6f4d31;\n      border-radius: 5px;\n    }\n\n    .tree::before {\n      content: \"\";\n      position: absolute;\n      left: 50%;\n      bottom: 38px;\n      width: 58px;\n      height: 78px;\n      transform: translateX(-50%);\n      background: radial-gradient(circle at 50% 24%, #5f9b61 0 30%, #3f774c 31% 68%, transparent 69%);\n      clip-path: polygon(50% 0%, 92% 72%, 63% 70%, 80% 100%, 20% 100%, 37% 70%, 8% 72%);\n      filter: drop-shadow(2px 5px 4px rgba(33, 65, 42, 0.16));\n    }\n\n    .t1 { left: 10px; transform: scale(.9); }\n    .t2 { left: 55px; transform: scale(1.18); }\n    .t3 { left: 112px; transform: scale(.78); }\n    .t4 { left: 175px; transform: scale(1.05); }\n    .t5 { left: 237px; transform: scale(.86); }\n    .t6 { left: 304px; transform: scale(1.15); }\n\n    .vegetation {\n      position: absolute;\n      left: 540px;\n      right: 0;\n      bottom: 92px;\n      height: 60px;\n      z-index: 13;\n      background:\n        radial-gradient(ellipse at 10% 90%, #4f9151 0 22px, transparent 23px),\n        radial-gradient(ellipse at 18% 95%, #6dac63 0 18px, transparent 19px),\n        radial-gradient(ellipse at 30% 92%, #4f9151 0 24px, transparent 25px),\n        radial-gradient(ellipse at 46% 95%, #6dac63 0 20px, transparent 21px),\n        radial-gradient(ellipse at 63% 92%, #4f9151 0 26px, transparent 27px),\n        radial-gradient(ellipse at 82% 94%, #6dac63 0 22px, transparent 23px);\n      opacity: 0.94;\n    }\n\n    /* \u6c34\u84b8\u6c23\uff1a\u7531\u6d77\u9762\u5411\u4e0a\u6f02\u6d6e */\n    .vapor-area {\n      position: absolute;\n      left: 105px;\n      bottom: 190px;\n      width: 360px;\n      height: 370px;\n      z-index: 15;\n      pointer-events: none;\n    }\n\n    .vapor {\n      position: absolute;\n      bottom: 0;\n      width: 10px;\n      height: 70px;\n      border-radius: 999px;\n      background: linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,.78), rgba(255,255,255,0));\n      filter: blur(.3px);\n      opacity: 0;\n      animation: vaporRise 15s ease-in-out infinite;\n    }\n\n    .v1 { left: 32px; animation-delay: 0s; }\n    .v2 { left: 92px; animation-delay: .9s; height: 95px; }\n    .v3 { left: 154px; animation-delay: 1.7s; }\n    .v4 { left: 220px; animation-delay: 2.5s; height: 88px; }\n    .v5 { left: 282px; animation-delay: 3.3s; }\n\n    @keyframes vaporRise {\n      0%, 6% { transform: translateY(0) scaleY(.5); opacity: 0; }\n      12% { opacity: .7; }\n      32% { transform: translateY(-240px) translateX(40px) scaleY(1.25); opacity: .46; }\n      44%, 100% { transform: translateY(-270px) translateX(70px) scaleY(.65); opacity: 0; }\n    }\n\n    /* \u96f2\u9010\u6f38\u5f62\u6210\uff0c\u4e26\u79fb\u81f3\u5c71\u5340 */\n    .cloud-system {\n      position: absolute;\n      top: 142px;\n      left: 210px;\n      width: 270px;\n      height: 110px;\n      z-index: 17;\n      opacity: 0;\n      animation: cloudJourney 15s ease-in-out infinite;\n    }\n\n    .cloud {\n      position: absolute;\n      inset: 0;\n      filter: drop-shadow(0 12px 10px rgba(71, 87, 94, 0.12));\n    }\n\n    .cloud span {\n      position: absolute;\n      background: linear-gradient(to bottom, #ffffff, #dfeaf0);\n      border-radius: 999px;\n      box-shadow: inset -8px -12px 18px rgba(113, 139, 150, .12);\n    }\n\n    .c1 { width: 100px; height: 72px; left: 20px; top: 32px; }\n    .c2 { width: 125px; height: 92px; left: 82px; top: 6px; }\n    .c3 { width: 110px; height: 70px; left: 160px; top: 36px; }\n    .c4 { width: 220px; height: 55px; left: 30px; top: 58px; }\n\n    @keyframes cloudJourney {\n      0%, 20% { opacity: 0; transform: translateX(0) translateY(12px) scale(.72); }\n      28% { opacity: .88; transform: translateX(35px) translateY(0) scale(.92); }\n      46% { opacity: .98; transform: translateX(360px) translateY(8px) scale(1); }\n      72% { opacity: .98; transform: translateX(520px) translateY(12px) scale(1.05); }\n      85% { opacity: .68; transform: translateX(540px) translateY(8px) scale(.98); }\n      100% { opacity: 0; transform: translateX(560px) translateY(4px) scale(.9); }\n    }\n\n    /* \u964d\u96e8 */\n    .rain {\n      position: absolute;\n      left: 535px;\n      top: 70px;\n      width: 250px;\n      height: 310px;\n      z-index: 16;\n      opacity: 0;\n      animation: rainZone 15s linear infinite;\n    }\n\n    .drop {\n      position: absolute;\n      top: 95px;\n      width: 3px;\n      height: 22px;\n      border-radius: 50%;\n      background: linear-gradient(to bottom, rgba(136, 183, 215, 0), rgba(74, 145, 190, .84));\n      animation: rainFall .72s linear infinite;\n    }\n\n    .d1 { left: 20px; animation-delay: 0s; }\n    .d2 { left: 48px; animation-delay: .12s; height: 26px; }\n    .d3 { left: 76px; animation-delay: .24s; }\n    .d4 { left: 104px; animation-delay: .36s; height: 28px; }\n    .d5 { left: 132px; animation-delay: .08s; }\n    .d6 { left: 160px; animation-delay: .22s; height: 27px; }\n    .d7 { left: 188px; animation-delay: .33s; }\n    .d8 { left: 216px; animation-delay: .48s; height: 25px; }\n\n    @keyframes rainZone {\n      0%, 47% { opacity: 0; transform: translateX(0); }\n      52%, 73% { opacity: 1; transform: translateX(530px); }\n      78%, 100% { opacity: 0; transform: translateX(540px); }\n    }\n\n    @keyframes rainFall {\n      from { transform: translateY(0); opacity: .2; }\n      20% { opacity: .95; }\n      to { transform: translateY(190px); opacity: 0; }\n    }\n\n    /* \u5730\u4e0b\u6ef2\u900f\u8207\u5730\u4e0b\u6c34\u7bad\u982d */\n    .infiltration {\n      position: absolute;\n      right: 115px;\n      bottom: 102px;\n      width: 260px;\n      height: 150px;\n      z-index: 18;\n      opacity: 0;\n      animation: infiltrationShow 15s ease-in-out infinite;\n    }\n\n    .down-arrow {\n      position: absolute;\n      width: 16px;\n      height: 86px;\n      background: rgba(67, 161, 211, .42);\n      border-radius: 12px;\n    }\n\n    .down-arrow::after {\n      content: \"\";\n      position: absolute;\n      left: 50%;\n      bottom: -24px;\n      width: 44px;\n      height: 44px;\n      transform: translateX(-50%) rotate(45deg);\n      background: rgba(67, 161, 211, .42);\n      clip-path: polygon(100% 0, 100% 100%, 0 100%);\n    }\n\n    .a1 { left: 30px; top: 6px; animation: seep 1.8s ease-in-out infinite; }\n    .a2 { left: 115px; top: 0; height: 108px; animation: seep 2.1s ease-in-out infinite .2s; }\n    .a3 { left: 202px; top: 14px; height: 82px; animation: seep 1.9s ease-in-out infinite .4s; }\n\n    @keyframes seep {\n      from { transform: translateY(-8px); opacity: .42; }\n      to { transform: translateY(12px); opacity: .78; }\n    }\n\n    @keyframes infiltrationShow {\n      0%, 58% { opacity: 0; }\n      64%, 84% { opacity: 1; }\n      100% { opacity: 0; }\n    }\n\n    .groundwater {\n      position: absolute;\n      left: 180px;\n      bottom: 34px;\n      width: 690px;\n      height: 55px;\n      z-index: 19;\n      opacity: 0;\n      animation: groundwaterShow 15s ease-in-out infinite;\n    }\n\n    .groundwater .shaft {\n      position: absolute;\n      right: 40px;\n      top: 20px;\n      width: 590px;\n      height: 15px;\n      background: rgba(73, 161, 212, .35);\n      border-radius: 20px;\n      overflow: hidden;\n    }\n\n    .groundwater .shaft::before {\n      content: \"\";\n      position: absolute;\n      inset: 0;\n      background: repeating-linear-gradient(90deg, transparent 0 34px, rgba(255,255,255,.45) 35px 52px, transparent 53px 84px);\n      animation: undergroundFlow 1.7s linear infinite;\n    }\n\n    .groundwater .head {\n      position: absolute;\n      left: 20px;\n      top: 8px;\n      width: 42px;\n      height: 42px;\n      background: rgba(73, 161, 212, .35);\n      clip-path: polygon(0 50%, 100% 0, 100% 100%);\n    }\n\n    @keyframes groundwaterShow {\n      0%, 66% { opacity: 0; }\n      72%, 94% { opacity: 1; }\n      100% { opacity: 0; }\n    }\n\n    @keyframes undergroundFlow {\n      from { transform: translateX(90px); }\n      to { transform: translateX(-90px); }\n    }\n\n    /* \u6d41\u7a0b\u6587\u5b57\u6a19\u7c64 */\n    .stage-label {\n      position: absolute;\n      z-index: 25;\n      padding: 8px 13px;\n      border-radius: 999px;\n      background: rgba(255,255,255,.78);\n      box-shadow: 0 6px 18px rgba(43, 74, 85, .12);\n      font-size: clamp(12px, 1.1vw, 16px);\n      font-weight: 700;\n      color: #2e5668;\n      opacity: 0;\n      animation: labelPulse 15s linear infinite;\n      white-space: nowrap;\n    }\n\n    .evap { left: 130px; bottom: 410px; animation-delay: 0s; }\n    .cond { left: 385px; top: 275px; animation-delay: 0s; }\n    .prec { right: 180px; top: 350px; animation-delay: 0s; }\n    .runoff { right: 355px; bottom: 250px; animation-delay: 0s; }\n    .infilt { right: 110px; bottom: 248px; animation-delay: 0s; }\n    .return { left: 285px; bottom: 102px; animation-delay: 0s; }\n\n    @keyframes labelPulse {\n      0%, 6%, 100% { opacity: 0; transform: translateY(6px); }\n      9%, 19% { opacity: 1; transform: translateY(0); }\n      23%, 26% { opacity: 0; transform: translateY(6px); }\n      29%, 39% { opacity: var(--cond, 0); }\n    }\n\n    .evap { animation-name: evapLabel; }\n    .cond { animation-name: condLabel; }\n    .prec { animation-name: precLabel; }\n    .runoff { animation-name: runoffLabel; }\n    .infilt { animation-name: infiltLabel; }\n    .return { animation-name: returnLabel; }\n\n    @keyframes evapLabel { 0%, 7%, 22%, 100% { opacity:0; transform:translateY(8px); } 9%, 19% { opacity:1; transform:translateY(0); } }\n    @keyframes condLabel { 0%, 24%, 43%, 100% { opacity:0; transform:translateY(8px); } 27%, 40% { opacity:1; transform:translateY(0); } }\n    @keyframes precLabel { 0%, 46%, 75%, 100% { opacity:0; transform:translateY(8px); } 51%, 70% { opacity:1; transform:translateY(0); } }\n    @keyframes runoffLabel { 0%, 55%, 84%, 100% { opacity:0; transform:translateY(8px); } 61%, 79% { opacity:1; transform:translateY(0); } }\n    @keyframes infiltLabel { 0%, 59%, 88%, 100% { opacity:0; transform:translateY(8px); } 65%, 82% { opacity:1; transform:translateY(0); } }\n    @keyframes returnLabel { 0%, 70%, 96%, 100% { opacity:0; transform:translateY(8px); } 76%, 91% { opacity:1; transform:translateY(0); } }\n\n    .cycle-note {\n      position: absolute;\n      right: 34px;\n      bottom: 26px;\n      z-index: 30;\n      font-size: clamp(12px, 1vw, 15px);\n      color: #31596a;\n      background: rgba(255,255,255,.72);\n      border-radius: 14px;\n      padding: 10px 14px;\n      box-shadow: 0 6px 18px rgba(42, 70, 82, 0.11);\n    }\n\n    @media (max-width: 760px) {\n      .title { top: 16px; left: 16px; padding: 10px 14px; }\n      .stage-label { font-size: 10px; padding: 6px 9px; }\n      .cycle-note { display: none; }\n    }\n  </style>\n</head>\n<body>\n  <main class=\"slide\" aria-label=\"\u5927\u81ea\u7136\u4e2d\u7684\u6c34\u5faa\u74b0 CSS \u52d5\u756b\">\n    <div class=\"sky-haze\"></div>\n\n    <section class=\"title\">\n      <h1>\u5927\u81ea\u7136\u4e2d\u7684\u6c34\u5faa\u74b0</h1>\n      <p>\u84b8\u767c \u2192 \u51dd\u7d50 \u2192 \u964d\u96e8 \u2192 \u5730\u8868\u9015\u6d41 \u2192 \u5730\u4e0b\u6ef2\u900f \u2192 \u56de\u5230\u6d77\u6d0b</p>\n    </section>\n\n    <div class=\"sun\" aria-label=\"\u592a\u967d\u6301\u7e8c\u767c\u5149\"></div>\n\n    <div class=\"mountains\" aria-label=\"\u5c71\u8108\">\n      <div class=\"mountain m1\"></div>\n      <div class=\"mountain m2\"></div>\n      <div class=\"mountain m3\"></div>\n    </div>\n\n    <div class=\"land\"></div>\n    <div class=\"vegetation\" aria-label=\"\u690d\u88ab\"></div>\n\n    <div class=\"forest\" aria-label=\"\u6a39\u6728\u8207\u68ee\u6797\">\n      <div class=\"tree t1\"></div>\n      <div class=\"tree t2\"></div>\n      <div class=\"tree t3\"></div>\n      <div class=\"tree t4\"></div>\n      <div class=\"tree t5\"></div>\n      <div class=\"tree t6\"></div>\n    </div>\n\n    <div class=\"river\" aria-label=\"\u6cb3\u6d41\u6d41\u5411\u6d77\u6d0b\"></div>\n\n    <div class=\"ocean\" aria-label=\"\u6d77\u6d0b\u8207\u6ce2\u6d6a\">\n      <div class=\"wave one\"></div>\n      <div class=\"wave two\"></div>\n      <div class=\"wave three\"></div>\n    </div>\n\n    <div class=\"soil-cutaway\" aria-label=\"\u571f\u58e4\u5256\u9762\"></div>\n\n    <div class=\"vapor-area\" aria-label=\"\u6c34\u84b8\u6c23\u7531\u6d77\u9762\u4e0a\u5347\">\n      <div class=\"vapor v1\"></div>\n      <div class=\"vapor v2\"></div>\n      <div class=\"vapor v3\"></div>\n      <div class=\"vapor v4\"></div>\n      <div class=\"vapor v5\"></div>\n    </div>\n\n    <div class=\"cloud-system\" aria-label=\"\u96f2\u9010\u6f38\u5f62\u6210\u4e26\u79fb\u52d5\u81f3\u5c71\u5340\">\n      <div class=\"cloud\">\n        <span class=\"c1\"></span>\n        <span class=\"c2\"></span>\n        <span class=\"c3\"></span>\n        <span class=\"c4\"></span>\n      </div>\n    </div>\n\n    <div class=\"rain\" aria-label=\"\u96e8\u6ef4\u81ea\u7136\u843d\u4e0b\">\n      <div class=\"drop d1\"></div>\n      <div class=\"drop d2\"></div>\n      <div class=\"drop d3\"></div>\n      <div class=\"drop d4\"></div>\n      <div class=\"drop d5\"></div>\n      <div class=\"drop d6\"></div>\n      <div class=\"drop d7\"></div>\n      <div class=\"drop d8\"></div>\n    </div>\n\n    <div class=\"infiltration\" aria-label=\"\u5730\u4e0b\u6ef2\u900f\">\n      <div class=\"down-arrow a1\"></div>\n      <div class=\"down-arrow a2\"></div>\n      <div class=\"down-arrow a3\"></div>\n    </div>\n\n    <div class=\"groundwater\" aria-label=\"\u5730\u4e0b\u6c34\u56de\u6d41\u5230\u6d77\u6d0b\">\n      <div class=\"shaft\"></div>\n      <div class=\"head\"></div>\n    </div>\n\n    <div class=\"stage-label evap\">\u84b8\u767c Evaporation</div>\n    <div class=\"stage-label cond\">\u51dd\u7d50 Condensation</div>\n    <div class=\"stage-label prec\">\u964d\u96e8 Precipitation</div>\n    <div class=\"stage-label runoff\">\u5730\u8868\u9015\u6d41 Runoff</div>\n    <div class=\"stage-label infilt\">\u5730\u4e0b\u6ef2\u900f Infiltration</div>\n    <div class=\"stage-label return\">\u5730\u4e0b\u6c34\u56de\u5230\u6d77\u6d0b</div>\n\n    <div class=\"cycle-note\">15 \u79d2\u5faa\u74b0\u64ad\u653e\uff5c\u7d14 CSS \u52d5\u756b\uff5c\u9069\u5408 16:9 \u6559\u5b78\u6295\u5f71\u7247</div>\n  </main>\n</body>\n</html>\n";
+    const demo2 = "<!DOCTYPE html>\n<html lang=\"zh-Hant\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>\u5927\u81ea\u7136\u4e2d\u7684\u6c34\u5faa\u74b0\uff5c\u4e92\u52d5 CSS \u52d5\u756b</title>\n  <style>\n    * { box-sizing: border-box; }\n    :root {\n      --ink: #21313a;\n      --panel: rgba(255,255,255,.82);\n      --blue: #2d7fa8;\n      --soft-blue: rgba(80, 165, 213, .45);\n      --green: #5d9466;\n      --shadow: 0 18px 50px rgba(29, 65, 84, 0.20);\n    }\n    body {\n      margin: 0;\n      min-height: 100vh;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      background: #edf4f7;\n      font-family: \"Noto Sans TC\", \"Microsoft JhengHei\", system-ui, sans-serif;\n      color: var(--ink);\n    }\n    .slide {\n      width: min(96vw, 1280px);\n      aspect-ratio: 16 / 9;\n      position: relative;\n      overflow: hidden;\n      border-radius: 26px;\n      background: linear-gradient(to bottom, #dceff7 0%, #edf7fb 45%, #d7ead2 76%, #b9d6ad 100%);\n      box-shadow: var(--shadow);\n      isolation: isolate;\n    }\n    .sky-haze {\n      position: absolute;\n      inset: 0;\n      background:\n        radial-gradient(circle at 22% 25%, rgba(255, 245, 197, 0.26), transparent 18%),\n        radial-gradient(circle at 72% 35%, rgba(255, 255, 255, 0.32), transparent 26%);\n      pointer-events: none;\n      z-index: 0;\n    }\n    .title {\n      position: absolute;\n      top: 24px;\n      left: 30px;\n      z-index: 40;\n      background: rgba(255, 255, 255, 0.76);\n      backdrop-filter: blur(6px);\n      padding: 13px 20px;\n      border-radius: 18px;\n      box-shadow: 0 8px 24px rgba(42, 70, 82, 0.12);\n    }\n    .title h1 {\n      margin: 0;\n      font-size: clamp(24px, 2.7vw, 40px);\n      letter-spacing: 0.04em;\n      color: #23485a;\n    }\n    .title p {\n      margin: 5px 0 0;\n      font-size: clamp(13px, 1.05vw, 17px);\n      color: #4f6976;\n    }\n\n    /* \u63a7\u5236\u6309\u9215 */\n    .controls {\n      position: absolute;\n      left: 30px;\n      bottom: 26px;\n      z-index: 60;\n      display: grid;\n      grid-template-columns: repeat(4, minmax(96px, 1fr));\n      gap: 10px;\n      width: min(590px, calc(100% - 60px));\n    }\n    .stage-btn {\n      border: 0;\n      border-radius: 15px;\n      padding: 11px 10px;\n      background: rgba(255,255,255,.84);\n      color: #2e5668;\n      font-weight: 800;\n      font-size: clamp(13px, 1.05vw, 16px);\n      box-shadow: 0 8px 20px rgba(43, 74, 85, .13);\n      cursor: pointer;\n      transition: transform .18s ease, background .18s ease, color .18s ease;\n    }\n    .stage-btn small { display: block; font-weight: 700; opacity: .72; }\n    .stage-btn:hover { transform: translateY(-2px); background: #fff; }\n    .stage-btn.active { background: #2d7fa8; color: #fff; }\n\n    /* \u8aaa\u660e\u9762\u677f */\n    .info-panel {\n      position: absolute;\n      top: 28px;\n      right: 28px;\n      z-index: 55;\n      width: min(360px, 33vw);\n      min-height: 185px;\n      background: var(--panel);\n      border: 1px solid rgba(255,255,255,.8);\n      backdrop-filter: blur(7px);\n      border-radius: 22px;\n      padding: 18px 20px;\n      box-shadow: 0 14px 36px rgba(42, 70, 82, .16);\n    }\n    .info-panel .tag {\n      display: inline-block;\n      margin-bottom: 8px;\n      padding: 5px 10px;\n      border-radius: 999px;\n      background: rgba(45, 127, 168, .12);\n      color: #276482;\n      font-weight: 800;\n      font-size: 13px;\n    }\n    .info-panel h2 {\n      margin: 0 0 8px;\n      color: #23485a;\n      font-size: clamp(20px, 2vw, 29px);\n    }\n    .info-panel p {\n      margin: 8px 0;\n      line-height: 1.62;\n      font-size: clamp(14px, 1.18vw, 17px);\n    }\n    .info-panel strong { color: #225d7a; }\n\n    /* \u666f\u89c0\u5143\u7d20 */\n    .sun {\n      position: absolute;\n      top: 110px;\n      right: 375px;\n      width: 105px;\n      height: 105px;\n      border-radius: 50%;\n      background: radial-gradient(circle, #fff8b8 0%, #f7d46a 52%, #e6aa3d 100%);\n      box-shadow: 0 0 32px rgba(247, 213, 106, 0.9), 0 0 70px rgba(247, 213, 106, 0.55);\n      animation: sunGlow 2.8s ease-in-out infinite alternate;\n      z-index: 3;\n    }\n    .sun::before {\n      content: \"\";\n      position: absolute;\n      inset: -32px;\n      border-radius: 50%;\n      background: radial-gradient(circle, rgba(255, 227, 117, 0.34), transparent 68%);\n      animation: sunAura 2.8s ease-in-out infinite alternate;\n    }\n    @keyframes sunGlow { from { filter: brightness(1); transform: scale(1); } to { filter: brightness(1.14); transform: scale(1.04); } }\n    @keyframes sunAura { from { opacity: .52; transform: scale(.95); } to { opacity: .92; transform: scale(1.16); } }\n\n    .mountains {\n      position: absolute;\n      right: 0;\n      bottom: 175px;\n      width: 58%;\n      height: 380px;\n      z-index: 4;\n    }\n    .mountain {\n      position: absolute;\n      bottom: 0;\n      width: 360px;\n      height: 300px;\n      background: linear-gradient(135deg, #8ea284 0%, #697d68 52%, #4f6456 100%);\n      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);\n      filter: drop-shadow(-8px 18px 14px rgba(45, 64, 50, 0.16));\n    }\n    .mountain::after {\n      content: \"\";\n      position: absolute;\n      width: 100%;\n      height: 100%;\n      background: linear-gradient(120deg, rgba(255,255,255,0.46), rgba(255,255,255,0.05) 36%, transparent 37%);\n      clip-path: polygon(50% 0%, 67% 35%, 54% 29%, 42% 48%, 32% 35%);\n    }\n    .m1 { right: 270px; height: 320px; width: 390px; }\n    .m2 { right: 60px; height: 385px; width: 460px; background: linear-gradient(135deg, #9caf91, #61765f 60%, #43574c); }\n    .m3 { right: -130px; height: 285px; width: 360px; background: linear-gradient(135deg, #879d7e, #5a6f5b 58%, #45594e); }\n\n    .land {\n      position: absolute;\n      left: 0; right: 0; bottom: 0;\n      height: 285px;\n      background: linear-gradient(to bottom, #9ecb8e 0%, #80ae75 46%, #6f9a66 100%);\n      z-index: 5;\n    }\n    .soil-cutaway {\n      position: absolute;\n      left: 0; right: 0; bottom: 0;\n      height: 112px;\n      background:\n        radial-gradient(circle at 10% 45%, rgba(83, 60, 39, .16) 0 3px, transparent 4px),\n        radial-gradient(circle at 34% 72%, rgba(83, 60, 39, .16) 0 3px, transparent 4px),\n        radial-gradient(circle at 70% 42%, rgba(83, 60, 39, .16) 0 3px, transparent 4px),\n        linear-gradient(to bottom, #8a6a46 0%, #664a31 100%);\n      z-index: 8;\n    }\n    .ocean {\n      position: absolute;\n      left: 0;\n      bottom: 0;\n      width: 48%;\n      height: 235px;\n      background: linear-gradient(to bottom, #68abc5 0%, #3c86aa 52%, #246a91 100%);\n      z-index: 9;\n      overflow: hidden;\n      border-top-right-radius: 58% 32%;\n    }\n    .wave {\n      position: absolute;\n      left: -120px;\n      width: 760px;\n      height: 42px;\n      background: repeating-radial-gradient(ellipse at center, rgba(255,255,255,0.45) 0 8px, transparent 9px 40px);\n      opacity: 0.52;\n      animation: waveMove 4s linear infinite;\n    }\n    .wave.one { top: 30px; }\n    .wave.two { top: 83px; animation-duration: 5.5s; opacity: 0.35; }\n    .wave.three { top: 138px; animation-duration: 6.2s; opacity: 0.24; }\n    @keyframes waveMove { from { transform: translateX(0); } to { transform: translateX(170px); } }\n\n    .river {\n      position: absolute;\n      left: 350px;\n      bottom: 85px;\n      width: 590px;\n      height: 125px;\n      z-index: 12;\n      background: linear-gradient(105deg, transparent 0 11%, rgba(106, 177, 207, 0) 11%, rgba(92, 166, 204, 0.85) 18%, rgba(67, 146, 190, 0.95) 35%, rgba(64, 138, 182, 0.92) 58%, rgba(50, 120, 168, 0.96) 78%, rgba(42, 108, 158, 0) 100%);\n      clip-path: polygon(96% 20%, 81% 27%, 70% 40%, 58% 45%, 45% 55%, 31% 59%, 17% 72%, 0% 83%, 0% 100%, 22% 91%, 38% 80%, 52% 74%, 68% 62%, 82% 52%, 100% 38%);\n      opacity: .92;\n    }\n    .river::after {\n      content: \"\";\n      position: absolute;\n      inset: 0;\n      background: repeating-linear-gradient(105deg, rgba(255,255,255,0) 0 28px, rgba(255,255,255,0.36) 30px 38px, rgba(255,255,255,0) 42px 70px);\n      animation: riverFlow 1.8s linear infinite;\n    }\n    @keyframes riverFlow { from { transform: translateX(80px); } to { transform: translateX(-80px); } }\n\n    .forest {\n      position: absolute;\n      right: 90px;\n      bottom: 105px;\n      width: 390px;\n      height: 145px;\n      z-index: 14;\n    }\n    .tree {\n      position: absolute;\n      bottom: 0;\n      width: 12px;\n      height: 62px;\n      background: #6f4d31;\n      border-radius: 5px;\n    }\n    .tree::before {\n      content: \"\";\n      position: absolute;\n      left: 50%;\n      bottom: 38px;\n      width: 58px;\n      height: 78px;\n      transform: translateX(-50%);\n      background: radial-gradient(circle at 50% 24%, #5f9b61 0 30%, #3f774c 31% 68%, transparent 69%);\n      clip-path: polygon(50% 0%, 92% 72%, 63% 70%, 80% 100%, 20% 100%, 37% 70%, 8% 72%);\n      filter: drop-shadow(2px 5px 4px rgba(33, 65, 42, 0.16));\n    }\n    .t1 { left: 10px; transform: scale(.9); }\n    .t2 { left: 55px; transform: scale(1.18); }\n    .t3 { left: 112px; transform: scale(.78); }\n    .t4 { left: 175px; transform: scale(1.05); }\n    .t5 { left: 237px; transform: scale(.86); }\n    .t6 { left: 304px; transform: scale(1.15); }\n    .vegetation {\n      position: absolute;\n      left: 540px;\n      right: 0;\n      bottom: 92px;\n      height: 60px;\n      z-index: 13;\n      background:\n        radial-gradient(ellipse at 10% 90%, #4f9151 0 22px, transparent 23px),\n        radial-gradient(ellipse at 18% 95%, #6dac63 0 18px, transparent 19px),\n        radial-gradient(ellipse at 30% 92%, #4f9151 0 24px, transparent 25px),\n        radial-gradient(ellipse at 46% 95%, #6dac63 0 20px, transparent 21px),\n        radial-gradient(ellipse at 63% 92%, #4f9151 0 26px, transparent 27px),\n        radial-gradient(ellipse at 82% 94%, #6dac63 0 22px, transparent 23px);\n      opacity: .94;\n    }\n\n    /* \u4e92\u52d5\u52d5\u756b\u5340\u584a\uff1a\u9810\u8a2d\u96b1\u85cf\uff0c\u9ede\u9078\u5f8c\u986f\u793a */\n    .vapor-area, .cloud-system, .rain, .infiltration, .groundwater, .focus-ring, .stage-label {\n      opacity: 0;\n      pointer-events: none;\n    }\n    .focus-ring {\n      position: absolute;\n      z-index: 30;\n      border: 3px solid rgba(45,127,168,.42);\n      border-radius: 999px;\n      box-shadow: 0 0 0 8px rgba(45,127,168,.08);\n      animation: focusPulse 1.4s ease-in-out infinite alternate;\n    }\n    @keyframes focusPulse { from { transform: scale(.97); opacity: .58; } to { transform: scale(1.04); opacity: .95; } }\n\n    .vapor-area {\n      position: absolute;\n      left: 105px;\n      bottom: 190px;\n      width: 360px;\n      height: 370px;\n      z-index: 24;\n    }\n    .vapor {\n      position: absolute;\n      bottom: 0;\n      width: 12px;\n      height: 84px;\n      border-radius: 999px;\n      background: linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,.84), rgba(255,255,255,0));\n      filter: blur(.25px);\n      opacity: 0;\n    }\n    .v1 { left: 32px; }\n    .v2 { left: 92px; height: 105px; }\n    .v3 { left: 154px; }\n    .v4 { left: 220px; height: 98px; }\n    .v5 { left: 282px; }\n    .slide[data-stage=\"evaporation\"] .vapor-area { opacity: 1; }\n    .slide[data-stage=\"evaporation\"] .vapor { animation: vaporRise 3.2s ease-in-out infinite; }\n    .slide[data-stage=\"evaporation\"] .v2 { animation-delay: .35s; }\n    .slide[data-stage=\"evaporation\"] .v3 { animation-delay: .7s; }\n    .slide[data-stage=\"evaporation\"] .v4 { animation-delay: 1.05s; }\n    .slide[data-stage=\"evaporation\"] .v5 { animation-delay: 1.4s; }\n    @keyframes vaporRise {\n      0% { transform: translateY(0) scaleY(.5); opacity: 0; }\n      15% { opacity: .75; }\n      70% { transform: translateY(-235px) translateX(38px) scaleY(1.25); opacity: .46; }\n      100% { transform: translateY(-270px) translateX(70px) scaleY(.65); opacity: 0; }\n    }\n\n    .cloud-system {\n      position: absolute;\n      top: 145px;\n      left: 248px;\n      width: 270px;\n      height: 110px;\n      z-index: 25;\n    }\n    .cloud { position: absolute; inset: 0; filter: drop-shadow(0 12px 10px rgba(71, 87, 94, 0.12)); }\n    .cloud span {\n      position: absolute;\n      background: linear-gradient(to bottom, #ffffff, #dfeaf0);\n      border-radius: 999px;\n      box-shadow: inset -8px -12px 18px rgba(113, 139, 150, .12);\n    }\n    .c1 { width: 100px; height: 72px; left: 20px; top: 32px; }\n    .c2 { width: 125px; height: 92px; left: 82px; top: 6px; }\n    .c3 { width: 110px; height: 70px; left: 160px; top: 36px; }\n    .c4 { width: 220px; height: 55px; left: 30px; top: 58px; }\n    .slide[data-stage=\"condensation\"] .cloud-system { opacity: 1; animation: cloudForm 4.8s ease-in-out infinite; }\n    @keyframes cloudForm {\n      0% { transform: translateX(0) translateY(12px) scale(.55); opacity: .12; filter: blur(3px); }\n      35% { transform: translateX(60px) translateY(2px) scale(.86); opacity: .78; filter: blur(1px); }\n      70% { transform: translateX(330px) translateY(7px) scale(1.02); opacity: 1; filter: blur(0); }\n      100% { transform: translateX(450px) translateY(10px) scale(1.05); opacity: .94; filter: blur(0); }\n    }\n\n    .rain {\n      position: absolute;\n      left: 890px;\n      top: 150px;\n      width: 250px;\n      height: 310px;\n      z-index: 24;\n    }\n    .slide[data-stage=\"rain\"] .cloud-system {\n      opacity: 1;\n      top: 138px;\n      left: 820px;\n      transform: scale(1.02);\n    }\n    .slide[data-stage=\"rain\"] .rain { opacity: 1; }\n    .drop {\n      position: absolute;\n      top: 95px;\n      width: 3px;\n      height: 24px;\n      border-radius: 50%;\n      background: linear-gradient(to bottom, rgba(136, 183, 215, 0), rgba(74, 145, 190, .86));\n      animation: rainFall .72s linear infinite;\n    }\n    .d1 { left: 20px; animation-delay: 0s; }\n    .d2 { left: 48px; animation-delay: .12s; height: 27px; }\n    .d3 { left: 76px; animation-delay: .24s; }\n    .d4 { left: 104px; animation-delay: .36s; height: 29px; }\n    .d5 { left: 132px; animation-delay: .08s; }\n    .d6 { left: 160px; animation-delay: .22s; height: 28px; }\n    .d7 { left: 188px; animation-delay: .33s; }\n    .d8 { left: 216px; animation-delay: .48s; height: 26px; }\n    @keyframes rainFall { from { transform: translateY(0); opacity: .2; } 20% { opacity: .98; } to { transform: translateY(195px); opacity: 0; } }\n\n    .infiltration {\n      position: absolute;\n      right: 115px;\n      bottom: 102px;\n      width: 260px;\n      height: 150px;\n      z-index: 26;\n    }\n    .slide[data-stage=\"groundwater\"] .infiltration { opacity: 1; }\n    .down-arrow {\n      position: absolute;\n      width: 16px;\n      height: 86px;\n      background: rgba(67, 161, 211, .42);\n      border-radius: 12px;\n    }\n    .down-arrow::after {\n      content: \"\";\n      position: absolute;\n      left: 50%; bottom: -24px;\n      width: 44px; height: 44px;\n      transform: translateX(-50%) rotate(45deg);\n      background: rgba(67, 161, 211, .42);\n      clip-path: polygon(100% 0, 100% 100%, 0 100%);\n    }\n    .a1 { left: 30px; top: 6px; animation: seep 1.8s ease-in-out infinite; }\n    .a2 { left: 115px; top: 0; height: 108px; animation: seep 2.1s ease-in-out infinite .2s; }\n    .a3 { left: 202px; top: 14px; height: 82px; animation: seep 1.9s ease-in-out infinite .4s; }\n    @keyframes seep { from { transform: translateY(-8px); opacity: .42; } to { transform: translateY(12px); opacity: .86; } }\n\n    .groundwater {\n      position: absolute;\n      left: 180px;\n      bottom: 34px;\n      width: 690px;\n      height: 55px;\n      z-index: 27;\n    }\n    .slide[data-stage=\"groundwater\"] .groundwater { opacity: 1; }\n    .groundwater .shaft {\n      position: absolute;\n      right: 40px;\n      top: 20px;\n      width: 590px;\n      height: 15px;\n      background: rgba(73, 161, 212, .35);\n      border-radius: 20px;\n      overflow: hidden;\n    }\n    .groundwater .shaft::before {\n      content: \"\";\n      position: absolute;\n      inset: 0;\n      background: repeating-linear-gradient(90deg, transparent 0 34px, rgba(255,255,255,.45) 35px 52px, transparent 53px 84px);\n      animation: undergroundFlow 1.7s linear infinite;\n    }\n    .groundwater .head {\n      position: absolute;\n      left: 20px;\n      top: 8px;\n      width: 42px;\n      height: 42px;\n      background: rgba(73, 161, 212, .35);\n      clip-path: polygon(0 50%, 100% 0, 100% 100%);\n    }\n    @keyframes undergroundFlow { from { transform: translateX(90px); } to { transform: translateX(-90px); } }\n\n    .stage-label {\n      position: absolute;\n      z-index: 50;\n      padding: 8px 13px;\n      border-radius: 999px;\n      background: rgba(255,255,255,.86);\n      box-shadow: 0 6px 18px rgba(43, 74, 85, .14);\n      font-size: clamp(12px, 1.1vw, 16px);\n      font-weight: 800;\n      color: #2e5668;\n      white-space: nowrap;\n      animation: labelPop .5s ease both;\n    }\n    @keyframes labelPop { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }\n    .slide[data-stage=\"evaporation\"] .label-evap,\n    .slide[data-stage=\"condensation\"] .label-cond,\n    .slide[data-stage=\"rain\"] .label-rain,\n    .slide[data-stage=\"groundwater\"] .label-ground { opacity: 1; }\n    .label-evap { left: 130px; bottom: 420px; }\n    .label-cond { left: 520px; top: 250px; }\n    .label-rain { right: 145px; top: 370px; }\n    .label-ground { right: 120px; bottom: 248px; }\n\n    .slide[data-stage=\"evaporation\"] .ring-evap { opacity: 1; left: 65px; bottom: 182px; width: 360px; height: 330px; }\n    .slide[data-stage=\"condensation\"] .ring-cond { opacity: 1; left: 350px; top: 120px; width: 620px; height: 190px; }\n    .slide[data-stage=\"rain\"] .ring-rain { opacity: 1; right: 120px; top: 125px; width: 300px; height: 350px; }\n    .slide[data-stage=\"groundwater\"] .ring-ground { opacity: 1; right: 85px; bottom: 20px; width: 760px; height: 235px; border-radius: 40px; }\n\n    .hint {\n      position: absolute;\n      left: 30px;\n      bottom: 88px;\n      z-index: 58;\n      color: #31596a;\n      background: rgba(255,255,255,.72);\n      border-radius: 14px;\n      padding: 9px 13px;\n      font-size: clamp(12px, 1vw, 15px);\n      box-shadow: 0 6px 18px rgba(42, 70, 82, 0.10);\n    }\n\n    @media (max-width: 900px) {\n      .info-panel { width: 42vw; }\n      .controls { grid-template-columns: repeat(2, minmax(120px, 1fr)); width: min(420px, calc(100% - 60px)); }\n      .hint { display: none; }\n    }\n    @media (max-width: 680px) {\n      .title { top: 12px; left: 12px; padding: 9px 12px; }\n      .info-panel { right: 12px; top: 92px; width: calc(100% - 24px); min-height: auto; padding: 12px 14px; }\n      .info-panel p { display: none; }\n      .controls { left: 12px; bottom: 12px; width: calc(100% - 24px); gap: 7px; }\n      .stage-btn { padding: 8px 6px; border-radius: 12px; }\n    }\n  </style>\n</head>\n<body>\n  <main class=\"slide\" id=\"slide\" data-stage=\"evaporation\" aria-label=\"\u5927\u81ea\u7136\u4e2d\u7684\u6c34\u5faa\u74b0\u4e92\u52d5 CSS \u52d5\u756b\">\n    <div class=\"sky-haze\"></div>\n    <section class=\"title\">\n      <h1>\u5927\u81ea\u7136\u4e2d\u7684\u6c34\u5faa\u74b0</h1>\n      <p>\u9ede\u9078\u968e\u6bb5\uff0c\u89c0\u5bdf\u6c34\u5728\u81ea\u7136\u74b0\u5883\u4e2d\u7684\u79fb\u52d5\u8207\u8b8a\u5316</p>\n    </section>\n\n    <aside class=\"info-panel\" aria-live=\"polite\">\n      <span class=\"tag\" id=\"stageTag\">\u968e\u6bb5 1</span>\n      <h2 id=\"stageTitle\">\u84b8\u767c Evaporation</h2>\n      <p id=\"stageDesc\"><strong>\u89c0\u5bdf\u91cd\u9ede\uff1a</strong>\u592a\u967d\u52a0\u71b1\u6d77\u9762\uff0c\u6c34\u5206\u5b50\u7372\u5f97\u80fd\u91cf\u5f8c\uff0c\u5f9e\u6db2\u614b\u6c34\u8b8a\u6210\u770b\u4e0d\u898b\u7684\u6c34\u84b8\u6c23\uff0c\u5f80\u7a7a\u6c23\u4e2d\u4e0a\u5347\u3002</p>\n      <p id=\"stageScience\"><strong>\u79d1\u5b78\u89e3\u91cb\uff1a</strong>\u84b8\u767c\u4e0d\u4e00\u5b9a\u8981\u5230\u6cb8\u9a30\u624d\u6703\u767c\u751f\u3002\u6eab\u5ea6\u8f03\u9ad8\u3001\u98a8\u8f03\u5f37\u3001\u8868\u9762\u7a4d\u8f03\u5927\u6642\uff0c\u6c34\u5206\u6bd4\u8f03\u5bb9\u6613\u84b8\u767c\u3002</p>\n    </aside>\n\n    <div class=\"sun\" aria-label=\"\u592a\u967d\u6301\u7e8c\u767c\u5149\"></div>\n\n    <div class=\"mountains\" aria-label=\"\u5c71\u8108\">\n      <div class=\"mountain m1\"></div>\n      <div class=\"mountain m2\"></div>\n      <div class=\"mountain m3\"></div>\n    </div>\n    <div class=\"land\"></div>\n    <div class=\"vegetation\" aria-label=\"\u690d\u88ab\"></div>\n    <div class=\"forest\" aria-label=\"\u6a39\u6728\u8207\u68ee\u6797\">\n      <div class=\"tree t1\"></div><div class=\"tree t2\"></div><div class=\"tree t3\"></div>\n      <div class=\"tree t4\"></div><div class=\"tree t5\"></div><div class=\"tree t6\"></div>\n    </div>\n    <div class=\"river\" aria-label=\"\u6cb3\u6d41\u6d41\u5411\u6d77\u6d0b\"></div>\n    <div class=\"ocean\" aria-label=\"\u6d77\u6d0b\u8207\u6ce2\u6d6a\">\n      <div class=\"wave one\"></div><div class=\"wave two\"></div><div class=\"wave three\"></div>\n    </div>\n    <div class=\"soil-cutaway\" aria-label=\"\u571f\u58e4\u5256\u9762\"></div>\n\n    <div class=\"focus-ring ring-evap\"></div>\n    <div class=\"focus-ring ring-cond\"></div>\n    <div class=\"focus-ring ring-rain\"></div>\n    <div class=\"focus-ring ring-ground\"></div>\n\n    <div class=\"vapor-area\" aria-label=\"\u6c34\u84b8\u6c23\u7531\u6d77\u9762\u4e0a\u5347\">\n      <div class=\"vapor v1\"></div><div class=\"vapor v2\"></div><div class=\"vapor v3\"></div><div class=\"vapor v4\"></div><div class=\"vapor v5\"></div>\n    </div>\n\n    <div class=\"cloud-system\" aria-label=\"\u96f2\u9010\u6f38\u5f62\u6210\u4e26\u79fb\u52d5\u81f3\u5c71\u5340\">\n      <div class=\"cloud\"><span class=\"c1\"></span><span class=\"c2\"></span><span class=\"c3\"></span><span class=\"c4\"></span></div>\n    </div>\n\n    <div class=\"rain\" aria-label=\"\u96e8\u6ef4\u81ea\u7136\u843d\u4e0b\">\n      <div class=\"drop d1\"></div><div class=\"drop d2\"></div><div class=\"drop d3\"></div><div class=\"drop d4\"></div>\n      <div class=\"drop d5\"></div><div class=\"drop d6\"></div><div class=\"drop d7\"></div><div class=\"drop d8\"></div>\n    </div>\n\n    <div class=\"infiltration\" aria-label=\"\u5730\u4e0b\u6ef2\u900f\">\n      <div class=\"down-arrow a1\"></div><div class=\"down-arrow a2\"></div><div class=\"down-arrow a3\"></div>\n    </div>\n    <div class=\"groundwater\" aria-label=\"\u5730\u4e0b\u6c34\u56de\u6d41\u5230\u6d77\u6d0b\">\n      <div class=\"shaft\"></div><div class=\"head\"></div>\n    </div>\n\n    <div class=\"stage-label label-evap\">\u84b8\u767c\uff1a\u6d77\u6c34\u8b8a\u6210\u6c34\u84b8\u6c23</div>\n    <div class=\"stage-label label-cond\">\u51dd\u7d50\uff1a\u6c34\u84b8\u6c23\u9047\u51b7\u5f62\u6210\u5c0f\u6c34\u6ef4</div>\n    <div class=\"stage-label label-rain\">\u964d\u96e8\uff1a\u96f2\u4e2d\u6c34\u6ef4\u8b8a\u91cd\u843d\u4e0b</div>\n    <div class=\"stage-label label-ground\">\u5730\u4e0b\u6c34\uff1a\u6ef2\u5165\u571f\u58e4\u4e26\u6162\u6162\u56de\u6d41</div>\n\n    <div class=\"hint\">\u6559\u5b78\u64cd\u4f5c\uff1a\u8acb\u5b78\u751f\u5148\u9810\u6e2c\u300c\u6c34\u63a5\u4e0b\u4f86\u6703\u5f80\u54ea\u88e1\u53bb\u300d\uff0c\u518d\u9ede\u9078\u968e\u6bb5\u89c0\u5bdf\u3002</div>\n    <nav class=\"controls\" aria-label=\"\u6c34\u5faa\u74b0\u968e\u6bb5\u9078\u55ae\">\n      <button class=\"stage-btn active\" data-stage=\"evaporation\">\u84b8\u767c<small>Evaporation</small></button>\n      <button class=\"stage-btn\" data-stage=\"condensation\">\u51dd\u7d50<small>Condensation</small></button>\n      <button class=\"stage-btn\" data-stage=\"rain\">\u964d\u96e8<small>Precipitation</small></button>\n      <button class=\"stage-btn\" data-stage=\"groundwater\">\u5730\u4e0b\u6c34<small>Infiltration</small></button>\n    </nav>\n  </main>\n\n  <script>\n    const slide = document.getElementById('slide');\n    const buttons = document.querySelectorAll('.stage-btn');\n    const stageTag = document.getElementById('stageTag');\n    const stageTitle = document.getElementById('stageTitle');\n    const stageDesc = document.getElementById('stageDesc');\n    const stageScience = document.getElementById('stageScience');\n\n    const content = {\n      evaporation: {\n        tag: '\u968e\u6bb5 1',\n        title: '\u84b8\u767c Evaporation',\n        desc: '<strong>\u89c0\u5bdf\u91cd\u9ede\uff1a</strong>\u592a\u967d\u52a0\u71b1\u6d77\u9762\uff0c\u6c34\u5206\u5b50\u7372\u5f97\u80fd\u91cf\u5f8c\uff0c\u5f9e\u6db2\u614b\u6c34\u8b8a\u6210\u770b\u4e0d\u898b\u7684\u6c34\u84b8\u6c23\uff0c\u5f80\u7a7a\u6c23\u4e2d\u4e0a\u5347\u3002',\n        science: '<strong>\u79d1\u5b78\u89e3\u91cb\uff1a</strong>\u84b8\u767c\u4e0d\u4e00\u5b9a\u8981\u5230\u6cb8\u9a30\u624d\u6703\u767c\u751f\u3002\u6eab\u5ea6\u8f03\u9ad8\u3001\u98a8\u8f03\u5f37\u3001\u8868\u9762\u7a4d\u8f03\u5927\u6642\uff0c\u6c34\u5206\u6bd4\u8f03\u5bb9\u6613\u84b8\u767c\u3002'\n      },\n      condensation: {\n        tag: '\u968e\u6bb5 2',\n        title: '\u51dd\u7d50 Condensation',\n        desc: '<strong>\u89c0\u5bdf\u91cd\u9ede\uff1a</strong>\u6c34\u84b8\u6c23\u5347\u5230\u8f03\u9ad8\u3001\u8f03\u51b7\u7684\u7a7a\u6c23\u4e2d\uff0c\u9010\u6f38\u8b8a\u6210\u8a31\u591a\u7d30\u5c0f\u6c34\u6ef4\uff0c\u805a\u96c6\u5f8c\u5f62\u6210\u96f2\u3002',\n        science: '<strong>\u79d1\u5b78\u89e3\u91cb\uff1a</strong>\u6c23\u9ad4\u9047\u51b7\u6703\u5931\u53bb\u90e8\u5206\u71b1\u80fd\uff0c\u6c34\u84b8\u6c23\u8b8a\u56de\u6db2\u614b\u5c0f\u6c34\u6ef4\uff0c\u9019\u5c31\u662f\u51dd\u7d50\u3002\u96f2\u4e0d\u662f\u6c34\u84b8\u6c23\uff0c\u800c\u662f\u8a31\u591a\u5c0f\u6c34\u6ef4\u6216\u5c0f\u51b0\u6676\u3002'\n      },\n      rain: {\n        tag: '\u968e\u6bb5 3',\n        title: '\u964d\u96e8 Precipitation',\n        desc: '<strong>\u89c0\u5bdf\u91cd\u9ede\uff1a</strong>\u96f2\u79fb\u52d5\u5230\u5c71\u5340\u5f8c\uff0c\u96f2\u4e2d\u7684\u5c0f\u6c34\u6ef4\u4e92\u76f8\u78b0\u649e\u8b8a\u5927\uff0c\u91cd\u91cf\u589e\u52a0\uff0c\u6700\u5f8c\u4ee5\u96e8\u6ef4\u5f62\u5f0f\u843d\u4e0b\u3002',\n        science: '<strong>\u79d1\u5b78\u89e3\u91cb\uff1a</strong>\u7576\u6c34\u6ef4\u5927\u5230\u7a7a\u6c23\u6258\u4e0d\u4f4f\u6642\uff0c\u5c31\u6703\u964d\u843d\u5230\u5730\u8868\u3002\u964d\u6c34\u5305\u542b\u4e0b\u96e8\u3001\u4e0b\u96ea\u3001\u51b0\u96f9\u7b49\u4e0d\u540c\u5f62\u5f0f\u3002'\n      },\n      groundwater: {\n        tag: '\u968e\u6bb5 4',\n        title: '\u5730\u4e0b\u6ef2\u900f Infiltration',\n        desc: '<strong>\u89c0\u5bdf\u91cd\u9ede\uff1a</strong>\u90e8\u5206\u96e8\u6c34\u6cbf\u8457\u5730\u8868\u6d41\u5165\u6cb3\u6d41\uff0c\u90e8\u5206\u6c34\u6703\u6ef2\u5165\u571f\u58e4\u8207\u5ca9\u77f3\u7e2b\u9699\uff0c\u6210\u70ba\u5730\u4e0b\u6c34\uff0c\u518d\u6162\u6162\u6d41\u56de\u6d77\u6d0b\u3002',\n        science: '<strong>\u79d1\u5b78\u89e3\u91cb\uff1a</strong>\u571f\u58e4\u9846\u7c92\u4e4b\u9593\u6709\u7a7a\u9699\uff0c\u6c34\u80fd\u5f80\u4e0b\u6ef2\u900f\u3002\u5730\u4e0b\u6c34\u6d41\u52d5\u901f\u5ea6\u901a\u5e38\u6bd4\u6cb3\u6d41\u6162\u5f88\u591a\uff0c\u662f\u6c34\u5faa\u74b0\u4e2d\u91cd\u8981\u7684\u5132\u6c34\u8207\u56de\u6d41\u904e\u7a0b\u3002'\n      }\n    };\n\n    function setStage(stage) {\n      slide.dataset.stage = stage;\n      buttons.forEach(btn => btn.classList.toggle('active', btn.dataset.stage === stage));\n      stageTag.textContent = content[stage].tag;\n      stageTitle.textContent = content[stage].title;\n      stageDesc.innerHTML = content[stage].desc;\n      stageScience.innerHTML = content[stage].science;\n\n      /* \u91cd\u65b0\u89f8\u767c CSS \u52d5\u756b\uff0c\u8b93\u5b78\u751f\u6bcf\u6b21\u9ede\u64ca\u90fd\u5f9e\u982d\u770b */\n      slide.classList.remove('replay');\n      void slide.offsetWidth;\n      slide.classList.add('replay');\n    }\n\n    buttons.forEach(btn => btn.addEventListener('click', () => setStage(btn.dataset.stage)));\n  </script>\n</body>\n</html>\n";
+    document.getElementById('frame1').srcdoc = demo1;
+    document.getElementById('frame2').srcdoc = demo2;
+  </script>
+</body>
+</html>
