@@ -1,0 +1,193 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"/>
+<title>從零打造資料庫網站 — 新手開發教學</title><style>
+*{box-sizing:border-box}
+body{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;color:#2c1810;max-width:840px;margin:0 auto;padding:40px 28px;line-height:1.8}
+.doc-title{text-align:center;font-size:30px;font-weight:900;margin:0 0 6px;color:#5c3a1e}
+.doc-sub{text-align:center;font-size:17px;color:#7a6153;margin:0 0 4px}
+.doc-meta{text-align:center;font-size:13px;color:#9a8575;margin:0 0 32px}
+h2.s1{font-size:22px;font-weight:800;color:#fff;background:#5c3a1e;padding:9px 14px;border-radius:8px;margin:36px 0 14px}
+h3.s2{font-size:18px;font-weight:800;color:#5c3a1e;border-left:5px solid #e8722a;padding-left:10px;margin:24px 0 10px}
+h4.s3{font-size:15px;font-weight:700;color:#c0531a;margin:18px 0 8px}
+p{margin:9px 0}
+ul,ol{margin:8px 0 10px 4px;padding-left:24px}
+li{margin:6px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0;border:1px solid #c9b8a8}
+th,td{border:1px solid #c9b8a8;padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#fef3e2;color:#5c3a1e;font-weight:700}
+tr:nth-child(even) td{background:#fffaf3}
+pre.code{background:#2c2620;color:#f3e9da;border-radius:8px;padding:14px 16px;margin:12px 0;overflow-x:auto;
+  font-family:"Consolas","Courier New",monospace;font-size:12.5px;line-height:1.6;white-space:pre}
+pre.code code{font-family:inherit}
+.callout{border-radius:8px;padding:11px 14px;margin:12px 0;font-size:14px;line-height:1.7}
+.callout.note{background:#eef4ff;border-left:5px solid #1565c0}
+.callout.tip{background:#e8f5e9;border-left:5px solid #2d6a4f}
+.callout.warn{background:#fdecea;border-left:5px solid #c0392b}
+@media print{body{padding:0}h2.s1,h3.s2,h4.s3{break-after:avoid}table,ul,ol,pre.code,.callout{break-inside:avoid}}
+</style></head><body><h1 class="doc-title">🐻 從零打造一個會員制資料庫網站</h1><p class="doc-sub">新手友善開發教學 — 以「黑熊老師科展日誌」為例</p><p class="doc-meta">適合對象：剛開始 vibe coding、第一次接觸後端網頁與資料庫的初學者</p><h2 class="s1">寫在前面：這份教學要帶你做什麼</h2><p>我們會從零做出一個真正能上線的網站：對外有一面「日誌牆」展示資料，對內有需要登入的「管理後台」可以新增、編輯、刪除、搜尋、上傳照片，還能把資料匯出成 Word / PDF / HTML。最後把它部署到網路上，任何人都能用網址打開。</p><p>這份文件不只是「我們做了什麼」，而是「你也能照著做」。每個步驟都有觀念解說與可複製的程式碼範例。看不懂的名詞，文末有「名詞速查表」。</p><div class="callout tip">💡 學習建議：不要一次讀完。先讀「觀念篇」建立地圖，再跟著「實作篇」一步步做，做到哪卡住就回來查。動手做一次，勝過讀十遍。</div><h2 class="s1">Part 1　觀念篇：先看懂整張地圖</h2><h3 class="s2">1-1　什麼是「vibe coding」？</h3><p>Vibe coding 指的是：你用自然語言（中文也行）描述想要什麼，讓 AI 幫你寫程式，你負責「指揮、檢查、決定方向」。你不必背語法，但你需要懂「在做什麼、為什麼這樣做」，才能判斷 AI 給的東西對不對。</p><p>可以把自己想成「導演」，AI 是「很強但需要明確指示的工程師」。導演不必會操作每台攝影機，但要清楚知道想要的畫面，並在拍壞時看得出來。</p><ul><li>你做的事：描述需求、提供範例、檢查結果、做決定、要求修正。</li><li>AI 做的事：寫程式碼、解釋原理、找錯、提供選項。</li><li>關鍵能力：把模糊的想法講清楚（明確的指令），以及驗證結果（不要盲目相信）。</li></ul><h3 class="s2">1-2　前端 vs 後端，用餐廳比喻</h3><p>一個網站通常分成「前端」和「後端」兩部分，想像成一間餐廳：</p><table><thead><tr><th>角色</th><th>餐廳比喻</th><th>在網站裡負責</th></tr></thead><tbody><tr><td>前端 Frontend</td><td>外場、菜單、餐桌</td><td>使用者看得到、點得到的畫面（按鈕、表單、文字）</td></tr><tr><td>後端 Backend</td><td>廚房</td><td>看不到的運算：接收請求、處理邏輯、決定回傳什麼</td></tr><tr><td>資料庫 Database</td><td>倉庫、冰箱</td><td>長期保存資料的地方（日誌、照片資訊、帳號）</td></tr><tr><td>API</td><td>服務生</td><td>在前端與後端之間傳話：把點單送進廚房，把菜端出來</td></tr></tbody></table><p>當你在網頁按下「新增日誌」：前端（外場）把你填的資料交給 API（服務生），送進後端（廚房）處理，後端把資料存進資料庫（倉庫），再回報「成功」，前端就更新畫面。整個過程就是這樣來回。</p><h3 class="s2">1-3　什麼是資料庫？為什麼不能只用變數？</h3><p>程式裡的變數，網頁一重新整理或伺服器一重開就消失了。資料庫則是把資料「寫到硬碟長期保存」，關機再開也還在。可以把它想成一個超強的試算表（Excel）：有很多「資料表（table）」，每張表有「欄位（column）」與一筆筆「資料列（row）」。</p><p>我們用的是 SQLite —— 一種輕量、不需要另外架伺服器的資料庫，整個資料庫就是一個檔案。很適合初學者與中小型網站。</p><p>操作資料庫的語言叫 SQL。最常用的四個動作合稱 CRUD：</p><table><thead><tr><th>英文</th><th>中文</th><th>SQL 關鍵字</th><th>白話</th></tr></thead><tbody><tr><td>Create</td><td>新增</td><td>INSERT</td><td>加一筆新資料</td></tr><tr><td>Read</td><td>讀取</td><td>SELECT</td><td>查出資料</td></tr><tr><td>Update</td><td>更新</td><td>UPDATE</td><td>改某筆資料</td></tr><tr><td>Delete</td><td>刪除</td><td>DELETE</td><td>刪掉某筆資料</td></tr></tbody></table><h3 class="s2">1-4　一筆資料的旅程（請記住這張流程）</h3><p>這是整個後端網站最核心的概念，務必記住這條「資料流」：</p><pre class="code"><code>使用者在瀏覽器操作（前端）
+      │  例如：填表後按「送出」
+      ▼
+  發出請求 (HTTP request) 給 API
+      │  例如：POST /api/journals
+      ▼
+  後端的「路由處理函式」接收
+      │  驗證資料、決定怎麼做
+      ▼
+  對「資料庫」下 SQL 指令
+      │  例如：INSERT INTO journals ...
+      ▼
+  資料庫存好，回傳結果
+      │
+      ▼
+  後端回應 (HTTP response) 給前端
+      │  例如：{ "id": 1, ... } 與狀態碼 201
+      ▼
+  前端拿到結果，更新畫面給使用者看</code></pre><p>之後不管功能多複雜，本質都是這條流程的重複與變化。卡住時，回來想：現在是卡在哪一段？</p><h3 class="s2">1-5　我們會用到的工具</h3><table><thead><tr><th>工具</th><th>是什麼</th><th>為什麼選它</th></tr></thead><tbody><tr><td>Node.js</td><td>讓 JavaScript 能在電腦/伺服器上跑的執行環境</td><td>前後端同一種語言，初學者負擔小</td></tr><tr><td>Next.js</td><td>目前最主流的 React 網站框架</td><td>前端後端寫在同一個專案，內建路由，部署簡單</td></tr><tr><td>TypeScript</td><td>加上「型別」的 JavaScript</td><td>幫你在打錯時提早抓到錯誤</td></tr><tr><td>Tailwind CSS</td><td>用簡短類別名稱寫樣式</td><td>不用另外寫一堆 CSS，排版快</td></tr><tr><td>better-sqlite3</td><td>在 Node 裡操作 SQLite 的套件</td><td>簡單、同步寫法，初學者好懂</td></tr><tr><td>Git / GitHub</td><td>版本控制 / 程式碼雲端倉庫</td><td>保存歷史、與部署平台連動</td></tr><tr><td>Railway</td><td>雲端部署平台</td><td>有持久磁碟，SQLite 與檔案上傳能直接用</td></tr></tbody></table><h2 class="s1">Part 2　環境準備</h2><h3 class="s2">2-1　要先裝的東西</h3><ol><li>Node.js（建議 LTS 或最新版）：到 nodejs.org 下載安裝。裝完在終端機輸入 node -v 確認有版本號。</li><li>程式編輯器：VS Code（免費、最多人用）。</li><li>AI 編程工具：例如 Claude Code、Cursor 等，用來進行 vibe coding。</li><li>（部署時才需要）一個 GitHub 帳號、一個 Railway 帳號。</li></ol><pre class="code"><code># 確認 Node.js 與 npm 已安裝（會印出版本號）
+node -v
+npm -v</code></pre><h3 class="s2">2-2　終端機（Terminal）最基本指令</h3><p>終端機是用打字下指令的視窗。新手只要先會這幾個：</p><table><thead><tr><th>指令</th><th>作用</th><th>範例</th></tr></thead><tbody><tr><td>cd</td><td>切換資料夾</td><td>cd D:/Science-Exhibition</td></tr><tr><td>ls（或 dir）</td><td>列出資料夾內容</td><td>ls</td></tr><tr><td>npm install</td><td>安裝套件</td><td>npm install better-sqlite3</td></tr><tr><td>npm run dev</td><td>啟動開發伺服器</td><td>npm run dev</td></tr></tbody></table><div class="callout tip">💡 vibe coding 時，這些指令也可以直接請 AI 幫你執行；但看懂它在做什麼，出錯時你才知道怎麼描述問題。</div><h3 class="s2">2-3　怎麼「下好的指令」給 AI（vibe coding 心法）</h3><p>AI 的產出品質，取決於你的描述品質。一個好的需求通常包含：要做什麼、給誰用、有哪些欄位/規則、希望用什麼技術、以及範例。</p><div class="callout note">不好的指令：「幫我做個網站」。<br/>好的指令：「幫我做一個科展日誌網站，前端展示日誌，後端能新增/編輯，欄位有日期、做了什麼、遇到的問題、待辦事項。用 Next.js + SQLite，介面簡單可愛就好。」</div><h2 class="s1">Part 3　實作：建立專案</h2><p>用官方工具一行指令建立 Next.js 專案。各參數的意思都標在註解。</p><pre class="code"><code># 在你想放專案的資料夾執行
+npx create-next-app@latest science-exhibition \
+  --typescript \   # 使用 TypeScript
+  --tailwind \      # 內建 Tailwind CSS
+  --eslint \        # 內建程式碼檢查
+  --app \           # 使用新版 App Router
+  --no-src-dir \    # 不額外建 src 資料夾
+  --import-alias "@/*"   # 用 @ 代表專案根目錄（import 比較短）
+
+# 進入專案、安裝資料庫套件、啟動開發伺服器
+cd science-exhibition
+npm install better-sqlite3 @types/better-sqlite3
+npm run dev   # 打開 http://localhost:3000 就看得到</code></pre><h3 class="s2">3-1　專案資料夾在做什麼</h3><table><thead><tr><th>路徑</th><th>用途</th></tr></thead><tbody><tr><td>app/</td><td>所有頁面與 API（App Router 的核心）</td></tr><tr><td>app/page.tsx</td><td>首頁（前端日誌牆）</td></tr><tr><td>app/admin/</td><td>管理後台相關頁面</td></tr><tr><td>app/api/</td><td>後端 API 路由</td></tr><tr><td>lib/</td><td>共用程式：資料庫連線、型別等</td></tr><tr><td>public/</td><td>靜態檔案（圖片等）</td></tr><tr><td>package.json</td><td>專案資訊與相依套件清單</td></tr></tbody></table><h2 class="s1">Part 4　設計與串接資料庫（重點章節）</h2><h3 class="s2">4-1　先想清楚要存什麼</h3><p>動手前先列出「要記錄哪些欄位」。我們的日誌每筆需要：日期、做了什麼、遇到的問題、待辦事項，再加上時間、地點、記錄者、發現、照片編號等。把它對應成資料表的欄位：</p><table><thead><tr><th>欄位名</th><th>型別</th><th>說明</th></tr></thead><tbody><tr><td>id</td><td>INTEGER（主鍵，自動編號）</td><td>每筆資料的唯一編號</td></tr><tr><td>date</td><td>TEXT</td><td>年月日（必填）</td></tr><tr><td>content</td><td>TEXT</td><td>當天科展所做的事情（必填）</td></tr><tr><td>problems</td><td>TEXT</td><td>遇到的問題</td></tr><tr><td>todos</td><td>TEXT</td><td>待辦事項</td></tr><tr><td>created_at</td><td>TEXT</td><td>建立時間（自動）</td></tr></tbody></table><h3 class="s2">4-2　用 SQL 建立資料表</h3><p>CREATE TABLE 就是「開一張新表並定義欄位」。IF NOT EXISTS 代表「如果還沒有才建立」，避免每次啟動都報錯。</p><pre class="code"><code>CREATE TABLE IF NOT EXISTS journals (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,  -- 自動編號的主鍵
+  date        TEXT NOT NULL,    -- 必填
+  content     TEXT NOT NULL,    -- 必填
+  problems    TEXT,             -- 可空白
+  todos       TEXT,             -- 可空白
+  created_at  TEXT DEFAULT (datetime('now','localtime'))  -- 預設帶入現在時間
+);</code></pre><h3 class="s2">4-3　在程式裡連線資料庫（lib/db.ts）</h3><p>這支檔案做三件事：開啟資料庫檔、建立資料表、提供 CRUD 函式給其他程式呼叫。以下是精簡版，每段都有註解：</p><pre class="code"><code>import Database from "better-sqlite3";
+import path from "path";
+import fs from "fs";
+
+// 1) 決定資料庫檔放哪。用環境變數 DATA_DIR，沒設就放專案的 data/ 資料夾
+const DIR = process.env.DATA_DIR || path.join(process.cwd(), "data");
+if (!fs.existsSync(DIR)) fs.mkdirSync(DIR, { recursive: true }); // 沒有就建資料夾
+const db = new Database(path.join(DIR, "journals.db"));          // 開啟（或建立）資料庫檔
+
+// 2) 啟動時確保資料表存在
+db.exec(`
+  CREATE TABLE IF NOT EXISTS journals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    content TEXT NOT NULL,
+    problems TEXT,
+    todos TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  );
+`);
+
+// 3) 提供 CRUD 函式
+export const journalDb = {
+  // 讀取全部（依日期新到舊）
+  getAll() {
+    return db.prepare("SELECT * FROM journals ORDER BY date DESC").all();
+  },
+  // 讀取單筆
+  getById(id) {
+    return db.prepare("SELECT * FROM journals WHERE id = ?").get(id);
+  },
+  // 新增（用 @name 對應物件欄位，避免 SQL injection）
+  create(data) {
+    const r = db.prepare(
+      "INSERT INTO journals (date, content, problems, todos) VALUES (@date,@content,@problems,@todos)"
+    ).run(data);
+    return this.getById(r.lastInsertRowid);
+  },
+  // 刪除
+  delete(id) {
+    db.prepare("DELETE FROM journals WHERE id = ?").run(id);
+  },
+};</code></pre><div class="callout warn">⚠️ 重要安全觀念：永遠不要用字串拼接把使用者輸入直接組進 SQL（例如 "...WHERE id=" + id）。要用「?」或「@name」這種參數化寫法，才能防止 SQL injection（惡意輸入竄改你的查詢）。</div><div class="callout note">Next.js 需要在 next.config.ts 把 better-sqlite3 列為 serverExternalPackages，原生模組才能正常載入。這類設定細節，正是請 AI 幫你處理的好時機。</div><h2 class="s1">Part 5　寫後端 API（讓前端能存取資料）</h2><p>在 App Router 裡，建立 app/api/journals/route.ts，匯出 GET、POST 等函式，就成了一個 API 端點。GET 用來查資料、POST 用來新增。</p><pre class="code"><code>import { NextRequest, NextResponse } from "next/server";
+import { journalDb } from "@/lib/db";
+
+// GET /api/journals  → 回傳所有日誌（JSON）
+export async function GET() {
+  const journals = journalDb.getAll();
+  return NextResponse.json(journals);
+}
+
+// POST /api/journals → 新增一筆
+export async function POST(request: NextRequest) {
+  const body = await request.json();        // 取出前端送來的資料
+
+  // 後端驗證：必填欄位要有
+  if (!body.date || !body.content) {
+    return NextResponse.json({ error: "日期和內容為必填" }, { status: 400 });
+  }
+
+  const journal = journalDb.create({
+    date: body.date,
+    content: body.content,
+    problems: body.problems ?? null,  // 沒給就存 null
+    todos: body.todos ?? null,
+  });
+  return NextResponse.json(journal, { status: 201 }); // 201 = 已建立
+}</code></pre><h3 class="s2">5-1　動態路由：針對某一筆資料</h3><p>資料夾命名成 [id]，就能接到網址裡的編號，例如 /api/journals/5。用來查單筆、更新、刪除。</p><pre class="code"><code>// 檔案：app/api/journals/[id]/route.ts
+export async function DELETE(_: NextRequest, { params }: { params: Promise&lt;{ id: string }&gt; }) {
+  const { id } = await params;          // 取出網址中的 id
+  journalDb.delete(Number(id));         // 字串轉數字後刪除
+  return NextResponse.json({ success: true });
+}</code></pre><h3 class="s2">5-2　常見 HTTP 狀態碼（回應的「成績單」）</h3><table><thead><tr><th>狀態碼</th><th>意思</th></tr></thead><tbody><tr><td>200 OK</td><td>成功</td></tr><tr><td>201 Created</td><td>成功並新增了資料</td></tr><tr><td>400 Bad Request</td><td>前端送來的資料有問題（例如缺必填）</td></tr><tr><td>401 Unauthorized</td><td>沒登入 / 沒權限</td></tr><tr><td>404 Not Found</td><td>找不到資源</td></tr><tr><td>500 Internal Server Error</td><td>後端自己出錯了</td></tr></tbody></table><h2 class="s1">Part 6　前端頁面：顯示與送出資料</h2><h3 class="s2">6-1　顯示資料（Server Component 直接讀資料庫）</h3><p>Next.js 的頁面預設是「伺服器元件」，可以直接呼叫資料庫函式，把結果畫成 HTML 回傳。簡單又快。</p><pre class="code"><code>// 檔案：app/page.tsx（首頁）
+import { journalDb } from "@/lib/db";
+export const dynamic = "force-dynamic"; // 每次都讀最新資料
+
+export default function Home() {
+  const journals = journalDb.getAll();   // 直接讀資料庫
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;研究日誌牆&lt;/h1&gt;
+      {journals.map((j) =&gt; (
+        &lt;article key={j.id}&gt;
+          &lt;h2&gt;{j.date}&lt;/h2&gt;
+          &lt;p&gt;{j.content}&lt;/p&gt;
+        &lt;/article&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre><h3 class="s2">6-2　送出資料（Client Component + 表單）</h3><p>需要互動（打字、按按鈕）的元件要標記 "use client"。用 useState 記住輸入，用 fetch 把資料 POST 給 API。</p><pre class="code"><code>"use client";
+import { useState } from "react";
+
+export default function NewForm() {
+  const [date, setDate] = useState("");
+  const [content, setContent] = useState("");
+
+  async function submit(e) {
+    e.preventDefault();                     // 阻止表單預設的重新整理
+    const res = await fetch("/api/journals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date, content }), // 把輸入打包成 JSON
+    });
+    if (res.ok) alert("新增成功！");
+    else alert("失敗，請檢查欄位");
+  }
+
+  return (
+    &lt;form onSubmit={submit}&gt;
+      &lt;input type="date" value={date} onChange={(e) =&gt; setDate(e.target.value)} /&gt;
+      &lt;textarea value={content} onChange={(e) =&gt; setContent(e.target.value)} /&gt;
+      &lt;button type="submit"&gt;新增&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre><div class="callout tip">💡 把 Part 5 與 Part 6 連起來看，就是 1-4 那條「資料的旅程」：表單(前端) → fetch → API(後端) → journalDb(資料庫) → 回傳 → 更新畫面。理解這一圈，你就懂後端開發的核心了。</div><h2 class="s1">Part 7　進階功能怎麼長出來（概念導覽）</h2><p>有了「前端 → API → 資料庫」的骨架，進階功能都是在這之上加東西。以下說明思路，細節可請 AI 實作。</p><h3 class="s2">7-1　登入（Google OAuth）</h3><ul><li>用 NextAuth 套件接 Google 登入：使用者點登入 → 轉到 Google → 授權後帶回身分。</li><li>用 middleware（中介層）擋住 /admin 與寫入型 API：沒登入就導去登入。</li><li>用 ALLOWED_EMAILS 清單控管：只有名單內的 email 能進後台。</li><li>概念：OAuth 就是「讓 Google 幫你驗證身分」，你不用自己存密碼。</li></ul><h3 class="s2">7-2　搜尋與篩選（網址參數 + SQL WHERE）</h3><p>把搜尋條件放在網址問號後面（例如 ?q=電池&amp;from=2026-06-01），後端讀出來，組成 SQL 的 WHERE 條件。</p><pre class="code"><code>// 關鍵字 + 日期區間，動態組 WHERE（仍用參數化，安全）
+let sql = "SELECT * FROM journals WHERE 1=1";
+const params = {};
+if (q)    { sql += " AND content LIKE @q"; params.q = "%" + q + "%"; }
+if (from) { sql += " AND date &gt;= @from";   params.from = from; }
+if (to)   { sql += " AND date &lt;= @to";     params.to = to; }
+db.prepare(sql).all(params);</code></pre><h3 class="s2">7-3　照片上傳（多檔、拖拉）</h3><ul><li>前端：用拖拉區 + &lt;input type=file multiple&gt; 收集檔案，存進狀態。</li><li>送出：用 FormData 把多個檔案 POST 給上傳 API。</li><li>後端：把檔案寫到磁碟，並在 photos 資料表記下檔名與所屬日誌 id。</li><li>顯示：用一支路由 /api/uploads/[檔名] 把圖片讀出來給瀏覽器。</li></ul><h3 class="s2">7-4　匯出 Word / PDF / HTML</h3><ul><li>先用同一份資料產生一段「HTML 模板」。</li><li>HTML：直接輸出檔案；PDF：用 puppeteer（無頭瀏覽器）把 HTML 印成 PDF；Word：用 docx 套件組出表格。</li><li>好處：一份內容、三種格式，外觀一致。</li></ul><h2 class="s1">Part 8　部署上線：讓全世界用得到</h2><h3 class="s2">8-1　先用 Git 存版本、推上 GitHub</h3><pre class="code"><code>git init -b main                 # 初始化 git
+git add -A                       # 把所有檔案加入追蹤
+git commit -m "Initial commit"   # 建立一次存檔點
+# 用 GitHub CLI 建立並推送（需先 gh auth login 登入）
+gh repo create Science-Exhibition --public --source=. --remote=origin --push</code></pre><div class="callout warn">⚠️ 機密（密鑰、密碼）絕對不要進版控！把它們放在 .env.local 並用 .gitignore 排除。範例值可放 .env.local.example 供參考。</div><h3 class="s2">8-2　為什麼要改造才能上雲（重要觀念）</h3><p>很多雲端平台（serverless）的硬碟是「唯讀且暫時」的，重新部署就清空。所以本機能跑的 SQLite 檔、上傳的照片，在那種平台上會消失。解法有兩種：換成雲端資料庫＋雲端儲存，或選一個「有持久磁碟」的平台。我們選後者：Railway。</p><h3 class="s2">8-3　Railway 部署步驟</h3><ol><li>Railway → New Project → Deploy from GitHub repo → 選你的 repo（會自動依 Dockerfile 建置）。</li><li>幫服務掛一顆 Volume（持久磁碟），掛載路徑設為 /data —— 資料庫與照片都存這，重部署不會掉。</li><li>在 Variables 設定環境變數：DATA_DIR=/data、AUTH_URL（你的網址）、AUTH_SECRET、Google 憑證、ALLOWED_EMAILS。</li><li>Settings → Networking → Generate Domain 產生公開網址。</li><li>到 Google Cloud 建 OAuth 憑證，重新導向 URI 設為「網址 + /api/auth/callback/google」，並加自己為測試使用者。</li></ol><p>用 Docker 容器化時，會寫一份 Dockerfile 指定環境（Node、Chromium、中文字型等）。這份設定也很適合請 AI 產生。</p><h3 class="s2">8-4　環境變數（secrets）是什麼</h3><p>環境變數是「放在程式外面的設定值」，例如密鑰、資料庫位置。好處：換環境（本機 vs 正式）只要改設定、不用改程式；機密不會寫死在程式碼裡被看到。</p><h2 class="s1">Part 9　vibe coding 心法與除錯</h2><h3 class="s2">9-1　怎麼跟 AI 來回（迭代）</h3><ul><li>一次只講一個目標，做完驗證再做下一個，不要一次塞十個需求。</li><li>給範例與限制（要用什麼技術、欄位有哪些、不要做什麼）。</li><li>出錯時，把「完整錯誤訊息」與「你做了什麼步驟」一起貼給 AI，不要只說「壞了」。</li><li>重要決定（公開/私人、要不要付費、刪不刪資料）自己拍板，別全丟給 AI。</li></ul><h3 class="s2">9-2　驗證！驗證！驗證！</h3><p>AI 會犯錯，所以「驗證」是 vibe coding 最重要的習慣。每加一個功能就實際操作一次：新增一筆資料有沒有出現？登入會不會成功？匯出檔打開對不對？不要看到「成功」字樣就相信。</p><h3 class="s2">9-3　我們實際踩過的雷（你大概也會遇到）</h3><table><thead><tr><th>症狀</th><th>原因</th><th>解法</th></tr></thead><tbody><tr><td>網站開出來 502 Bad Gateway</td><td>平台給的連接埠(8080)和網域指向的(3000)不一致</td><td>讓兩邊對齊（改網域埠或設 PORT）</td></tr><tr><td>登入出現「已封鎖/invalid_request」</td><td>AUTH_URL 填錯，混到 localhost</td><td>改成正確的正式網址再重新部署</td></tr><tr><td>Google 不讓登入</td><td>帳號不在 OAuth「測試使用者」名單</td><td>到同意畫面把自己的 email 加進測試使用者</td></tr><tr><td>終端機中文變亂碼</td><td>只是終端機顯示編碼問題</td><td>資料庫存的其實是對的，打開網頁就正常</td></tr></tbody></table><div class="callout tip">💡 踩雷是正常的，每個工程師都一樣。差別在於：會看錯誤訊息、會縮小範圍（是前端、後端、還是資料庫那段？）、會一次只改一個地方再測。</div><h2 class="s1">Part 10　名詞速查表</h2><table><thead><tr><th>名詞</th><th>白話解釋</th></tr></thead><tbody><tr><td>前端 / 後端</td><td>看得到的畫面 / 看不到的運算與資料處理</td></tr><tr><td>API</td><td>前後端之間傳遞請求與回應的接口</td></tr><tr><td>資料庫 / SQL / SQLite</td><td>存資料的地方 / 操作資料庫的語言 / 一種檔案型輕量資料庫</td></tr><tr><td>CRUD</td><td>新增、讀取、更新、刪除四種基本操作</td></tr><tr><td>路由 Route</td><td>網址對應到哪段程式來處理</td></tr><tr><td>Server / Client Component</td><td>在伺服器算好的元件 / 在瀏覽器互動的元件</td></tr><tr><td>HTTP 請求 / 回應</td><td>瀏覽器向伺服器要東西 / 伺服器回東西</td></tr><tr><td>狀態碼</td><td>回應的結果代號，如 200 成功、404 找不到</td></tr><tr><td>環境變數</td><td>放在程式外的設定值，常用來放機密</td></tr><tr><td>部署 Deploy</td><td>把程式放到伺服器上、讓網路上的人能用</td></tr><tr><td>Git / commit / push</td><td>版本控制 / 存一次進度 / 推到雲端倉庫</td></tr><tr><td>OAuth</td><td>用第三方（如 Google）幫你驗證身分的機制</td></tr></tbody></table><h2 class="s1">結語</h2><p>你已經走過了一個真實網站的完整生命週期：觀念 → 建立專案 → 設計資料庫 → 寫 API → 做前端 → 加功能 → 部署上線。最重要的不是記住每一行語法，而是理解「資料如何在前端、後端、資料庫之間流動」，以及「如何清楚地指揮 AI、並驗證結果」。接下來，挑一個你想要的新功能，試著自己描述給 AI，一步步做出來吧！</p>
+<div style="margin-top:40px;padding-top:14px;border-top:1px solid #e0d5c9;text-align:center;font-size:12px;color:#7a6153;line-height:1.8">
+開發者：陳賢宗（黑熊老師）<br/>© 2026 陳賢宗（黑熊老師）．版權所有 All rights reserved.
+</div>
+</body></html>
