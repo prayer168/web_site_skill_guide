@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hermes Agent 工作流專家級技術文件</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#111a33; --card:#162344; --ink:#f4f7fb; --muted:#b8c4d8;
+      --line:#2b3d66; --accent:#7dd3fc; --accent2:#a7f3d0; --warn:#fde68a; --danger:#fecaca;
+      --code:#07111f; --good:#bbf7d0;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;background:linear-gradient(135deg,#08101f 0%,#111827 55%,#0c1228 100%);color:var(--ink);line-height:1.75}
+    a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+    .hero{padding:56px 24px 32px;max-width:1180px;margin:auto;display:grid;grid-template-columns:1.4fr .8fr;gap:24px;align-items:center}
+    .badge{display:inline-block;border:1px solid var(--line);background:rgba(125,211,252,.08);color:var(--accent);border-radius:999px;padding:6px 12px;font-size:14px;margin-bottom:14px}
+    h1{font-size:clamp(34px,5vw,64px);line-height:1.08;margin:0 0 16px;letter-spacing:-.04em} h2{font-size:clamp(26px,3vw,38px);margin:56px 0 16px;letter-spacing:-.02em} h3{font-size:22px;margin:28px 0 8px} h4{font-size:18px;margin:22px 0 8px;color:var(--accent2)}
+    .subtitle{font-size:20px;color:var(--muted);max-width:760px}.meta{font-size:14px;color:var(--muted);margin-top:16px}.hero-card{background:linear-gradient(180deg,rgba(22,35,68,.95),rgba(17,26,51,.9));border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 20px 80px rgba(0,0,0,.25)}
+    .hero-card strong{color:var(--accent2)}.wrap{max-width:1180px;margin:auto;padding:0 24px 64px}.grid{display:grid;gap:18px}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:rgba(22,35,68,.78);border:1px solid var(--line);border-radius:18px;padding:20px}.card h3{margin-top:0}.toc{position:sticky;top:0;z-index:5;background:rgba(8,16,31,.86);backdrop-filter:blur(12px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.toc-inner{max-width:1180px;margin:auto;padding:10px 24px;display:flex;gap:10px;overflow:auto;white-space:nowrap}.toc a{font-size:14px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:var(--muted)}
+    .callout{border-left:5px solid var(--accent);background:rgba(125,211,252,.08);padding:16px 18px;border-radius:12px;margin:18px 0}.warn{border-left-color:var(--warn);background:rgba(253,230,138,.08)}.danger{border-left-color:var(--danger);background:rgba(254,202,202,.08)}.good{border-left-color:var(--good);background:rgba(187,247,208,.08)}
+    code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;background:rgba(7,17,31,.8);border:1px solid var(--line);border-radius:6px;padding:2px 6px;color:#d9f99d}pre{background:var(--code);border:1px solid var(--line);border-radius:16px;padding:16px;overflow:auto}pre code{background:none;border:0;padding:0;color:#e5e7eb}.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:20px 0}.step{background:rgba(125,211,252,.08);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}.step b{display:block;color:var(--accent2);font-size:15px}.step span{font-size:13px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;margin:16px 0;background:rgba(22,35,68,.65);border-radius:16px;overflow:hidden}th,td{border:1px solid var(--line);padding:12px 14px;vertical-align:top}th{background:rgba(125,211,252,.12);text-align:left;color:var(--accent2)}.small{font-size:14px;color:var(--muted)}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 9px;margin:2px;color:var(--muted);font-size:13px}.checklist li{margin:8px 0}.footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:14px}.kbd-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.quote{font-size:18px;color:#dbeafe}.ref-list li{margin:10px 0}.mobile-only{display:none}
+    @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:36px}.grid-2,.grid-3{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.toc-inner{padding:8px 14px}.wrap{padding:0 16px 48px}.hero{padding-left:16px;padding-right:16px}table{font-size:14px}.desktop-only{display:none}.mobile-only{display:block}}
+    @media print{body{background:white;color:#111}.toc,.hero-card{display:none}.card,table,pre{break-inside:avoid;border-color:#ccc;background:white}a{color:#0645ad}}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <span class="badge">Deep Research｜更新日期：2026-06-30｜繁中技術文件</span>
+      <h1>Hermes Agent 工作流專家級技術文件</h1>
+      <p class="subtitle">從安裝、模型設定、工具權限、記憶與技能，到 Cron 自動化、Telegram／Open WebUI 整合與教育現場應用範例，建立一套能「越用越懂你」的個人 AI Agent 工作流。</p>
+      <p class="meta">本文中的 Hermes Agent 指 Nous Research 開源專案 <strong>Hermes Agent</strong>，不是 Hermès 品牌，也不是其他同名學術工具。</p>
+    </div>
+    <aside class="hero-card">
+      <h3>核心結論</h3>
+      <p class="quote">Hermes Agent 最值得發揮的地方，不是一次性聊天，而是把重複任務沉澱成 <strong>Memory（記得什麼）</strong>、<strong>Skills（知道怎麼做）</strong>、<strong>Cron（定時去做）</strong>、<strong>Gateway（在哪裡回報）</strong> 的長期工作流。</p>
+      <div class="kbd-row"><span class="pill">CLI</span><span class="pill">Desktop</span><span class="pill">Telegram</span><span class="pill">Cron</span><span class="pill">MCP</span><span class="pill">Open WebUI</span><span class="pill">Docker/SSH/Modal</span></div>
+    </aside>
+  </header>
+
+  <nav class="toc"><div class="toc-inner">
+    <a href="#overview">定位</a><a href="#install">安裝</a><a href="#first-run">首次使用</a><a href="#workflow">工作流架構</a><a href="#skills-memory">記憶與技能</a><a href="#automation">自動化</a><a href="#examples">範例</a><a href="#security">安全</a><a href="#limits">極限</a><a href="#videos">教學影音</a><a href="#references">參考文獻</a>
+  </div></nav>
+
+  <main class="wrap">
+    <section id="overview">
+      <h2>1. Hermes Agent 的定位：不是聊天機器人，而是可累積能力的工作流 Agent</h2>
+      <div class="grid grid-3">
+        <div class="card"><h3>自我改進</h3><p>官方將 Hermes Agent 定位為具備 closed learning loop 的自我改進 Agent：可從任務經驗建立技能、改善技能、提示自己保存知識，並跨 session 搜尋過去對話。</p></div>
+        <div class="card"><h3>工具型 Agent</h3><p>它不是只生成文字，而是可使用 web search、browser、terminal、file editing、memory、delegation、scheduled tasks 等工具組。</p></div>
+        <div class="card"><h3>長駐服務</h3><p>Hermes 可以在本機、WSL2、VPS、Docker、SSH、Modal/Daytona 等環境運行，再透過 CLI、桌面 App 或訊息平台互動。</p></div>
+      </div>
+      <div class="callout good"><strong>適合你的場景：</strong>如果你常做教材網站、科展前置研究、教案文件、GitHub Pages 部署、定期蒐集教育／AI／自然科資料，Hermes Agent 的價值在於把「每次都要重新說明的流程」變成可重用的技能與排程。</div>
+    </section>
+
+    <section id="install">
+      <h2>2. 安裝：桌面版、CLI、WSL2 與伺服器部署</h2>
+      <h3>2.1 建議安裝路線</h3>
+      <table>
+        <thead><tr><th>使用者類型</th><th>建議路線</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>一般使用者</td><td>Windows/macOS 桌面安裝器</td><td>同時安裝桌面與 CLI，降低環境設定門檻。</td></tr>
+          <tr><td>Windows 技術使用者</td><td>WSL2 + Linux 安裝指令</td><td>適合搭配 Git、Node.js、Python、Codex/Claude Code 類工作流。</td></tr>
+          <tr><td>長駐 Agent</td><td>VPS / Docker / SSH 後端</td><td>可讓 Agent 不依賴個人電腦開機，適合 Telegram bot、排程摘要、伺服器監控。</td></tr>
+          <tr><td>研究與本地模型</td><td>Linux + Ollama/vLLM/OpenRouter/Nous Portal</td><td>方便測試多模型、切換 provider、控制成本與資料邊界。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 官方快速安裝指令</h3>
+      <p>官方文件指出，macOS 或 Windows 建議使用 Hermes Desktop installer；若只要命令列安裝，可使用下列指令。</p>
+      <h4>Linux / macOS / WSL2 / Android Termux</h4>
+      <pre><code>curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash</code></pre>
+      <h4>Windows PowerShell 原生安裝</h4>
+      <pre><code>iex (irm https://hermes-agent.nousresearch.com/install.ps1)</code></pre>
+      <h4>安裝桌面版</h4>
+      <pre><code>hermes desktop</code></pre>
+      <div class="callout"><strong>安裝器會做什麼？</strong>官方安裝文件說明，installer 會自動處理 Python、Node.js、ripgrep、ffmpeg、repo clone、virtual environment、全域 <code>hermes</code> 指令與 LLM provider 設定。</div>
+
+      <h3>2.3 安裝後檢查</h3>
+      <pre><code>hermes --version
+hermes doctor
+hermes</code></pre>
+      <ul class="checklist">
+        <li><strong>看到版本號：</strong>代表 CLI 已進入 PATH。</li>
+        <li><strong><code>hermes doctor</code> 無重大錯誤：</strong>代表依賴與環境大致正常。</li>
+        <li><strong>能啟動聊天：</strong>再進行模型、工具、Gateway 與 Cron 設定。</li>
+      </ul>
+    </section>
+
+    <section id="first-run">
+      <h2>3. 首次使用：先讓一個乾淨對話跑起來</h2>
+      <div class="callout warn"><strong>重要原則：</strong>不要一開始就同時設定 Telegram、Open WebUI、MCP、Cron、Docker。官方 Quickstart 的建議是：如果 Hermes 連普通對話都無法完成，不要先加更多功能；先讓基本聊天穩定。</div>
+      <h3>3.1 選擇模型 Provider</h3>
+      <pre><code>hermes model</code></pre>
+      <p>最省事的路線是使用 Nous Portal，官方文件說 <code>hermes setup --portal</code> 可用一次 OAuth 設定模型 provider 與 Tool Gateway，包括 web search、image generation、TTS、cloud browser。</p>
+      <pre><code>hermes setup --portal</code></pre>
+      <h3>3.2 試跑基本任務</h3>
+      <pre><code>hermes chat -q "請用三點整理 Hermes Agent 的用途"
+hermes chat -q "幫我檢查目前資料夾的檔案結構，並提出整理建議"</code></pre>
+      <h3>3.3 常用 CLI 模式</h3>
+      <table>
+        <thead><tr><th>指令</th><th>用途</th><th>適用情境</th></tr></thead>
+        <tbody>
+          <tr><td><code>hermes</code></td><td>進入互動模式</td><td>日常聊天、長任務討論</td></tr>
+          <tr><td><code>hermes chat -q "..."</code></td><td>一次性任務</td><td>腳本、CI、快速摘要</td></tr>
+          <tr><td><code>hermes chat --toolsets web,terminal,skills</code></td><td>指定工具集</td><td>控制任務可用能力</td></tr>
+          <tr><td><code>hermes chat --safe-mode</code></td><td>排除個人設定、MCP、plugin 干擾</td><td>除錯、確認問題來源</td></tr>
+          <tr><td><code>hermes chat --ignore-rules</code></td><td>略過 AGENTS.md、SOUL.md、記憶與預載技能</td><td>隔離測試、重現 bug</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="workflow">
+      <h2>4. Hermes Agent 工作流總架構</h2>
+      <div class="flow">
+        <div class="step"><b>1. 指令</b><span>CLI／Desktop／Telegram／WebUI</span></div>
+        <div class="step"><b>2. 脈絡</b><span>SOUL.md、AGENTS.md、Memory、@ references</span></div>
+        <div class="step"><b>3. 工具</b><span>Web、Terminal、Files、MCP、Browser</span></div>
+        <div class="step"><b>4. 技能</b><span>可重用流程、專案 SOP</span></div>
+        <div class="step"><b>5. 回饋</b><span>結果交付、記憶更新、Cron 下次執行</span></div>
+      </div>
+      <h3>4.1 推薦的「五層工作流」</h3>
+      <table>
+        <thead><tr><th>層級</th><th>目的</th><th>實作方式</th><th>範例</th></tr></thead>
+        <tbody>
+          <tr><td>Identity</td><td>定義 Agent 的語氣、角色、預設規範</td><td><code>~/.hermes/SOUL.md</code></td><td>「你是自然科教師的教材開發助理，使用繁體中文。」</td></tr>
+          <tr><td>Project Context</td><td>讓 Agent 理解某個專案</td><td><code>AGENTS.md</code>、<code>.hermes.md</code>、<code>CLAUDE.md</code></td><td>教材網站架構、部署規則、檔名慣例</td></tr>
+          <tr><td>Memory</td><td>保存穩定事實</td><td><code>MEMORY.md</code>、<code>USER.md</code></td><td>使用者偏好 RWD、繁中、GitHub Pages</td></tr>
+          <tr><td>Skills</td><td>保存可重複流程</td><td><code>~/.hermes/skills/</code> 或 skill_manage</td><td>「產出科展前置作業」「生成教案與學習單」</td></tr>
+          <tr><td>Automation</td><td>讓工作定期發生</td><td><code>cronjob</code>、<code>hermes cron</code>、Gateway</td><td>每日 AI 教育新聞摘要、每週網站 broken links 檢查</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="skills-memory">
+      <h2>5. Memory 與 Skills：Hermes 工作流真正變強的關鍵</h2>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Memory：記得「什麼」</h3>
+          <p>適合放穩定事實、偏好、專案位置、常用工具與環境。官方最佳實務明確建議：Memory 是 facts，例如環境、偏好、專案位置。</p>
+          <pre><code>請記住：我的教材網站通常使用繁體中文、RWD、單頁 HTML，並部署到 GitHub Pages。</code></pre>
+        </div>
+        <div class="card">
+          <h3>Skills：知道「怎麼做」</h3>
+          <p>適合放 5 步以上且未來會重複做的流程。官方最佳實務建議：如果一個任務超過 5 步且會重複使用，就請 Agent 保存成 skill。</p>
+          <pre><code>請把剛才「科展前置作業產生流程」存成 skill，名稱為 science-fair-prep。</code></pre>
+        </div>
+      </div>
+      <h3>5.1 教師工作流技能設計範本</h3>
+      <pre><code>Skill 名稱：science-fair-research-prep
+用途：把一個科展題目轉成可執行的前置作業文件。
+流程：
+1. 查詢是否有相似研究與歷屆科展題目。
+2. 重新界定題目，避免過度重複。
+3. 產生研究動機、研究目的、文獻探討。
+4. 設計 3–5 組實驗，每組列變因、材料、步驟、紀錄表。
+5. 產出 DOCX/PDF/HTML 所需文字與檔案架構。
+6. 最後給老師檢核表與學生分工建議。</code></pre>
+      <div class="callout warn"><strong>不要把所有東西都塞進 Memory。</strong>官方文件提到 Memory 容量是 bounded，會合併整理；而且記憶在 session 中寫入後，不會立刻出現在同一個 session 的 system prompt，要到下一個 session 才會反映。</div>
+    </section>
+
+    <section id="automation">
+      <h2>6. Cron 與 Gateway：讓 Hermes 從「問答」變成「例行工作者」</h2>
+      <h3>6.1 Cron 能做什麼</h3>
+      <p>Hermes 的 Cron 可用自然語言或 cron expression 建立一次性或週期性任務，也可暫停、恢復、編輯、觸發、刪除任務，並可附加一個或多個 skills；結果可回傳到原聊天、檔案或訊息平台。Cron 每次執行會開新 session、載入指定技能、完成 prompt、交付結果並更新下次執行時間。</p>
+      <pre><code>/cron add "every day 7am" "整理昨晚 AI 教育新聞，用繁體中文給我 5 點摘要" --skill edu-news-digest
+hermes cron create "every Friday 5pm" "檢查 science-portal 專案 README 與網站連結是否需要更新"</code></pre>
+      <h3>6.2 Gateway：讓 Agent 住在你常用的地方</h3>
+      <p>Hermes 支援多種訊息平台與 gateway；官方文件與首頁列出 Telegram、Discord、Slack、WhatsApp、Signal、Email、CLI 等多種介面。實務上，先建議從 Telegram 或 Open WebUI 其中之一開始，確認權限與回覆穩定後再擴充。</p>
+      <h3>6.3 Open WebUI 整合</h3>
+      <pre><code># ~/.hermes/.env
+API_SERVER_ENABLED=true
+API_SERVER_KEY=請換成強密碼</code></pre>
+      <pre><code>hermes gateway
+# Open WebUI 連線 URL：
+# http://localhost:8642/v1
+# Docker 版 Open WebUI 常用：
+# http://host.docker.internal:8642/v1</code></pre>
+      <div class="callout"><strong>故障排除：</strong>如果 Open WebUI 看不到模型，先確認 URL 有包含 <code>/v1</code>，再檢查 <code>curl http://localhost:8642/health</code> 是否回傳 <code>{"status":"ok"}</code>。</div>
+    </section>
+
+    <section id="examples">
+      <h2>7. 高價值應用範例：從教育現場到開發工作流</h2>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>範例 A｜每日 AI 教育新聞摘要</h3>
+          <p><strong>目標：</strong>每天早上自動蒐集 AI 教育、自然科教學、科展相關新聞，傳到 Telegram。</p>
+          <pre><code>Every morning at 7:30am, search reliable sources for AI education, science fair, and elementary science teaching news. Summarize in Traditional Chinese, include dates, links, and one classroom application idea. Send it to Telegram.</code></pre>
+          <p><strong>加強版：</strong>建立 <code>edu-news-digest</code> skill，規定來源優先序、摘要格式、避免未查證消息。</p>
+        </div>
+        <div class="card">
+          <h3>範例 B｜科展前置研究助理</h3>
+          <p><strong>目標：</strong>輸入題目後，自動查重、找文獻、產生研究架構。</p>
+          <pre><code>請針對「探討光照與濕度對黏液型食蟲植物黏液表現與餌料黏附能力之影響」做科展前置研究。請查找相似題目、提出避免重複的切角，並生成研究動機、目的、實驗設計與紀錄表。</code></pre>
+          <p><strong>工作流：</strong>web search → 整理相似研究 → 產生差異化題目 → 建立 Word/PDF/HTML 初稿。</p>
+        </div>
+        <div class="card">
+          <h3>範例 C｜GitHub Pages 教材網站維護</h3>
+          <p><strong>目標：</strong>定期檢查教材網站連結、圖片、RWD、README 與部署狀態。</p>
+          <pre><code>在目前 repo 中檢查教材網站：
+1. 找出所有 HTML、CSS、JS。
+2. 檢查 broken links 與圖片路徑。
+3. 檢查手機版 RWD 問題。
+4. 產生修正 PR 草稿與 changelog。
+請不要直接 push，先列出修改計畫。</code></pre>
+          <p><strong>安全建議：</strong>先讓 Agent 做 read-only review，再逐步開放 patch、commit、PR。</p>
+        </div>
+        <div class="card">
+          <h3>範例 D｜研習成果報告自動整理</h3>
+          <p><strong>目標：</strong>把活動主題、講師、照片、心得、後續應用整理成成果報告。</p>
+          <pre><code>請根據我提供的研習資料與照片，產生成果報告：
+一、活動基本資料
+二、活動目的
+三、研習內容與照片說明
+四、後續應用與推動方向
+五、教師反思
+輸出為可轉成 docx/pdf 的結構化內容。</code></pre>
+          <p><strong>建議：</strong>把常用報告格式保存為 skill，下一次只要丟資料即可。</p>
+        </div>
+        <div class="card">
+          <h3>範例 E｜Telegram 團隊助理</h3>
+          <p><strong>目標：</strong>讓科展老師群或資訊小組能透過 Telegram 詢問同一個 Agent。</p>
+          <pre><code>hermes gateway setup
+# 設定 Telegram bot token、允許使用者清單、預設 home channel</code></pre>
+          <p><strong>權限策略：</strong>只允許指定 user ID，先關閉危險 shell 指令，敏感 repo 使用唯讀 token。</p>
+        </div>
+        <div class="card">
+          <h3>範例 F｜MCP 連 GitHub Issues</h3>
+          <p><strong>目標：</strong>讓 Hermes 只看得到 GitHub issue 管理需要的最小工具，而不是整個 GitHub 權限。</p>
+          <pre><code>mcp_servers:
+  github:
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "***"
+    tools:
+      include: [list_issues, create_issue, update_issue]
+      prompts: false
+      resources: false</code></pre>
+          <p><strong>安全重點：</strong>使用最小權限、工具白名單、token 分離。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="security">
+      <h2>8. 安全設計：把 Agent 當「初階助理」，不要當「全權管理員」</h2>
+      <div class="grid grid-3">
+        <div class="card"><h3>最小權限</h3><p>訊息平台使用 allowlist；API key 使用專用 token；MCP 僅暴露必要工具。</p></div>
+        <div class="card"><h3>人類核准</h3><p>危險命令維持 manual 或 smart approval；不要長期開 <code>--yolo</code>。</p></div>
+        <div class="card"><h3>沙盒隔離</h3><p>會執行程式碼或 shell 的任務，優先使用 Docker、SSH、Modal 等隔離後端。</p></div>
+      </div>
+      <h3>8.1 官方安全層</h3>
+      <p>官方 Security 文件列出多層防護：使用者授權、危險命令核准、容器隔離、MCP credential filtering、context file prompt injection scanning、cross-session isolation、input sanitization。</p>
+      <pre><code># ~/.hermes/config.yaml 範例概念
+approvals:
+  mode: manual
+  timeout: 60
+  cron_mode: deny
+  mcp_reload_confirm: true
+  destructive_slash_confirm: true</code></pre>
+      <div class="callout danger"><strong>高風險操作不要自動化：</strong>刪除大量檔案、付款、寄送正式信件、公開發文、修改正式資料庫、學生個資處理，都應保留人工確認。</div>
+    </section>
+
+    <section id="limits">
+      <h2>9. Hermes Agent 的極限與風險</h2>
+      <table>
+        <thead><tr><th>極限</th><th>說明</th><th>建議做法</th></tr></thead>
+        <tbody>
+          <tr><td>安裝與設定仍有門檻</td><td>雖然官方提供 installer，但 provider、API key、Gateway、MCP、Docker、Cron 仍需要工程判斷。</td><td>先 CLI 成功，再逐步加功能；使用 <code>hermes doctor</code> 與 <code>--safe-mode</code> 除錯。</td></tr>
+          <tr><td>模型品質決定上限</td><td>Hermes 是 Agent 框架，不會讓弱模型突然變成強模型。長鏈任務仍可能出錯。</td><td>重要任務用高品質模型；讓 Agent 輸出檢核表與引用來源。</td></tr>
+          <tr><td>工具越多，風險越高</td><td>MCP、terminal、browser、file patch 一旦開太多權限，錯誤成本上升。</td><td>按任務開 toolset；敏感工具用白名單；危險命令人工核准。</td></tr>
+          <tr><td>Memory 不是萬能資料庫</td><td>官方最佳實務提到 Memory 有容量邊界，且 session 中更新不會立刻進入同一 session 的 prompt。</td><td>長文件放 repo/doc，不放 memory；流程放 skill；穩定偏好放 memory。</td></tr>
+          <tr><td>Cron 需要自包含 prompt</td><td>Cron job 會在 fresh session 執行，不能假設記得當前聊天細節。</td><td>排程 prompt 寫清楚來源、格式、交付方式與失敗處理。</td></tr>
+          <tr><td>自動化可能產生隱性成本</td><td>長任務、排程、多工具呼叫會消耗 API token 或外部服務成本。</td><td>設定模型、頻率、預算警示；非 LLM 任務用 no-agent script-only cron。</td></tr>
+          <tr><td>公開資料仍在快速變動</td><td>Hermes Agent 是 2026 年仍快速演進的開源專案，指令與平台支援可能變化。</td><td>以官方 docs/GitHub release 為準；文件定期更新。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="roadmap">
+      <h2>10. 建議你實作的 14 天學習路線</h2>
+      <div class="grid grid-2">
+        <div class="card"><h3>第 1–2 天：安裝與基本聊天</h3><p>完成 Desktop 或 WSL2 安裝，跑 <code>hermes setup --portal</code> 或 <code>hermes model</code>，確認 <code>hermes chat -q</code> 可用。</p></div>
+        <div class="card"><h3>第 3–4 天：建立個人規則</h3><p>撰寫 SOUL.md 與一個教材專案的 AGENTS.md，讓 Hermes 知道繁中、RWD、GitHub Pages、教師用語。</p></div>
+        <div class="card"><h3>第 5–7 天：建立第一個 Skill</h3><p>選一個常做任務，例如「科展前置作業」或「研習成果報告」，讓 Hermes 保存流程為 skill。</p></div>
+        <div class="card"><h3>第 8–10 天：串接 Gateway</h3><p>選 Telegram 或 Open WebUI，先測試只讀任務與摘要任務，不急著開寫入權限。</p></div>
+        <div class="card"><h3>第 11–12 天：建立 Cron</h3><p>建立每日教育新聞摘要、每週教材網站檢查、每月科展資料更新任務。</p></div>
+        <div class="card"><h3>第 13–14 天：安全審查</h3><p>檢查 token、allowlist、approval、MCP 工具白名單與備份策略，建立「可回滾」流程。</p></div>
+      </div>
+    </section>
+
+    <section id="videos">
+      <h2>11. 教學影音與推薦觀看順序</h2>
+      <table>
+        <thead><tr><th>順序</th><th>影片／頻道</th><th>適合目的</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><a href="https://www.youtube.com/watch?v=R3YOGfTBcQg" target="_blank" rel="noopener">Hermes Agent Masterclass: 1. Installation, Setup, Basic Commands</a></td><td>從零安裝、設定、基本命令。官方 Quickstart 也推薦此 masterclass。</td></tr>
+          <tr><td>2</td><td><a href="https://www.youtube.com/watch?v=dcXmUUZvDLE" target="_blank" rel="noopener">Hermes Agent Masterclass: 2. Deploy to VPS, Connect to Telegram</a></td><td>伺服器部署、Telegram 長駐助理。</td></tr>
+          <tr><td>3</td><td><a href="https://www.youtube.com/watch?v=grMNnzCv2gY" target="_blank" rel="noopener">Hermes Agent Masterclass: 7. Cron & Automation</a></td><td>排程、自動化、長期工作流。</td></tr>
+          <tr><td>4</td><td><a href="https://www.youtube.com/playlist?list=PLmpUb_PWAkDxewld5ZYyKifuHxgIbiq2d" target="_blank" rel="noopener">Hermes Agent Tutorials & Use Cases playlist</a></td><td>完整教學與應用案例。</td></tr>
+          <tr><td>5</td><td><a href="https://www.youtube.com/watch?v=8jBX3RatIus&vl=en" target="_blank" rel="noopener">Hermes Agent Fully Local AI Setup Guide</a></td><td>本地模型、vLLM、Open WebUI 進階整合。</td></tr>
+          <tr><td>6</td><td><a href="https://www.youtube.com/watch?v=THA8Fov44QY" target="_blank" rel="noopener">Hermes Agent Full Setup Tutorial</a></td><td>從零設定、本地模型與 Ollama 類工作流參考。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="references">
+      <h2>12. 參考文獻與官方文件</h2>
+      <ol class="ref-list">
+        <li>Nous Research, <a href="https://github.com/nousresearch/hermes-agent" target="_blank" rel="noopener">Hermes Agent GitHub Repository</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/" target="_blank" rel="noopener">Hermes Agent Documentation</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/getting-started/installation" target="_blank" rel="noopener">Installation Guide</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/getting-started/quickstart" target="_blank" rel="noopener">Quickstart Guide</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/tools" target="_blank" rel="noopener">Tools & Toolsets</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/cron" target="_blank" rel="noopener">Scheduled Tasks / Cron</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/user-guide/security" target="_blank" rel="noopener">Security</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp" target="_blank" rel="noopener">MCP Integration</a>.</li>
+        <li>Nous Research, <a href="https://hermes-agent.nousresearch.com/docs/guides/tips" target="_blank" rel="noopener">Tips & Best Practices</a>.</li>
+        <li>Open WebUI, <a href="https://docs.openwebui.com/getting-started/quick-start/connect-an-agent/hermes-agent/" target="_blank" rel="noopener">Connect Hermes Agent to Open WebUI</a>.</li>
+        <li>nesquena, <a href="https://github.com/nesquena/hermes-webui" target="_blank" rel="noopener">Hermes WebUI GitHub Repository</a>.</li>
+        <li>TechRadar, <a href="https://www.techradar.com/pro/how-to-automate-workflows-using-open-source-ai-agents" target="_blank" rel="noopener">How to automate workflows using open-source AI agents</a>.</li>
+      </ol>
+      <div class="callout"><strong>引用提醒：</strong>本文是以 2026-06-30 可查到的官方文件、GitHub、Open WebUI 文件與教學影音整理。Hermes Agent 發展快速，正式安裝與參數請以官方 docs/GitHub 最新版本為準。</div>
+    </section>
+
+    <section class="footer">
+      <p>文件用途：教師／開發者建立 Hermes Agent 個人工作流參考。建議搭配實機操作、權限分層與版本控制使用。</p>
+    </section>
+  </main>
+</body>
+</html>
