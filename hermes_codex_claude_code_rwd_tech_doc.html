@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hermes Agent、Codex、Claude Code 比較技術文件</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --line: #e4e7ec;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #7c3aed;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 32rem),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      padding: 48px;
+      color: #fff;
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 64, 175, 0.92)),
+        url("data:image/svg+xml,%3Csvg width='800' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.12'%3E%3Cpath d='M0 80 Q200 0 400 80 T800 80'/%3E%3Cpath d='M0 180 Q200 100 400 180 T800 180'/%3E%3Cpath d='M0 280 Q200 200 400 280 T800 280'/%3E%3C/g%3E%3C/svg%3E");
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      right: -80px;
+      bottom: -80px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.22);
+      filter: blur(4px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      color: #dbeafe;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      max-width: 780px;
+      margin: 22px 0 0;
+      color: #dbeafe;
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: 0.2s ease;
+    }
+
+    .btn.primary {
+      background: #fff;
+      color: #172033;
+    }
+
+    .btn.ghost {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: 18px 0 28px;
+      border: 1px solid rgba(228, 231, 236, 0.9);
+      border-radius: 999px;
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+      overflow: auto;
+      white-space: nowrap;
+    }
+
+    .nav-inner {
+      display: flex;
+      gap: 6px;
+      padding: 8px;
+    }
+
+    .nav a {
+      padding: 8px 14px;
+      border-radius: 999px;
+      color: #344054;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .nav a:hover {
+      background: #eff6ff;
+      color: var(--primary);
+    }
+
+    section {
+      margin: 44px 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      letter-spacing: -0.03em;
+    }
+
+    .section-note {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .tool-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      background: var(--primary);
+    }
+
+    .tool-card.codex::before { background: var(--primary); }
+    .tool-card.claude::before { background: var(--purple); }
+    .tool-card.hermes::before { background: var(--accent); }
+
+    .tool-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .codex .icon { background: var(--primary); }
+    .claude .icon { background: var(--purple); }
+    .hermes .icon { background: var(--accent); }
+
+    h3 {
+      margin: 0;
+      font-size: 1.28rem;
+    }
+
+    .tagline {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f2f4f7;
+      color: #344054;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .summary-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .mini {
+      padding: 16px;
+      border-radius: 18px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .mini strong {
+      display: block;
+      color: var(--primary-dark);
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 15px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #344054;
+      font-size: 0.95rem;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    td:first-child {
+      font-weight: 800;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    .score {
+      display: grid;
+      gap: 12px;
+    }
+
+    .score-item {
+      display: grid;
+      grid-template-columns: 110px 1fr 46px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #eef2f7;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 16px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .step {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 900;
+      background: var(--primary);
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.2);
+    }
+
+    .timeline-item:nth-child(2) .step { background: var(--purple); }
+    .timeline-item:nth-child(3) .step { background: var(--accent); }
+
+    .scenario {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    .scenario-mark {
+      flex: 0 0 34px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: #eff6ff;
+      color: var(--primary);
+      font-weight: 900;
+    }
+
+    .scenario p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .prompt {
+      border-radius: 18px;
+      padding: 18px;
+      background: #0f172a;
+      color: #e5e7eb;
+      box-shadow: var(--shadow);
+      overflow: auto;
+    }
+
+    .prompt code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .decision-card {
+      padding: 18px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .decision-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--primary-dark);
+    }
+
+    .callout {
+      padding: 22px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #ecfeff, #eff6ff);
+      border: 1px solid #bfdbfe;
+    }
+
+    .footer {
+      margin: 48px 0 14px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    .print-note {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 34px 24px;
+        border-radius: 24px;
+      }
+
+      .grid.three,
+      .grid.two,
+      .summary-bar,
+      .decision {
+        grid-template-columns: 1fr;
+      }
+
+      .section-title {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .score-item {
+        grid-template-columns: 92px 1fr 38px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .timeline-item {
+        grid-template-columns: 48px 1fr;
+      }
+
+      .step {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      th, td {
+        padding: 12px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .nav,
+      .hero-actions {
+        display: none;
+      }
+
+      .hero {
+        color: #111827;
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: none;
+      }
+
+      .hero p,
+      .eyebrow {
+        color: #344054;
+      }
+
+      .card,
+      .table-wrap,
+      .prompt {
+        box-shadow: none;
+      }
+
+      .print-note {
+        display: block;
+        color: #667085;
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">AI Agent 技術文件｜RWD 單頁版</div>
+      <h1>Hermes Agent、Codex、Claude Code 比較指南</h1>
+      <p>
+        這份文件從「教師教材開發、GitHub Pages、互動教材、科展文件與長期自動化」的實際工作流出發，
+        比較三種 AI 工具的定位、強項、適用情境與建議學習順序。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#quick">快速結論</a>
+        <a class="btn ghost" href="#compare">完整比較表</a>
+        <a class="btn ghost" href="#workflow">建議工作流</a>
+      </div>
+      <p class="print-note">列印提示：本頁可直接使用瀏覽器「列印」輸出為 PDF。</p>
+    </header>
+
+    <nav class="nav" aria-label="章節導覽">
+      <div class="nav-inner">
+        <a href="#quick">快速結論</a>
+        <a href="#position">三者定位</a>
+        <a href="#compare">比較表</a>
+        <a href="#fit">適用度</a>
+        <a href="#scenarios">情境建議</a>
+        <a href="#workflow">工作流</a>
+        <a href="#prompts">Prompt 範例</a>
+      </div>
+    </nav>
+
+    <section id="quick">
+      <div class="section-title">
+        <div>
+          <h2>快速結論</h2>
+          <p class="section-note">以目前教材網站、科展文件、互動教材與專案維護需求來看。</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>建議學習順序：</strong>
+        <p>
+          <strong>1. Codex → 2. Claude Code → 3. Hermes Agent</strong>。
+          Codex 用來處理日常程式與網站修改；Claude Code 用來處理大型專案、重構與複雜除錯；
+          Hermes Agent 則適合未來打造長期個人 AI 管家。
+        </p>
+      </div>
+
+      <div class="summary-bar">
+        <div class="mini">
+          <strong>日常開發</strong>
+          Codex 最適合修網頁、改 HTML/CSS/JS、產生 README、整理 GitHub Pages。
+        </div>
+        <div class="mini">
+          <strong>大型重構</strong>
+          Claude Code 適合讀完整專案、跨多檔案修改、架構重整與長脈絡推理。
+        </div>
+        <div class="mini">
+          <strong>長期自動化</strong>
+          Hermes Agent 適合自架、記住工作流程、定期執行任務與跨平台助理。
+        </div>
+      </div>
+    </section>
+
+    <section id="position">
+      <div class="section-title">
+        <div>
+          <h2>三者一句話定位</h2>
+          <p class="section-note">先抓住每個工具最核心的角色。</p>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <article class="card tool-card codex">
+          <div class="tool-head">
+            <div class="icon">C</div>
+            <div>
+              <h3>Codex</h3>
+              <p class="tagline">程式專案助教</p>
+            </div>
+          </div>
+          <p>
+            適合進入專案資料夾，協助寫程式、修 bug、改檔案、跑測試與整理專案。
+            對 GitHub Pages、HTML 簡報、互動教材與小工具製作很實用。
+          </p>
+          <div class="badge-row">
+            <span class="badge">GitHub Pages</span>
+            <span class="badge">HTML/CSS/JS</span>
+            <span class="badge">README</span>
+          </div>
+        </article>
+
+        <article class="card tool-card claude">
+          <div class="tool-head">
+            <div class="icon">CC</div>
+            <div>
+              <h3>Claude Code</h3>
+              <p class="tagline">深度程式協作助教</p>
+            </div>
+          </div>
+          <p>
+            適合大型專案、長上下文理解、跨檔案重構與複雜問題追蹤。
+            如果專案檔案很多、需求混合技術文件與程式，Claude Code 很適合處理硬仗。
+          </p>
+          <div class="badge-row">
+            <span class="badge">大型專案</span>
+            <span class="badge">重構</span>
+            <span class="badge">長脈絡</span>
+          </div>
+        </article>
+
+        <article class="card tool-card hermes">
+          <div class="tool-head">
+            <div class="icon">H</div>
+            <div>
+              <h3>Hermes Agent</h3>
+              <p class="tagline">自架個人 AI 管家</p>
+            </div>
+          </div>
+          <p>
+            適合長期記憶、累積 skills、自動化例行工作與跨平台助理。
+            它不是單次改程式最優先，而是未來打造「黑熊老師 AI 管家」時值得研究。
+          </p>
+          <div class="badge-row">
+            <span class="badge">長期記憶</span>
+            <span class="badge">自動化</span>
+            <span class="badge">自架</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="compare">
+      <div class="section-title">
+        <div>
+          <h2>完整比較表</h2>
+          <p class="section-note">橫向比較定位、強項、門檻與適用任務。</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>比較項目</th>
+              <th>Codex</th>
+              <th>Claude Code</th>
+              <th>Hermes Agent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>主要定位</td>
+              <td>程式開發 agent</td>
+              <td>程式開發 agent</td>
+              <td>個人自動化 agent</td>
+            </tr>
+            <tr>
+              <td>最像什麼</td>
+              <td>會寫程式的助教</td>
+              <td>資深工程師助教</td>
+              <td>長期 AI 管家</td>
+            </tr>
+            <tr>
+              <td>核心強項</td>
+              <td>寫程式、修 bug、改專案、跑測試</td>
+              <td>大型專案理解、重構、長脈絡推理</td>
+              <td>長期記憶、skills 累積、跨平台自動化</td>
+            </tr>
+            <tr>
+              <td>最適合任務</td>
+              <td>GitHub Pages、HTML/CSS/JS、工具腳本、專案維護</td>
+              <td>複雜專案、架構調整、重構、跨多檔案修改</td>
+              <td>例行任務、長期工作流、自架助理、個人化自動化</td>
+            </tr>
+            <tr>
+              <td>學習門檻</td>
+              <td>中等</td>
+              <td>中等偏高</td>
+              <td>高</td>
+            </tr>
+            <tr>
+              <td>非工程使用者友善度</td>
+              <td>較友善</td>
+              <td>還算友善，但偏工程</td>
+              <td>較不友善</td>
+            </tr>
+            <tr>
+              <td>對目前工作的適合度</td>
+              <td>非常適合</td>
+              <td>很適合</td>
+              <td>未來可研究</td>
+            </tr>
+            <tr>
+              <td>使用建議</td>
+              <td>日常主力</td>
+              <td>大型專案與硬仗</td>
+              <td>進階自動化與長期助理</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fit">
+      <div class="section-title">
+        <div>
+          <h2>適用度視覺化</h2>
+          <p class="section-note">以「教師教材與網站開發」情境估算，分數越高越適合。</p>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <div class="card">
+          <h3>Codex</h3>
+          <div class="score">
+            <div class="score-item"><span>日常改檔</span><div class="bar"><div class="fill" style="width:95%"></div></div><strong>95</strong></div>
+            <div class="score-item"><span>網站教材</span><div class="bar"><div class="fill" style="width:92%"></div></div><strong>92</strong></div>
+            <div class="score-item"><span>大型重構</span><div class="bar"><div class="fill" style="width:75%"></div></div><strong>75</strong></div>
+            <div class="score-item"><span>自動化</span><div class="bar"><div class="fill" style="width:70%"></div></div><strong>70</strong></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Claude Code</h3>
+          <div class="score">
+            <div class="score-item"><span>日常改檔</span><div class="bar"><div class="fill" style="width:86%"></div></div><strong>86</strong></div>
+            <div class="score-item"><span>網站教材</span><div class="bar"><div class="fill" style="width:88%"></div></div><strong>88</strong></div>
+            <div class="score-item"><span>大型重構</span><div class="bar"><div class="fill" style="width:96%"></div></div><strong>96</strong></div>
+            <div class="score-item"><span>自動化</span><div class="bar"><div class="fill" style="width:78%"></div></div><strong>78</strong></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Hermes Agent</h3>
+          <div class="score">
+            <div class="score-item"><span>日常改檔</span><div class="bar"><div class="fill" style="width:60%"></div></div><strong>60</strong></div>
+            <div class="score-item"><span>網站教材</span><div class="bar"><div class="fill" style="width:65%"></div></div><strong>65</strong></div>
+            <div class="score-item"><span>大型重構</span><div class="bar"><div class="fill" style="width:68%"></div></div><strong>68</strong></div>
+            <div class="score-item"><span>自動化</span><div class="bar"><div class="fill" style="width:94%"></div></div><strong>94</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="scenarios">
+      <div class="section-title">
+        <div>
+          <h2>任務情境建議</h2>
+          <p class="section-note">依照實際工作選工具，避免每件事都用同一套。</p>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h3>適合用 Codex</h3>
+          <div class="scenario"><div class="scenario-mark">1</div><p>修 GitHub Pages、調整版面、處理 HTML/CSS/JS 問題。</p></div>
+          <div class="scenario"><div class="scenario-mark">2</div><p>產生 README、安裝說明、簡單工具腳本與專案整理。</p></div>
+          <div class="scenario"><div class="scenario-mark">3</div><p>把教案、科展內容轉成網頁、互動教材或 HTML 簡報。</p></div>
+        </div>
+
+        <div class="card">
+          <h3>適合用 Claude Code</h3>
+          <div class="scenario"><div class="scenario-mark">1</div><p>完整閱讀大型專案，找出重複元件與結構問題。</p></div>
+          <div class="scenario"><div class="scenario-mark">2</div><p>將教材網站改成資料驅動式架構，例如用 JSON 產生頁面。</p></div>
+          <div class="scenario"><div class="scenario-mark">3</div><p>處理複雜 bug、跨多檔案重構、長文件與程式混合任務。</p></div>
+        </div>
+
+        <div class="card">
+          <h3>適合用 Hermes Agent</h3>
+          <div class="scenario"><div class="scenario-mark">1</div><p>長期記住科展前置作業格式、海報提示詞規則與教材網站流程。</p></div>
+          <div class="scenario"><div class="scenario-mark">2</div><p>定期檢查網站、整理更新紀錄、提醒尚未完成的任務。</p></div>
+          <div class="scenario"><div class="scenario-mark">3</div><p>透過 Telegram、Discord、Slack 等平台變成長期助理。</p></div>
+        </div>
+
+        <div class="card">
+          <h3>適合用 ChatGPT</h3>
+          <div class="scenario"><div class="scenario-mark">1</div><p>發想教案、規劃課程、產生文章、潤飾語氣與整理表格。</p></div>
+          <div class="scenario"><div class="scenario-mark">2</div><p>先設計教材內容與資訊架構，再交給 Codex 或 Claude Code 實作。</p></div>
+          <div class="scenario"><div class="scenario-mark">3</div><p>產出 Word、PDF、簡報大綱、科展前置作業與教師研習文件。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <div class="section-title">
+        <div>
+          <h2>建議工作流</h2>
+          <p class="section-note">將三者放進同一條產出流程，而不是互相取代。</p>
+        </div>
+      </div>
+
+      <div class="card timeline">
+        <div class="timeline-item">
+          <div class="step">1</div>
+          <div>
+            <h3>ChatGPT：先規劃內容</h3>
+            <p>用 ChatGPT 發想課程、整理架構、撰寫技術文件、設計教材內容與學生學習單。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="step">2</div>
+          <div>
+            <h3>Codex：把內容變成網站或工具</h3>
+            <p>將內容轉成 GitHub Pages、HTML 簡報、互動教材、README、工具腳本或可部署專案。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="step">3</div>
+          <div>
+            <h3>Claude Code：處理大型重構與複雜除錯</h3>
+            <p>當專案變大、檔案變多、需要長脈絡分析與跨檔案重構時，再使用 Claude Code。</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="step">4</div>
+          <div>
+            <h3>Hermes Agent：未來轉成長期自動化</h3>
+            <p>等流程穩定後，再讓 Hermes Agent 記住規格、累積 skills，成為長期 AI 管家。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision" style="margin-top: 18px;">
+        <div class="decision-card">
+          <strong>要快速改網站？</strong>
+          選 Codex。
+        </div>
+        <div class="decision-card">
+          <strong>要整理大型專案？</strong>
+          選 Claude Code。
+        </div>
+        <div class="decision-card">
+          <strong>要長期自動化？</strong>
+          選 Hermes Agent。
+        </div>
+        <div class="decision-card">
+          <strong>要先想教案內容？</strong>
+          選 ChatGPT。
+        </div>
+      </div>
+    </section>
+
+    <section id="prompts">
+      <div class="section-title">
+        <div>
+          <h2>可直接使用的 Prompt 範例</h2>
+          <p class="section-note">依工具不同，指令也要不同。</p>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <div class="prompt">
+          <code>【Codex】
+請讀取這個 GitHub Pages 專案，新增一頁「科展研究目的」，維持原本網站風格，並更新 index.html 的連結。完成後請列出修改的檔案。</code>
+        </div>
+
+        <div class="prompt">
+          <code>【Claude Code】
+請完整閱讀這個 science-portal 專案，整理目前網站架構，找出重複元件，並提出可以重構成資料驅動式架構的具體方案。</code>
+        </div>
+
+        <div class="prompt">
+          <code>【Hermes Agent】
+請記住我的科展前置作業格式。未來我只要提供研究題目，就依照研究動機、研究目的、文獻探討、實驗設計、材料工具、紀錄表與參考文獻產生初稿。</code>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="callout">
+        <h2 style="font-size:1.6rem;">最終建議</h2>
+        <p>
+          目前最實際的搭配是：<strong>ChatGPT 負責內容與架構，Codex 負責日常開發，
+          Claude Code 負責大型專案與複雜重構，Hermes Agent 則作為未來長期自動化助理。</strong>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Hermes Agent、Codex、Claude Code 比較技術文件｜RWD HTML 單頁版
+    </footer>
+  </main>
+</body>
+</html>
