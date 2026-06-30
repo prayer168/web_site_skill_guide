@@ -40,6 +40,15 @@
     table{width:100%;border-collapse:collapse;margin:16px 0;background:rgba(22,35,68,.65);border-radius:16px;overflow:hidden}th,td{border:1px solid var(--line);padding:12px 14px;vertical-align:top}th{background:rgba(125,211,252,.12);text-align:left;color:var(--accent2)}.small{font-size:14px;color:var(--muted)}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 9px;margin:2px;color:var(--muted);font-size:13px}.checklist li{margin:8px 0}.footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:14px}.kbd-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.quote{font-size:18px;color:#dbeafe}.ref-list li{margin:10px 0}.mobile-only{display:none}
     @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:36px}.grid-2,.grid-3{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.toc-inner{padding:8px 14px}.wrap{padding:0 16px 48px}.hero{padding-left:16px;padding-right:16px}table{font-size:14px}.desktop-only{display:none}.mobile-only{display:block}}
     @media print{body{background:white;color:#111}.toc,.hero-card{display:none}.card,table,pre{break-inside:avoid;border-color:#ccc;background:white}a{color:#0645ad}}
+    pre{position:relative}
+    pre code{display:block;padding-right:84px}
+    .copy-btn{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:13px;font-weight:700;color:var(--accent);background:rgba(125,211,252,.10);border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;line-height:1;transition:background .15s ease,color .15s ease,border-color .15s ease;opacity:.85}
+    .copy-btn:hover{background:rgba(125,211,252,.20);opacity:1}
+    .copy-btn:active{transform:translateY(1px)}
+    .copy-btn.copied{color:#08101f;background:var(--accent2);border-color:var(--accent2)}
+    .copy-btn svg{width:14px;height:14px;flex:none}
+    @media print{.copy-btn{display:none}}
+    @media(max-width:900px){.copy-btn{font-size:12px;padding:4px 8px}pre code{padding-right:72px}}
   </style>
 </head>
 <body>
@@ -346,5 +355,46 @@ approvals:
       <p>文件用途：教師／開發者建立 Hermes Agent 個人工作流參考。建議搭配實機操作、權限分層與版本控制使用。</p>
     </section>
   </main>
+  <script>
+  (function(){
+    var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    function copyText(text){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise(function(resolve,reject){
+        var ta=document.createElement('textarea');
+        ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+        document.body.appendChild(ta);ta.focus();ta.select();
+        try{document.execCommand('copy');resolve();}catch(e){reject(e);}
+        document.body.removeChild(ta);
+      });
+    }
+    document.querySelectorAll('pre').forEach(function(pre){
+      var code=pre.querySelector('code');
+      if(!code) return;
+      var btn=document.createElement('button');
+      btn.type='button';
+      btn.className='copy-btn';
+      btn.setAttribute('aria-label','複製指令');
+      btn.innerHTML=COPY_SVG+'<span>複製</span>';
+      btn.addEventListener('click',function(){
+        copyText(code.innerText).then(function(){
+          btn.classList.add('copied');
+          btn.innerHTML=CHECK_SVG+'<span>已複製</span>';
+          setTimeout(function(){
+            btn.classList.remove('copied');
+            btn.innerHTML=COPY_SVG+'<span>複製</span>';
+          },1800);
+        }).catch(function(){
+          btn.innerHTML=COPY_SVG+'<span>複製失敗</span>';
+          setTimeout(function(){btn.innerHTML=COPY_SVG+'<span>複製</span>';},1800);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  })();
+  </script>
 </body>
 </html>
