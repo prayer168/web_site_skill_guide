@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>黑熊老師自然科學數位教材中心｜Mr. Black Bear Science Digital Learning Portal</title>
+  <meta name="description" content="黑熊老師自然科學數位教材中心是一個面向國小自然科、科學探究、環境教育與互動數位教材的教學資源入口網站。A bilingual homepage introduction for Mr. Black Bear Science Digital Learning Portal." />
+  <meta name="author" content="陳賢宗（黑熊老師）" />
+  <style>
+    :root {
+      --bg: #f6f4ed;
+      --paper: #fffaf0;
+      --ink: #243027;
+      --muted: #667065;
+      --green: #2f7d50;
+      --deep: #143b2a;
+      --leaf: #dcebd2;
+      --gold: #f2c14e;
+      --line: rgba(36, 48, 39, .14);
+      --shadow: 0 20px 60px rgba(20, 59, 42, .12);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(242, 193, 78, .22), transparent 28rem),
+        radial-gradient(circle at 90% 8%, rgba(47, 125, 80, .18), transparent 26rem),
+        linear-gradient(180deg, #fbf8ef 0%, var(--bg) 42%, #edf4e8 100%);
+      line-height: 1.75;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(246, 244, 237, .82);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      color: var(--deep);
+      letter-spacing: .04em;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--deep);
+      color: white;
+      box-shadow: 0 12px 30px rgba(20, 59, 42, .2);
+      font-size: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav-links a {
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      background: var(--leaf);
+      color: var(--deep);
+    }
+
+    .hero {
+      padding: 76px 0 56px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 42px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(47, 125, 80, .12);
+      color: var(--deep);
+      border: 1px solid rgba(47, 125, 80, .16);
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 18px 0 18px;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: 1.08;
+      letter-spacing: -.05em;
+      color: var(--deep);
+    }
+
+    .hero-lead {
+      font-size: clamp(18px, 2vw, 23px);
+      color: #3d4a40;
+      margin: 0 0 24px;
+      max-width: 780px;
+    }
+
+    .hero-lead-en {
+      color: var(--muted);
+      font-size: 17px;
+      margin-top: 12px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button.primary {
+      background: var(--deep);
+      color: white;
+      box-shadow: 0 18px 34px rgba(20, 59, 42, .22);
+    }
+
+    .button.secondary {
+      background: rgba(255, 250, 240, .78);
+      border-color: var(--line);
+      color: var(--deep);
+    }
+
+    .hero-card {
+      position: relative;
+      padding: 28px;
+      border-radius: var(--radius);
+      background: rgba(255, 250, 240, .84);
+      border: 1px solid rgba(255,255,255,.72);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: -80px -60px auto auto;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: rgba(242, 193, 78, .22);
+    }
+
+    .bear-scene {
+      position: relative;
+      min-height: 360px;
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.65), rgba(220,235,210,.78)),
+        radial-gradient(circle at 35% 28%, rgba(255,255,255,.8), transparent 5rem);
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .bear {
+      width: min(260px, 70%);
+      aspect-ratio: 1;
+      border-radius: 46% 46% 44% 44%;
+      background: #1f2b24;
+      position: relative;
+      box-shadow: inset 0 -26px 0 rgba(0,0,0,.18), 0 24px 50px rgba(20, 59, 42, .18);
+    }
+
+    .bear::before,
+    .bear::after {
+      content: "";
+      position: absolute;
+      top: -28px;
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: #1f2b24;
+      z-index: -1;
+    }
+
+    .bear::before { left: 8px; }
+    .bear::after { right: 8px; }
+
+    .face {
+      position: absolute;
+      inset: 34% 18% auto;
+      height: 42%;
+      border-radius: 44% 44% 52% 52%;
+      background: #f0dfc0;
+    }
+
+    .eye {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      top: 42%;
+      border-radius: 50%;
+      background: #111;
+    }
+
+    .eye.left { left: 36%; }
+    .eye.right { right: 36%; }
+
+    .nose {
+      position: absolute;
+      width: 36px;
+      height: 24px;
+      left: 50%;
+      top: 54%;
+      transform: translateX(-50%);
+      background: #111;
+      border-radius: 50%;
+    }
+
+    .plant, .atom, .book {
+      position: absolute;
+      padding: 10px 13px;
+      border-radius: 16px;
+      background: rgba(255, 250, 240, .9);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 26px rgba(20, 59, 42, .08);
+      font-weight: 800;
+    }
+
+    .plant { left: 20px; bottom: 36px; }
+    .atom { right: 22px; top: 32px; }
+    .book { right: 28px; bottom: 56px; }
+
+    section {
+      padding: 54px 0;
+    }
+
+    .section-title {
+      max-width: 780px;
+      margin-bottom: 26px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.2;
+      color: var(--deep);
+      margin: 0 0 10px;
+      letter-spacing: -.03em;
+    }
+
+    .section-title p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255, 250, 240, .86);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(20, 59, 42, .06);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      color: var(--deep);
+      font-size: 22px;
+    }
+
+    .card p {
+      margin: 0;
+      color: #526056;
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--leaf);
+      font-size: 25px;
+      margin-bottom: 16px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--deep);
+      color: #f8fff6;
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2,
+    .panel h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .panel p {
+      color: rgba(255,255,255,.82);
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .feature strong {
+      display: block;
+      color: white;
+      margin-bottom: 2px;
+    }
+
+    .feature span {
+      color: rgba(255,255,255,.74);
+      font-size: 14px;
+    }
+
+    .bilingual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .language-card {
+      background: rgba(255, 250, 240, .88);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 30px;
+    }
+
+    .language-card h3 {
+      color: var(--deep);
+      margin-top: 0;
+      font-size: 26px;
+    }
+
+    .quote {
+      padding: 28px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(47, 125, 80, .12), rgba(242, 193, 78, .18));
+      border: 1px solid rgba(47, 125, 80, .14);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--deep);
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .meta-item {
+      background: rgba(255, 250, 240, .88);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .meta-item .label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .meta-item .value {
+      color: var(--deep);
+      font-size: 18px;
+      font-weight: 900;
+      margin-top: 4px;
+    }
+
+    .footer {
+      padding: 42px 0 56px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      margin-top: 40px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .source-note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .split,
+      .bilingual {
+        grid-template-columns: 1fr;
+      }
+
+      .grid,
+      .meta {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero {
+        padding-top: 44px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page,
+      .nav-inner {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .nav-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav-links {
+        justify-content: flex-start;
+      }
+
+      .grid,
+      .meta {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card,
+      .language-card,
+      .panel,
+      .card {
+        border-radius: 20px;
+      }
+
+      .bear-scene {
+        min-height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="主選單 Navigation">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="回到首頁">
+        <span class="brand-mark">🐻</span>
+        <span>黑熊老師自然科學數位教材中心</span>
+      </a>
+      <div class="nav-links">
+        <a href="#about">網站介紹</a>
+        <a href="#features">核心特色</a>
+        <a href="#bilingual">Bilingual Intro</a>
+        <a href="#educators">教學應用</a>
+        <a href="https://prayer168.github.io/science-portal/" target="_blank" rel="noopener">進入網站</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <header class="page hero">
+      <div>
+        <span class="eyebrow">🐾 Taiwan Elementary Science · Interactive Digital Learning</span>
+        <h1>把自然課變成可以探索、操作與分享的數位學習入口。</h1>
+        <p class="hero-lead">
+          「黑熊老師自然科學數位教材中心」是一個以國小自然科學教學為核心的互動教材入口網站，
+          整合年級式教材、科學探究、環境教育、創客實作與教師備課管理，協助學生從觀看知識走向動手探索。
+        </p>
+        <p class="hero-lead-en">
+          Mr. Black Bear Science Digital Learning Portal is a curated gateway for elementary science learning,
+          bringing together interactive lessons, inquiry-based resources, environmental education, maker-oriented activities,
+          and teacher-friendly management tools.
+        </p>
+        <div class="cta-row">
+          <a class="button primary" href="https://prayer168.github.io/science-portal/" target="_blank" rel="noopener">進入教材中心 Visit Portal</a>
+          <a class="button secondary" href="https://prayer168.github.io/science-portal-manual/" target="_blank" rel="noopener">查看使用手冊 User Manual</a>
+        </div>
+      </div>
+
+      <aside class="hero-card" aria-label="網站主視覺">
+        <div class="bear-scene">
+          <div class="plant">🌿 生態</div>
+          <div class="atom">⚛ 探究</div>
+          <div class="book">📘 教材</div>
+          <div class="bear" aria-hidden="true">
+            <div class="face"></div>
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="nose"></div>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <section class="page" id="about">
+      <div class="section-title">
+        <h2>網站定位｜Positioning</h2>
+        <p>
+          本首頁介紹依據公開網站與使用手冊現有可查功能重新整理；舊版手冊中固定教材數量不列入新版首頁，避免因持續更新而失準。
+        </p>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <h2>一個為自然教師打造的教材樞紐</h2>
+          <p>
+            網站以「台灣黑熊自然科 · 互動數位教材」為核心識別，將分散在不同網頁、互動模擬、教學活動與數位作品中的教材，
+            重新整理為可瀏覽、可分類、可管理、可備份的教學入口。它不只是連結清單，而是一套教師可持續維護的自然科學教材資料庫。
+          </p>
+          <div class="feature-list">
+            <div class="feature">
+              <div>🧭</div>
+              <div><strong>入口整合</strong><span>將互動教材、教學應用與延伸資源集中管理，降低學生與教師尋找教材的成本。</span></div>
+            </div>
+            <div class="feature">
+              <div>🔬</div>
+              <div><strong>探究導向</strong><span>適合搭配觀察、實驗、資料紀錄、概念建構與科展前置訓練。</span></div>
+            </div>
+            <div class="feature">
+              <div>☁️</div>
+              <div><strong>雲端維護</strong><span>管理資料以雲端同步為核心，方便教材持續更新與備份。</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid" aria-label="網站摘要">
+          <article class="card">
+            <div class="icon">🧒</div>
+            <h3>學生端</h3>
+            <p>透過年級與主題分類快速進入教材，在新分頁開啟互動頁面，支援課堂操作、任務探索與自主學習。</p>
+          </article>
+          <article class="card">
+            <div class="icon">👩‍🏫</div>
+            <h3>教師端</h3>
+            <p>提供授權帳號後台，可新增教材、重新命名、移動分類、刪除、批次操作與類別管理。</p>
+          </article>
+          <article class="card">
+            <div class="icon">📦</div>
+            <h3>資料端</h3>
+            <p>支援 JSON 備份與 Markdown、HTML、PDF、Word 等格式匯出，便於保存、分享與再利用。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="features">
+      <div class="section-title">
+        <h2>核心特色｜Key Features</h2>
+        <p>網站目前呈現的功能重點可歸納為四個層次：教材瀏覽、互動學習、後台管理、資料備份與輸出。</p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <div class="icon">📚</div>
+          <h3>分級分類的教材入口</h3>
+          <p>教材以年級與主題方式組織，學生可依課程單元快速找到對應的互動教材，教師也能依教學進度安排學習任務。</p>
+        </article>
+        <article class="card">
+          <div class="icon">🖱️</div>
+          <h3>互動式學習體驗</h3>
+          <p>教材卡片具備 hover 互動效果與音效提示，強化入口網站的探索感，讓教材瀏覽更接近學習情境而非靜態資料庫。</p>
+        </article>
+        <article class="card">
+          <div class="icon">⚙️</div>
+          <h3>授權式後台管理</h3>
+          <p>管理員可透過指定 Google 帳號登入後台，新增、編輯、移動、刪除教材，並進行批次管理與分類調整。</p>
+        </article>
+        <article class="card">
+          <div class="icon">🗂️</div>
+          <h3>類別與主題彈性擴充</h3>
+          <p>除了預設年級與主題分類，也可新增自訂類別，適合整理科展、研習、AI 教學、環境教育或跨領域專題。</p>
+        </article>
+        <article class="card">
+          <div class="icon">☁️</div>
+          <h3>雲端同步與備份思維</h3>
+          <p>教材資料以雲端同步為主，並提供匯出資料功能，讓教材庫能長期維護、搬移、還原與擴充。</p>
+        </article>
+        <article class="card">
+          <div class="icon">🌐</div>
+          <h3>適合公開分享與校本推廣</h3>
+          <p>以 GitHub Pages 發布，網址清楚、容易分享，適合用於教師社群、公開課、校內自然科教學平台與學生自學入口。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page" id="bilingual">
+      <div class="section-title">
+        <h2>雙語專業介紹｜Professional Bilingual Introduction</h2>
+        <p>以下文字可直接放在網站首頁、簡報、計畫書或對外介紹頁。</p>
+      </div>
+
+      <div class="bilingual">
+        <article class="language-card">
+          <h3>中文介紹</h3>
+          <p>
+            黑熊老師自然科學數位教材中心是一個專為國小自然科學學習而設計的互動式教材入口網站。
+            網站以「分類清楚、操作直覺、持續更新」為核心，整合自然科學、科學探究、環境教育、創客實作與數位互動教材，
+            協助教師快速安排課堂任務，也讓學生能依照年級、主題或學習需求進入適合的教材。
+          </p>
+          <p>
+            這個平台的價值不只在於收藏教材，更在於建立一套可維護、可擴充、可備份的教學資源系統。
+            透過後台管理、類別調整、批次操作與多格式匯出，教師能把日常教學、研習成果、科展指導、AI 融入教學與跨領域專案，
+            逐步累積成具有校本特色的數位教材資料庫。
+          </p>
+          <p>
+            對學生而言，它是一個探索自然的入口；對教師而言，它是一個備課、分享與知識管理平台；
+            對學校而言，它則是一個能長期沉澱教學成果、推動數位學習與科學教育創新的公開展示窗口。
+          </p>
+        </article>
+
+        <article class="language-card" lang="en">
+          <h3>English Introduction</h3>
+          <p>
+            Mr. Black Bear Science Digital Learning Portal is an interactive resource gateway designed for elementary science education.
+            Built around clear categorization, intuitive access, and continuous growth, the portal brings together science lessons,
+            inquiry-based learning resources, environmental education materials, maker activities, and interactive digital content.
+          </p>
+          <p>
+            More than a collection of links, the portal functions as a sustainable teaching-resource management system.
+            With administrator tools for adding, editing, categorizing, batch-managing, backing up, and exporting learning materials,
+            it supports teachers in transforming classroom practices, workshop outcomes, science fair guidance, AI-integrated lessons,
+            and interdisciplinary projects into an organized digital knowledge base.
+          </p>
+          <p>
+            For students, it is an accessible starting point for exploring science. For teachers, it is a platform for lesson preparation,
+            sharing, and knowledge management. For schools, it can serve as a public-facing showcase of digital learning,
+            science education innovation, and long-term curriculum development.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page" id="educators">
+      <div class="section-title">
+        <h2>教學應用場景｜Educational Use Cases</h2>
+        <p>這個網站特別適合自然科教師、科展指導教師、教師社群與校內數位學習推動者使用。</p>
+      </div>
+
+      <div class="meta">
+        <div class="meta-item">
+          <div class="label">Use Case 01</div>
+          <div class="value">課前預習</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Use Case 02</div>
+          <div class="value">課中互動</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Use Case 03</div>
+          <div class="value">課後延伸</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Use Case 04</div>
+          <div class="value">科展探究</div>
+        </div>
+      </div>
+
+      <div style="height: 20px"></div>
+
+      <div class="quote">
+        從「教材放在哪裡？」走向「學生如何使用教材探索問題？」——這正是黑熊老師自然科學數位教材中心最重要的教學價值。
+      </div>
+    </section>
+
+    <section class="page">
+      <div class="section-title">
+        <h2>建議新版首頁資訊架構｜Recommended Homepage Structure</h2>
+        <p>若要正式改版原網站首頁，可依此順序安排內容。</p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <div class="icon">1</div>
+          <h3>主視覺 Hero</h3>
+          <p>放置網站名稱、雙語標語、進入教材中心按鈕、使用手冊按鈕與網站定位。</p>
+        </article>
+        <article class="card">
+          <div class="icon">2</div>
+          <h3>網站使命 Mission</h3>
+          <p>說明平台如何支援自然科教學、互動學習、探究實作與教材管理。</p>
+        </article>
+        <article class="card">
+          <div class="icon">3</div>
+          <h3>教材分類 Categories</h3>
+          <p>呈現年級、主題、教學應用與未來可擴充分類，但避免寫死教材數量。</p>
+        </article>
+        <article class="card">
+          <div class="icon">4</div>
+          <h3>教師功能 Teacher Tools</h3>
+          <p>介紹新增教材、編輯、批次移動、類別管理、雲端同步與備份匯出。</p>
+        </article>
+        <article class="card">
+          <div class="icon">5</div>
+          <h3>教學應用 Use Cases</h3>
+          <p>描述課前預習、課中互動、課後延伸、科展研究、研習成果整理等場景。</p>
+        </article>
+        <article class="card">
+          <div class="icon">6</div>
+          <h3>聯絡與版權 Contact</h3>
+          <p>保留設計者、Email、教育用途授權說明，並連結原網站與使用手冊。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="page footer-inner">
+      <div>
+        <strong>黑熊老師自然科學數位教材中心</strong><br />
+        Mr. Black Bear Science Digital Learning Portal
+        <div class="source-note">
+          Research date: 2026-06-30. This introduction avoids fixed material counts because the portal is designed to be continuously updated.
+        </div>
+      </div>
+      <div>
+        設計者：陳賢宗（黑熊老師）<br />
+        Email：prayer168@gmail.com<br />
+        © 2026 陳賢宗（黑熊老師）教育用途使用
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
